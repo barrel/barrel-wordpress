@@ -1,0 +1,17 @@
+{{#items}}
+@mixin sprite-{{name}}() {
+  
+  width: round({{px.width}} /2);
+  height: round({{px.height}}/2);
+	background-image: url(../img/sprite-sm.png);
+	background-position: ({{px.offset_x}} / 2) ({{px.offset_y}} / 2);
+  
+  @media (-webkit-min-device-pixel-ratio: 1.5),(min-resolution: 144dpi){
+		
+		background-image: url(../img/sprite.png);
+		background-size: ({{px.total_width}} / 2) ({{px.total_height}} / 2);
+	}
+  
+}
+
+{{/items}}
