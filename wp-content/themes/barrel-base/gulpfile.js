@@ -2,10 +2,12 @@ var gulp = require('gulp');
 var livereload = require('gulp-livereload');
 
 require('./tasks/sass');
+require('./tasks/jscs');
+require('./tasks/jshint');
 require('./tasks/browserify');
 
 /** Defines the "build" task for Gulp. */
-gulp.task('build', ['sass', 'browserify']);
+gulp.task('build', ['sass', 'jscs', 'jshint', 'browserify']);
 
 /** Defines the "dev" task for Gulp. */
 gulp.task('dev', ['sass', 'watchify'], function() {
