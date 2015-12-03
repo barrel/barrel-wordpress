@@ -14,6 +14,7 @@ function initializeModules() {
       var Module = require('modules/'+name);
     } catch(e) {
       var Module = false;
+      console.log(name+' module does not exist.');
     }
 
     // Initialize the module with the calling element
