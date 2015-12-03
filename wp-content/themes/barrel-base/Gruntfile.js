@@ -4,12 +4,12 @@ module.exports = function(grunt) {
 
 	// Load grunt tasks
 
-	require('load-grunt-tasks')(grunt, {pattern: ['grunt-*', 'assemble']});
-	
+	require('load-grunt-tasks')(grunt, {pattern: ['grunt-*']});
+
 	// Configure Grunt tasks
 
 	grunt.initConfig({
-		
+
 		browserify: {
 			options: {
 				browserifyOptions:{
@@ -17,9 +17,9 @@ module.exports = function(grunt) {
 				},
 				preBundleCB: function(b) {
 					b.plugin('minifyify', {
-					 map: 'main.js.map',
-					 output: 'assets/js/main.min.js.map',
-				 });
+						map: 'main.js.map',
+						output: 'assets/js/main.min.js.map',
+					});
 				}
 			},
 			client: {
@@ -27,35 +27,79 @@ module.exports = function(grunt) {
 				dest: 'assets/js/main.min.js',
 			}
 		},
-		
+
+		copy: {
+			all: {
+				files: [
+					{
+						expand: true,
+						flatten: true,
+						cwd: 'node_modules/',
+						src: [
+							'isotope-layout/dist/isotope.pkgd.min.js',
+							'slick-carousel/slick/slick.min.js',
+							'waypoints/lib/jquery.waypoints.min.js'
+						],
+						dest: 'src/js/vendors/'
+					}
+				]
+			}
+		},
+
+		webfont: {
+			icons: {
+				src: "src/icons/*.svg",
+				dest: "assets/fonts/site-icons",
+				destCss: "src/sass/_inc/fonts",
+				options: {
+					stylesheet: "scss",
+					relativeFontPath: "../fonts/site-icons",
+					types: "eot,woff,ttf,svg",
+					templateOptions: {
+						baseClass: "icon",
+						classPrefix: "icon-"
+					}
+				}
+			}
+		},
+
 		uglify: {
 			compress: {
 				files: {
-					'assets/js/vendor.min.js': [
-						'src/js/vendor/jquery/dist/jquery.js',
-						'src/js/vendor/underscore/underscore.js',
-						'src/js/vendor/bezier-easing/bezier-easing.js',
-						'src/js/vendor/fancybox/source/jquery.fancybox.js',
-						'src/js/vendor/jquery-form/jquery.form.js',
-						'src/js/vendor/jquery.easing/js/jquery.easing.js',
-						'src/js/vendor/jquery.transit/jquery.transit.js',
-						'src/js/vendor/jquery.stellar/jquery.stellar.js',
-						'src/js/vendor/simpleStorage/simpleStorage.js',
-						'src/js/vendor/waypoints/waypoints.js',
-						'src/js/vendor/slick-carousel/slick/slick.min.js',
-						'src/js/vendor/jquery.scrollTo/jquery.scrollTo.min.js',
-						'src/js/vendor--non-bower/rAF.js',
-						'src/js/vendor--non-bower/CF7_scripts.js'
-					]
+					'assets/js/vendor.min.js': ['src/js/vendors/**/*.js']
 				},
 				options: {
 					mangle: true
 				}
 			}
 		},
-		
-		sass: { 
-			 theme: {			 
+
+        jshint: {
+			// define the files to lint
+			files: ['Gruntfile.js', 'src/js/**/*.js', '!src/js/**/*.min.js'],
+			// configure JSHint (documented at http://www.jshint.com/docs/)
+			options: {
+				// more options here if you want to override JSHint defaults
+				globals: {
+					jQuery: true,
+					console: true,
+					module: true
+				}
+			}
+		},
+
+		jscs: {
+			src: [ "Gruntfile.js", "src/js/**/*.js", "!src/js/**/*.min.js" ],
+			options: {
+				config: ".jscsrc",
+				esnext: false, // If you use ES6 http://jscs.info/overview.html#esnext
+				verbose: true, // If you need output with rule names http://jscs.info/overview.html#verbose
+				fix: false // Autofix code style violations when possible.
+			}
+		},
+
+		sass: {
+			 theme: {
 				 options: {
 					 style: 'compressed'
 				 },
@@ -72,87 +116,50 @@ module.exports = function(grunt) {
 				}
 			}
 		},
-		
+
 		autoprefixer: {
 			options: {
 				map: true,
-				browsers: ['> 1%', 'last 4 versions', 'Firefox ESR', 'ie 8', 'ie 9']
+				browsers: ['> 1%', 'last 4 versions', 'ie 9']
 			},
 			dist: {
 				src: 'assets/css/styles.min.css',
 				dest: 'assets/css/styles.min.css'
 			}
 		},
-		
-		image_resize: {
-			 options: {
-				width: '50%'
-			},
-			resized: {
-				files: [
-					{'assets/img/sprite-sm.png': 'assets/img/sprite.png'}
-				]
-			},
-		},
-		
-		sprite:{
-			ui: {
-				engine: 'pngsmith',
-				algorithm: 'binary-tree',
-				src: 'src/sprite/*.png',
-				destImg: 'assets/img/sprite.png',
-				imgPath: '../../../img/sprite.png',
-				cssTemplate: 'src/template/sprite.less.mustache',
-				destCSS: 'src/sass/_theme/global/sprite.scss',
-				padding: 5
-			}
-		},
 
 		watch: {
-			 sass_theme: {
+			sass_theme: {
 				options:{
 					livereload: true,
 					reload: true,
-				 	spawn: false
+					spawn: false
 				},
 				files: ['src/sass/**/*.scss'],
 				tasks: ['sass:theme', 'autoprefixer']
-			 },
-			sprite: {
-				options: {
-					livereload: true
-				},
-				files: ['src/sprite/*.png', 'src/template/sprite.less.mustache'],
-				tasks: ['sprite']
-			},
-			image_resize: {
-				options: {
-					livereload: true
-				},
-				files: ['assets/img/sprite.png'],
-				tasks: ['image_resize']
 			},
 			browserify: {
 				options: {
 					livereload:true,
 					spawn: false
 				},
-				files: ['src/js/**/*.js'],
-				tasks: ['browserify']
+				files: ['<%= jshint.files %>'],
+				tasks: ['jshint', 'browserify']
 			}
 		}
 	});
 
 	grunt.registerTask('build', [
-		'sprite',
-		'image_resize',
+		'webfont',
 		'sass',
 		'autoprefixer',
-		'browserify'
+		'copy',
+		'browserify',
+		'uglify'
 	]);
 
 	grunt.registerTask('dev', [
-	 	'build',
+		'build',
 		'watch',
 	]);
 
