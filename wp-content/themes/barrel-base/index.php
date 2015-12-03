@@ -6,7 +6,6 @@
     the_module('post');
 
   }
-  ?>
-  <?php wp_footer(); ?>
-  </body>
-</html>
+
+  get_footer();
+?>

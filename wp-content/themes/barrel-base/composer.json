@@ -1,5 +1,8 @@
 {
     "name": "barrel-base-theme",
     "authors": [],
-    "require": {}
+    "require": {},
+    "config": {
+        "vendor-dir": "lib/vendor"
+    }
 }

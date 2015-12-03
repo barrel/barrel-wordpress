@@ -2,10 +2,10 @@
   "name": "barrel-base-theme",
   "version": "0.0.0",
   "devDependencies": {
-    "autoprefixer": "^6.1.0",
-    "browserify": "^11.2.0",
+    "autoprefixer": "^6.1.2",
+    "browserify": "^12.0.1",
     "browserify-shim": "^3.8.11",
-    "glob": "^5.0.15",
+    "glob": "^6.0.1",
     "gulp": "^3.9.0",
     "gulp-livereload": "^3.8.1",
     "gulp-postcss": "^6.0.1",
@@ -15,7 +15,7 @@
     "gulp-util": "^3.0.7",
     "minifyify": "^7.1.0",
     "pretty-hrtime": "^1.0.1",
-    "watchify": "^3.6.0"
+    "watchify": "^3.6.1"
   },
   "browserify-shim": {
     "jquery": "global:jQuery"
