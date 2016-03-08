@@ -5,7 +5,7 @@ var $ = require('jquery');
  * and calls the corresponding script
  */
 function initializeModules() {
-  var modules = container.querySelectorAll('[data-module-init]');
+  var modules = document.querySelectorAll('[data-module-init]');
 
   for (var i = 0; i < modules.length; i++) {
     var el = modules[i];
