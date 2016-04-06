@@ -12,13 +12,13 @@ add_action( 'wp_enqueue_scripts', function() {
   $theme_ver = $theme->version;
 
    wp_enqueue_style( 'main',
-    get_template_directory_uri().'/styles/main.min.css',
+    get_template_directory_uri().'/assets/css/main.min.css',
     array(),
     $theme_ver
   );
 
   wp_enqueue_script( 'main',
-    get_template_directory_uri().'/scripts/main.min.js',
+    get_template_directory_uri().'/assets/js/main.min.js',
     array( 'jquery' ),
     $theme_ver,
     true
