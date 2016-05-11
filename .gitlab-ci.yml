@@ -1,0 +1,17 @@
+image: node:slim
+before_script:
+  - cd ./wp-content/themes/columbia-entrepreneur && npm set progress=false && npm install
+  - npm install -g gulp
+stages:
+  - build
+  - test
+job1:
+  stage: build
+  only:
+    - master
+  script:
+    - gulp build
+job2:
+  stage: test
+  script:
+    - gulp validate

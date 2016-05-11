@@ -1,6 +1,6 @@
 // Imports from src directory
-@import "variables";
-@import "typography";
+@import "base/variables";
+@import "base/typography";
 
 // Imports from module folders (Paths are expanded within Gulp task)
 @import "modules/post";
