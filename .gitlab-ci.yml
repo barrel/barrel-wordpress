@@ -1,6 +1,6 @@
 image: node:slim
 before_script:
-  - cd ./wp-content/themes/columbia-entrepreneur && npm set progress=false && npm install
+  - cd ./wp-content/themes/barrel-base && npm set progress=false && npm install
   - npm install -g gulp
 stages:
   - build
@@ -14,4 +14,4 @@ job1:
 job2:
   stage: test
   script:
-    - gulp validate
+    - gulp validatewe
