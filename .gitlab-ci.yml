@@ -14,4 +14,4 @@ job1:
 job2:
   stage: test
   script:
-    - gulp validatewe
+    - gulp validate
