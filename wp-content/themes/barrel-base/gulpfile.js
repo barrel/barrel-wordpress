@@ -7,6 +7,7 @@ require( "./tasks/jscs" );
 require( "./tasks/jshint" );
 require( "./tasks/browserify" );
 require( "./tasks/vendors" );
+require( "./tasks/kraken" );
 
 /** Defines the "build" task for Gulp. */
 gulp.task( "build", [ "vendors", "sass", "browserify" ]);
