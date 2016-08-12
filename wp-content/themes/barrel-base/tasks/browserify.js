@@ -27,7 +27,11 @@ function browserifyTask( dev, cb ) {
   var bundleOpts = {
     entries: "./src/js/main.js",
     output: "./assets/js/main.min.js",
-    transform: [ shim ],
+    transform: [
+      [ shim, {
+        global: true
+      } ]
+    ],
     debug: true
   };
 

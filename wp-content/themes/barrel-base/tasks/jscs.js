@@ -1,13 +1,17 @@
 var gulp = require( "gulp" );
 var jscs = require( "gulp-jscs" );
 
-/** the jscs and jshint tasks need improvement */
 gulp.task( "jscs", function() {
-	return gulp.src([ "gulpfile.js", "tasks/*.js", "src/js/**/*.js" ])
-		.pipe( jscs({ fix: true }) )
-		.pipe( jscs.reporter( "jscs-stylish" ) )
-		.pipe( gulp.dest(function( file ) {
-			return file.base;
-		}) )
-    .pipe( jscs.reporter( "fail") );
+  var gutil = require("gulp-util");
+  var targets = [ "./gulpfile.js", "./tasks/*.js", "./src/js/**/*.js", "!./src/js/vendor/*.js" ];
+  return gulp.src( targets, { base: "./" })
+    .pipe( jscs({ fix: true }) )
+    .pipe( jscs.reporter() )
+    .pipe( jscs.reporter( "fail" ).on( "error", function( e ) {
+      new gutil.PluginError({
+        plugin: "JSCS",
+        message: e.message
+      });
+    }) )
+    .pipe( gulp.dest( "./" ) );
 });

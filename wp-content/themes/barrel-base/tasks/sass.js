@@ -14,7 +14,7 @@ gulp.task( "sass", function() {
     importer: moduleStylesImporter
   };
 
-  return gulp.src( "./src/scss/*.scss" )
+  return gulp.src( "./src/scss/**/*.scss" )
     .pipe( sourcemaps.init() )
     .pipe( sass( sassOpts ).on( "error", sass.logError ) )
     .pipe( postcss([ autoprefixer() ]) )

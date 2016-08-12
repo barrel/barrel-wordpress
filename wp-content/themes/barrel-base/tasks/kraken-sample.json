@@ -1,0 +1,6 @@
+{
+  "key": "KRAKEN_API_KEY",
+  "secret": "KRAKEN_API_SECRET",
+  "lossy": true,
+  "concurrency": 6
+}
