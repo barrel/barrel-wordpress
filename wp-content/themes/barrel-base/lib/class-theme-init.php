@@ -67,22 +67,6 @@ class jacobspillow_Theme extends BB_Theme {
 	 */
 	public function add_post_types(){
 		$types = array(
-			array(
-				'name' => 'call-to-action',
-				'plural' => 'Calls to Action',
-				'singular' => 'Call to Action',
-				'icon' => 'dashicons-megaphone',
-				'slug' => 'call-to-action',
-				'exclude_from_search' => true
-			),
-			array(
-				'name' => 'people',
-				'plural' => 'People',
-				'singular' => 'Person',
-				'icon' => 'dashicons-admin-users',
-				'slug' => 'people',
-				'exclude_from_search' => false
-			),
 		);
 
 		foreach( $types as $type ) {
