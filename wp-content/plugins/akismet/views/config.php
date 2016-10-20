@@ -12,28 +12,24 @@
 					<a href="<?php echo esc_url( Akismet_Admin::get_page_url( 'stats' ) ); ?>" class=""><?php esc_html_e( 'Summaries' , 'akismet');?></a>
 				</span>
 
-				<iframe allowtransparency="true" scrolling="no" frameborder="0" style="width: 100%; height: 215px; overflow: hidden;" src="<?php printf( '//akismet.com/web/1.0/snapshot.php?blog=%s&api_key=%s&height=180&locale=%s', urlencode( get_bloginfo('url') ), Akismet::get_api_key(), get_locale() );?>"></iframe>
+				<iframe allowtransparency="true" scrolling="no" frameborder="0" style="width: 100%; height: 215px; overflow: hidden;" src="<?php printf( '//akismet.com/web/1.0/snapshot.php?blog=%s&api_key=%s&height=180&locale=%s', urlencode( get_option( 'home' ) ), Akismet::get_api_key(), get_locale() );?>"></iframe>
 				<ul>
 					<li>
 						<h3><?php esc_html_e( 'Past six months' , 'akismet');?></h3>
 						<span><?php echo number_format( $stat_totals['6-months']->spam );?></span>
-						<?php esc_html_e( 'Spam blocked' , 'akismet');?>
+						<?php echo esc_html( _n( 'Spam blocked', 'Spam blocked', $stat_totals['6-months']->spam, 'akismet' ) ); ?>
 					</li>
 					<li>
 						<h3><?php esc_html_e( 'All time' , 'akismet');?></h3>
 						<span><?php echo number_format( $stat_totals['all']->spam );?></span>
-						<?php esc_html_e( 'Spam blocked' , 'akismet');?>
+						<?php echo esc_html( _n( 'Spam blocked', 'Spam blocked', $stat_totals['all']->spam, 'akismet' ) ); ?>
 					</li>
 					<li>
 						<h3><?php esc_html_e( 'Accuracy' , 'akismet');?></h3>
-						<span><?php echo $stat_totals['all']->accuracy; ?>%</span>
-						<?php printf(
-							esc_html(
-								_n( '%s missed spam, %s false positive', '%s missed spam, %s false positives', $stat_totals['all']->false_positives , 'akismet')
-							),
-							number_format( $stat_totals['all']->missed_spam ),
-							number_format( $stat_totals['all']->false_positives )
-						); ?>
+						<span><?php echo floatval( $stat_totals['all']->accuracy ); ?>%</span>
+						<?php printf( _n( '%s missed spam', '%s missed spam', $stat_totals['all']->missed_spam, 'akismet' ), number_format( $stat_totals['all']->missed_spam ) ); ?>
+						|
+						<?php printf( _n( '%s false positive', '%s false positives', $stat_totals['all']->false_positives, 'akismet' ), number_format( $stat_totals['all']->false_positives ) ); ?>
 					</li>
 				</ul>
 				<div class="clearfix"></div>
@@ -67,7 +63,7 @@
 												<th class="akismet-api-key" width="10%" align="left" scope="row"><?php esc_html_e('API Key', 'akismet');?></th>
 												<td width="5%"/>
 												<td align="left">
-													<span class="api-key"><input id="key" name="key" type="text" size="15" value="<?php echo esc_attr( get_option('wordpress_api_key') ); ?>" class="regular-text code <?php echo $akismet_user->status;?>"></span>
+													<span class="api-key"><input id="key" name="key" type="text" size="15" value="<?php echo esc_attr( get_option('wordpress_api_key') ); ?>" class="<?php echo esc_attr( 'regular-text code ' . $akismet_user->status ); ?>"></span>
 												</td>
 											</tr>
 											<?php endif; ?>
@@ -170,7 +166,7 @@
 											<th scope="row" align="left"><?php esc_html_e( 'Subscription Type' , 'akismet');?></th>
 											<td width="5%"/>
 											<td align="left">
-												<span><?php echo $akismet_user->account_name; ?></span>
+												<span><?php echo esc_html( $akismet_user->account_name ); ?></span>
 											</td>
 										</tr>
 										<tr>
