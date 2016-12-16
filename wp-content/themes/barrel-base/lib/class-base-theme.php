@@ -10,9 +10,10 @@ abstract class BB_Theme {
 	 * @return  void
 	 */
 	public function __construct(){
-		add_action( 'init', array(&$this, 'add_post_types') );
-		add_action( 'init', array(&$this, 'add_taxonomies') );
-		add_action( 'after_setup_theme', array(&$this, 'add_theme_supports') );
+		$this->remove_emojis();
+		add_action( 'init', array( &$this, 'add_post_types' ) );
+		add_action( 'init', array( &$this, 'add_taxonomies' ) );
+		add_action( 'after_setup_theme', array( &$this, 'add_theme_supports' ) );
 
 		add_filter( 'acf/settings/save_json', array( &$this, 'acf_json_save_point' ) );
 		add_filter( 'acf/settings/load_json', array( &$this, 'acf_json_load_point' ) );
@@ -44,6 +45,15 @@ abstract class BB_Theme {
 	 */
 	public function acf_json_load_point($paths) {
 		return array($this->acf_json_path);
+	}
+
+	public function remove_emojis() 
+	{
+		remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+		remove_action( 'wp_print_styles', 'print_emoji_styles' );
+
+		remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
+		remove_action( 'admin_print_styles', 'print_emoji_styles' );
 	}
 
 	/**
