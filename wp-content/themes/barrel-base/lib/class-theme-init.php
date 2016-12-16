@@ -12,9 +12,8 @@ class Base_Theme extends BB_Theme {
 		add_action( 'after_setup_theme', array( &$this, 'register_menus' ) );
 		add_filter( 'image_size_names_choose', array( &$this, 'image_size_names_choose' ) );
 		add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_scripts_and_styles' ) );
-		add_action( 'wp_head', array( &$this, 'inline_typekit' ) );
-		add_action( 'wp_head', array( &$this, 'inline_leadacity' ) );
-		add_action(	'wp_head', array( &$this, 'site_favicons' ) );
+
+		add_action( 'wp_head', array( &$this, 'print_scripts' ) );
 		add_action( 'admin_menu', array( &$this, 'remove_default_post_type' ) );
 		add_action( 'wp_footer', array( &$this, 'the_social_plugins' ) );
 
@@ -34,8 +33,8 @@ class Base_Theme extends BB_Theme {
 
 		add_filter( 'excerpt_more', array( &$this, 'custom_excerpt_end' ) );
 		add_filter( 'excerpt_length', array( &$this, 'custom_excerpt_length' ), 999 );
-		remove_filter ( 'acf_the_content', array( &$this, 'wpautop') );
-		add_filter(	'default_page_template_title', array(&$this, 'rename_default_template' ) );
+		remove_filter( 'acf_the_content', array( &$this, 'wpautop') );
+		add_filter( 'default_page_template_title', array(&$this, 'rename_default_template' ) );
 
 		add_filter( 'searchwp_custom_fields', array(&$this, 'index_acf_fields' ) );
 
@@ -154,7 +153,7 @@ class Base_Theme extends BB_Theme {
 	 * Rename Default Template to Basic Page
 	 */
 	public function rename_default_template() {
-		return __('Basic Page', 'jacobs-pillow');
+		return __('Basic Page', 'base');
 	}
 
 	/**
@@ -238,46 +237,31 @@ class Base_Theme extends BB_Theme {
 	 */
 	public function image_size_names_choose( $sizes ) {
 		return array_merge( $sizes, array(
-			'jacobspillow-small' => __( 'Small Image', 'jacobspillow' ),
-			'jacobspillow-medium' => __( 'Medium Image', 'jacobspillow' ),
-			'jacobspillow-large' => __( 'Large Cover Image', 'jacobspillow' ),
-			'jacobspillow-tiny' => __( 'Tiny Image', 'jacobspillow' ),
-			'jacobspillow-calendar-filter' => __( 'Calendar Filter Image', 'jacobspillow' )
+			'base-small' => __( 'Small Image', 'base' ),
+			'base-medium' => __( 'Medium Image', 'base' ),
+			'base-large' => __( 'Large Cover Image', 'base' ),
+			'base-tiny' => __( 'Tiny Image', 'base' ),
+			'base-calendar-filter' => __( 'Calendar Filter Image', 'base' )
 		) );
 	}
 
 	/**
 	 * Print inline scripts and styles
 	 */
-	/*	public function print_scripts() {
-			global $pagenow;
-
-		}*/
-
-	public function inline_typekit() {
-		?>
-		<script data-cfasync="false" src="https://use.typekit.net/yoh1xmh.js"></script>
-		<script data-cfasync="false">try{Typekit.load({ async: true });}catch(e){}</script>
-		<?php
+	public function print_scripts() {
+		global $pagenow;
+		$this->inline_typekit();
+		$this->site_favicons();
 	}
 
-// Print inline leadacity
-
-	function inline_leadacity() {
+	public function inline_typekit() {
+		$typekit_id = "";
+		if ( empty( $typekit_id ) ) {
+			return;
+		}
 		?>
-		<script type="text/javascript">
-
-		var _lac = { "clientID" : 30 };
-		    
-		(function(){
-		    var lcJS = document.createElement("script"); 
-		    lcJS.type = "text/javascript"; lcJS.async = true;
-		    lcJS.src = "//www.leadacity.net/load/app/js/" + Math.random().toString().slice(2,11);
-		    document.getElementsByTagName("head")[0].appendChild(lcJS);
-		})();
-
-		</script>
-
+		<script data-cfasync="false" src="https://use.typekit.net/<?php echo $typekit_id; ?>.js"></script>
+		<script data-cfasync="false">try{Typekit.load({ async: true });}catch(e){}</script>
 		<?php
 	}
 
@@ -318,19 +302,19 @@ class Base_Theme extends BB_Theme {
 	public function register_image_sizes() {
 
 		// large image size is used for full-width cover images
-		add_image_size( 'jacobspillow-large', 1440 );
+		add_image_size( 'base-large', 1440 );
 
 		// medium image size is used for featured post thumbnails in list context
-		add_image_size( 'jacobspillow-medium', 450 );
+		add_image_size( 'base-medium', 450 );
 
 		// small image size is used for smaller items such as logos
-		add_image_size( 'jacobspillow-small', 225 );
+		add_image_size( 'base-small', 225 );
 
 		// tiny image size is used for thumbnails (especially in WYSIWYG)
-		add_image_size( 'jacobspillow-tiny', 100 );
+		add_image_size( 'base-tiny', 100 );
 
 		// thumbnail image used for calendar filters
-		add_image_size( 'jacobspillow-calendar-filter', 200, 113, true );
+		add_image_size( 'base-calendar-filter', 200, 113, true );
 	}
 
 	/**
