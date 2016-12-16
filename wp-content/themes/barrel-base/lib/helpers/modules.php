@@ -25,5 +25,5 @@ function the_module( $module_name, $args = array() ) {
 
   extract( $args, EXTR_SKIP );
 
-  include( "/modules/$module_name/$module_name.php" );
+	include( TEMPLATEPATH . "/modules/$module_name/$module_name.php" );
 }

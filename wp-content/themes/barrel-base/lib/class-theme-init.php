@@ -7,7 +7,7 @@ class Base_Theme extends BB_Theme {
 
 	public function __construct(){
 		parent::__construct();
-		$this->acf_json_path = THEME_DIR . '/acf-json';
+		$this->acf_json_path = TEMPLATEPATH . '/acf-json';
 
 		add_action( 'after_setup_theme', array( &$this, 'register_menus' ) );
 		add_filter( 'image_size_names_choose', array( &$this, 'image_size_names_choose' ) );

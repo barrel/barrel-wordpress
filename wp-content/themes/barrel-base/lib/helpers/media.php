@@ -214,7 +214,7 @@ function _structure_svg($data,$responsive){
 }
 
 function _get_svg($name){
-  $dir  = THEME_DIR.'/assets/img/';
+  $dir  = TEMPLATEPATH.'/assets/img/';
   $path = $dir.$name.'.svg';
 
   if ( $name && file_exists($path) ){
