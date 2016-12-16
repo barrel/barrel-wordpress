@@ -1,7 +1,5 @@
 <?php
 
-require_once( __DIR__ . '/helpers/wordpress.php' );
-
 abstract class BB_Theme {
 	static $text_domain;
 	public $acf_json_path;

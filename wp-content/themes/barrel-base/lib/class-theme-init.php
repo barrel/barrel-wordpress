@@ -1,12 +1,9 @@
 <?php
 
-require_once( __DIR__ . '/helpers/scripts.php' );
-require_once( __DIR__ . '/helpers/media.php' );
-require_once( __DIR__ . '/helpers/acf.php' );
 require_once( __DIR__ . '/class-base-theme.php' );
 
-class jacobspillow_Theme extends BB_Theme {
-	static $text_domain = "jacobspillow";
+class Base_Theme extends BB_Theme {
+	static $text_domain = "base";
 
 	public function __construct(){
 		parent::__construct();
@@ -473,5 +470,5 @@ class jacobspillow_Theme extends BB_Theme {
 	}
 }
 
-new jacobspillow_Theme();
+new Base_Theme();
 
