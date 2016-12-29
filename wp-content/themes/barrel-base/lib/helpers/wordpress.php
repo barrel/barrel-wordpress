@@ -1,27 +1,18 @@
 <?php
 
 /** 
- * Theme PATH
- */	
-if (!defined('THEME_DIR')) {
-	/**
-	 * @internal TEMPLATEPATH is the WordPress-defined constant for the 
-	 * theme's directory. should we be using this?
-	 */
-	define( 'THEME_DIR', get_template_directory() );
-}
-/** 
  * Theme URI
+ * @internal for theme path, use TEMPLATEPATH constant
  */	
-if (!defined('THEME_URI')) {
+if ( !defined( 'THEME_URI' ) ) {
 	define( 'THEME_URI', get_template_directory_uri() );
 }
 
 /** 
  * Components PATH
  */	
-if (!defined('COMPONENTS_DIR')) {
-	define('COMPONENTS_DIR',THEME_DIR .'/components');
+if ( !defined( 'COMPONENTS_DIR' ) ) {
+	define( 'COMPONENTS_DIR', TEMPLATEPATH . '/components' );
 }
 
 /** 
