@@ -1,1 +1,3 @@
-##ACF JSON Synchronization
+# ACF JSON Synchronization
+
+Advanced Custom Fields Pro 5 for WordPress allows synchronization of all fields and field groups. To function properly, this folder should be writable by the webserver process user. Depending on the system, either the `_www` or `apache` user must be added to the system group that can modify this directory and it's contents. Do not change permissions to 777 and commit those changes. If you have trouble with ACL, you can change permissions to 777 until you make the changes, but you should switch the permissions back to 644 before committing. 
