@@ -144,6 +144,69 @@ define('WPLANG', '');
  * You may want to examine $_ENV['PANTHEON_ENVIRONMENT'] to set this to be
  * "true" in dev, but false in test and live.
  */
+if ( !empty( $_SERVER['PANTHEON_ENVIRONMENT'] ) && ( "cli" !== php_sapi_name() ) ) {
+  if ( "live" !== $_SERVER['PANTHEON_ENVIRONMENT'] ) {
+   // set debug to true in all environments except live
+   if ( !defined( 'WP_DEBUG' ) ) {
+      define('WP_DEBUG', true);
+    }
+  }
+  // Redirect Logic
+  $primary_domain = "example.org";
+  $redirect_domains = array(
+    "live-example.pantheonsite.io",
+  );
+  $protocol = "https";
+  $_http_host = str_replace( "www.", "", $_SERVER['HTTP_HOST'] );
+  $_request_uri = $_SERVER['REQUEST_URI'];
+  $_url_redirect = "$protocol://www." . $primary_domain . $_request_uri;
+  
+  if ( in_array( $_SERVER['PANTHEON_ENVIRONMENT'], array( "live" ) ) ) {
+    require_once(dirname(__FILE__) . '/pantheon-redirects.php');
+
+    // automatically redirect if host other than primary domain is detected
+    if ( in_array( $_http_host, $redirect_domains ) ) {
+      header("HTTP/1.1 301 Moved Permanently");
+      header("Location: $_url_redirect");
+      exit;
+    }
+
+    // automatically redirect specific paths from old site
+    foreach( $one_to_ones as $requestPath => $redirect_to ) {
+      if ( strpos( $_request_uri, $requestPath ) !== false ) {
+        header("HTTP/1.1 301 Moved Permanently"); 
+        header("Location: $redirect_to"); 
+        exit;
+      }
+    }
+
+    // automatically redirect based on rules
+    foreach( $regex_rules as $regex => $replace ) {
+      if ( @preg_match( $regex, $_request_uri ) ) {
+        $replacement = preg_replace( $regex, $replace, $_request_uri, -1 );
+        header("HTTP/1.1 301 Moved Permanently"); 
+        header("Location: $replacement"); 
+        exit;
+      }
+    }
+
+    // upgrade to https if headers forwarded from CDN like Cloudflare and terminating https
+    if ( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) 
+      && 'https' == strtolower( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) ) {
+      $_SERVER['HTTPS'] = 'on';
+    }
+    $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
+    $_SERVER['SERVER_PORT'] = ( isset( $_SERVER['HTTP_X_SSL'] ) && 'ON' === strtoupper( $_SERVER['HTTP_X_SSL'] ) ) ? 443 : 80;
+
+    // Require HTTPS, www.
+    if ( $_SERVER['SERVER_PORT'] !== 443 ) {
+      header("HTTP/1.1 301 Moved Permanently");
+      header("Location: $_url_redirect");
+      exit();
+    }
+
+  }
+}
 if ( ! defined( 'WP_DEBUG' ) ) {
     define('WP_DEBUG', false);
 }
