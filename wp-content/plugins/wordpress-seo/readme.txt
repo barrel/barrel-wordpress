@@ -4,9 +4,9 @@ Donate link: https://yoast.com/
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: SEO, XML sitemap, Google Search Console, Content analysis, Readability
-Requires at least: 4.4
+Requires at least: 4.6
 Tested up to: 4.7
-Stable tag: 4.0
+Stable tag: 4.7
 
 Improve your WordPress SEO: Write better content and have a fully optimized WordPress site using the Yoast SEO plugin.
 
@@ -29,7 +29,7 @@ Using the snippet preview, you can see a rendering of what your post or page wil
 = Page Analysis =
 The Yoast SEO plugins [Page Analysis](https://yoast.com/content-seo-wordpress-linkdex/) functionality checks simple things you're bound to forget. It checks, for instance, if you have images in your post and whether they have an alt tag containing the focus keyword for that post. It also checks whether your posts are long enough, whether you've written a meta description and if that meta description contains your focus keyword, if you've used any subheadings within your post, etc. etc.
 
-The plugin also allows you to write meta titles and descriptions for all your category, tag and custom taxonomy archives, giving you the option to further optimize those pages.
+The plugin alsgruo allows you to write meta titles and descriptions for all your category, tag and custom taxonomy archives, giving you the option to further optimize those pages.
 
 Combined, this plugin makes sure that your content is the type of content search engines will love!
 
@@ -124,45 +124,30 @@ You'll find answers to many of your questions on [kb.yoast.com](https://kb.yoast
 
 == Changelog ==
 
-= 4.0.0 =
+= 4.7.0 =
 
-Release Date: December 13th, 2016
+Release Date: May 2nd, 2017
 
-* Enhancements:
-	* License manager: Add a get_extension_url method to Yoast_Product to retrieve the URL where people can extend/upgrade their license.
-	* License manager: Add a set_extension_url method to Yoast_Product to set the URL where people can extend/upgrade their license.
-	* Updates the credits page.
-	* Improves plugin naming in translations.
-	* Improves translations by making texts more consistent.
-	* Displays the translations in the language chosen by the user in stead of using only the site language.
-	* Improves the styling of the banners.
-	* Adds passive voice for German.
-	* Adds more transition words for French.
-	* Improves feedback strings for the meta description length assessment.
-	* Improves matching of the keyword in the first paragraph.
-	* Improves the snippet preview to match the styling of googles snippet.
+* Enhancements
+	* Adds transition words for Italian.
+	* Adds a new check in the analysis for the presence of at least one internal link.
 
-* Bugfixes:
-	* Fixes a compatibility bug with the onboarding wizard and Polylang, and possibly more plugins that prevented the configuration wizard from working properly.
-	* Fixes a bug where post format archives showed up in sitemap when disabled.
-	* Fixes a bug where an old update notice would not be removed.
-	* Fixes a bug where keywords with periods where not highlighted in the snippet.
-	* Fixes a bug where the title of the metabox wasn't displayed correctly.
+* Bugfixes
+	* Fixes a bug where the `_yst_is_cornerstone` meta value was not prefixed, causing some themes/plugins to output this meta value.
+	* Fixes a bug where style and script elements were parsed for the prominent words.
+	* Fixes a bug where the cursor pointer was in front of the metabox.
 
-= 3.9.0 =
+= 4.6.0 =
 
-Release Date: November 29nd, 2016
+Release Date: April 11th, 2017
 
-* Enhancements:
-	* Updates the banners on the admin pages.
-	* Improves accessibility by moving the Google Search Console reload button from the header.
-	* Allow for other plugins and themes to more easily add html namespaces through the new wpseo_html_namespaces filter.
-	* Prevent conflicts with other plugins/themes which also add html namespaces.
+* Enhancements
+	* Improves a language string, props [Sören Wrede](https://github.com/Soean).
+	* Improves the configuration wizard with clear information about the configuration.
+	* Adds the ability to mark posts as cornerstone content.
 
-* Bugfixes:
-	* Adds a check to prevent a "Cannot read property 'body' of undefined" error with tinyMCE that occurred with Visual Composer and some themes.
-	* Fixes a bug that prevented bulk actions to work in the Google Search Console.
-	* Fixed incorrect timezone for zero offset case (Atlantic/Azores instead of UTC).
+* Bugfixes
+	* Fixes an issue in combination with WooCommerce 3.0 where the plugins would load incompatible select2 versions.
 
 = Earlier versions =
 
