@@ -3,7 +3,7 @@
 Plugin Name: Advanced Custom Fields PRO
 Plugin URI: https://www.advancedcustomfields.com/
 Description: Customise WordPress with powerful, professional and intuitive fields
-Version: 5.5.2
+Version: 5.5.12
 Author: Elliot Condon
 Author URI: http://www.elliotcondon.com/
 Copyright: Elliot Condon
@@ -58,7 +58,7 @@ class acf {
 			
 			// basic
 			'name'				=> __('Advanced Custom Fields', 'acf'),
-			'version'			=> '5.5.2',
+			'version'			=> '5.5.12',
 						
 			// urls
 			'basename'			=> plugin_basename( __FILE__ ),
@@ -86,12 +86,13 @@ class acf {
 			'enqueue_select2'			=> true,
 			'enqueue_datepicker'		=> true,
 			'enqueue_datetimepicker'	=> true,
-			'select2_version'			=> 3
+			'select2_version'			=> 3,
+			'row_index_offset'			=> 1
 		);
 		
 		
 		// include helpers
-		include_once('api/api-helpers.php');
+		include_once( $this->settings['path'] . 'api/api-helpers.php');
 		
 		
 		// api
@@ -104,8 +105,11 @@ class acf {
 		// core
 		acf_include('core/ajax.php');
 		acf_include('core/cache.php');
-		acf_include('core/fields.php');
+		acf_include('core/compatibility.php');
+		acf_include('core/deprecated.php');
 		acf_include('core/field.php');
+		acf_include('core/fields.php');
+		acf_include('core/form.php');
 		acf_include('core/input.php');
 		acf_include('core/validation.php');
 		acf_include('core/json.php');
@@ -114,7 +118,6 @@ class acf {
 		acf_include('core/loop.php');
 		acf_include('core/media.php');
 		acf_include('core/revisions.php');
-		acf_include('core/compatibility.php');
 		acf_include('core/third_party.php');
 		acf_include('core/updates.php');
 		
@@ -181,16 +184,13 @@ class acf {
 	
 	function init() {
 		
-		// bail early if a plugin called get_field early
+		// bail early if too early
+		// ensures all plugins have a chance to add fields, etc
 		if( !did_action('plugins_loaded') ) return;
 		
 		
 		// bail early if already init
-		if( acf_get_setting('init') ) return;
-		
-		
-		// only run once
-		acf_update_setting('init', true);
+		if( acf_has_done('init') ) return;
 		
 		
 		// vars
@@ -203,7 +203,7 @@ class acf {
 		
 		
 		// set text domain
-		load_textdomain( 'acf', acf_get_path( 'lang/acf-' . get_locale() . '.mo' ) );
+		load_textdomain( 'acf', acf_get_path( 'lang/acf-' . acf_get_locale() . '.mo' ) );
 		
 		
 		// include wpml support
