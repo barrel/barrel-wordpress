@@ -14,13 +14,11 @@ class Base_Theme extends BB_Theme {
 		add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_scripts_and_styles' ) );
 
 		add_action( 'wp_head', array( &$this, 'print_scripts' ) );
-		add_action( 'admin_menu', array( &$this, 'remove_default_post_type' ) );
 		add_action( 'wp_footer', array( &$this, 'the_social_plugins' ) );
 
 		add_filter( 'show_admin_bar', '__return_false' );
 
 		add_action( 'init', array( &$this, 'exclude_attachments_from_search' ) );
-		add_action( 'init', array( &$this, 'add_excerpt_support' ) );
 		add_action( 'init', array( &$this, 'add_cf_support' ) );
 
 		add_shortcode( 'year', array( &$this, 'shortcode_year' ) );
@@ -101,16 +99,6 @@ class Base_Theme extends BB_Theme {
 	}
 
 	/**
-	 * Add support for Excerpt in Page and Events
-	 */
-	public function add_excerpt_support() {
-		add_post_type_support( 'page', 'excerpt' );
-		add_post_type_support( 'event', 'excerpt' );
-		add_post_type_support( 'call-to-action', 'excerpt' );
-		add_post_type_support( 'people', 'excerpt' );
-	}
-
-	/**
 	 * Body class when info bar is active
 	 * @param  array $class Array of classes
 	 * @return array
@@ -120,13 +108,6 @@ class Base_Theme extends BB_Theme {
 			$class[] = ' info-bar-active';
 		}
 		return $class;
-	}
-
-	/**
-	 * Remove default posts
-	 */
-	public function remove_default_post_type() {
-		remove_menu_page('edit.php');
 	}
 
 	/**
@@ -237,11 +218,10 @@ class Base_Theme extends BB_Theme {
 	 */
 	public function image_size_names_choose( $sizes ) {
 		return array_merge( $sizes, array(
-			'base-small' => __( 'Small Image', 'base' ),
-			'base-medium' => __( 'Medium Image', 'base' ),
-			'base-large' => __( 'Large Cover Image', 'base' ),
-			'base-tiny' => __( 'Tiny Image', 'base' ),
-			'base-calendar-filter' => __( 'Calendar Filter Image', 'base' )
+			'tiny'   => __( 'Tiny Image', 'base' ),
+			'small'  => __( 'Small Image', 'base' ),
+			'medium' => __( 'Medium Image', 'base' ),
+			'large'  => __( 'Large Image', 'base' ),
 		) );
 	}
 
@@ -302,19 +282,16 @@ class Base_Theme extends BB_Theme {
 	public function register_image_sizes() {
 
 		// large image size is used for full-width cover images
-		add_image_size( 'base-large', 1440 );
+		add_image_size( 'large', 1440 );
 
 		// medium image size is used for featured post thumbnails in list context
-		add_image_size( 'base-medium', 450 );
+		add_image_size( 'medium', 450 );
 
 		// small image size is used for smaller items such as logos
-		add_image_size( 'base-small', 225 );
+		add_image_size( 'small', 225 );
 
 		// tiny image size is used for thumbnails (especially in WYSIWYG)
-		add_image_size( 'base-tiny', 100 );
-
-		// thumbnail image used for calendar filters
-		add_image_size( 'base-calendar-filter', 200, 113, true );
+		add_image_size( 'tiny', 100 );
 	}
 
 	/**
@@ -322,10 +299,10 @@ class Base_Theme extends BB_Theme {
 	 */
 	public function register_menus() {
 		register_nav_menus( array(
-			'header-primary' => __( 'Header Primary Menu', self::$text_domain ),
+			'header-primary'     => __( 'Header Primary Menu', self::$text_domain ),
 			'header-quick-links' => __( 'Header Quick Links Menu', self::$text_domain ),
-			'footer' => __( 'Footer Menu', self::$text_domain ),
-			'footer-meta' => __( 'Footer Copyright Links', self::$text_domain )
+			'footer'             => __( 'Footer Menu', self::$text_domain ),
+			'footer-meta'        => __( 'Footer Copyright Links', self::$text_domain )
 		) );
 	}
 
@@ -427,10 +404,22 @@ class Base_Theme extends BB_Theme {
 		return $buttons;
 	}
 
+	/**
+	 * Return the excerpt length 
+	 * @param $length 
+	 * @return int
+	 * @internal modify body as necessary
+	 */
 	public function custom_excerpt_length( $length ) {
 		return 25;
 	}
 
+	/**
+	 * Return the excerpt ending string
+	 * @param $more 
+	 * @return string
+	 * @internal modify body as necessary
+	 */
 	public function custom_excerpt_end($more) {
 		return '...';
 	}
