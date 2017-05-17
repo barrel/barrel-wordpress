@@ -194,6 +194,8 @@ class Base_Theme extends BB_Theme {
 	public function enqueue_scripts_and_styles() {
 		$handle = self::$text_domain;
 		$git_version = substr( exec( "git rev-parse HEAD" ), 0, 6 );
+		$version = empty( $git_version ) ? wp_get_theme()->get( 'Version' ) : $git_version;
+
 		$jquery_handle = reregister_jquery();
 		$script_path = THEME_URI . "/assets";
 		$wp_vars = array(
@@ -202,11 +204,11 @@ class Base_Theme extends BB_Theme {
 		);
 
 		// scripts
-		wp_enqueue_script( $handle, "$script_path/js/main.min.js", array( $jquery_handle ), $git_version, true );
+		wp_enqueue_script( $handle, "$script_path/js/main.min.js", array( $jquery_handle ), $version, true );
 		wp_localize_script( $handle, 'wpVars', $wp_vars );
 
 		// styles
-		wp_enqueue_style( $handle, "$script_path/css/main.min.css", array(), $git_version );
+		wp_enqueue_style( $handle, "$script_path/css/main.min.css", array(), $version );
 	}
 
 	/**
