@@ -346,6 +346,7 @@ class WPSEO_Taxonomy {
 
 	/********************** DEPRECATED METHODS **********************/
 
+	// @codeCoverageIgnoreStart
 	/**
 	 * @deprecated 3.2
 	 *
@@ -356,7 +357,7 @@ class WPSEO_Taxonomy {
 	 * @return string
 	 */
 	public static function get_title_template( $term ) {
-		_deprecated_function( 'WPSEO_Taxonomy::get_title_template', 'WPSEO 3.2', 'WPSEO_Term_Scraper::get_title_template' );
+		_deprecated_function( __METHOD__, 'WPSEO 3.2', 'WPSEO_Term_Scraper::get_title_template' );
 
 		return '';
 	}
@@ -371,7 +372,7 @@ class WPSEO_Taxonomy {
 	 * @return string
 	 */
 	public static function get_metadesc_template( $term ) {
-		_deprecated_function( 'WPSEO_Taxonomy::get_metadesc_template', 'WPSEO 3.2', 'WPSEO_Term_Scraper::get_metadesc_template' );
+		_deprecated_function( __METHOD__, 'WPSEO 3.2', 'WPSEO_Term_Scraper::get_metadesc_template' );
 
 		return '';
 	}
@@ -385,6 +386,7 @@ class WPSEO_Taxonomy {
 	 * that array key to the main options definition array in the class WPSEO_Taxonomy_Meta() as well!!!!
 	 */
 	public function translate_meta_options() {
-		_deprecated_function( 'WPSEO_Taxonomy::translate_meta_options', 'WPSEO 3.2', 'WPSEO_Taxonomy_Settings_Fields::translate_meta_options' );
+		_deprecated_function( __METHOD__, 'WPSEO 3.2', 'WPSEO_Taxonomy_Settings_Fields::translate_meta_options' );
 	}
+	// @codeCoverageIgnoreEnd
 }

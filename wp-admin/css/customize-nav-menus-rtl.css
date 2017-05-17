@@ -161,6 +161,7 @@
 	outline: none;
 	overflow: hidden;
 	cursor: pointer;
+	text-align: center;
 }
 
 .wp-customizer .menu-item.menu-item-edit-active .item-edit .toggle-indicator:after {
@@ -532,6 +533,7 @@
 	box-shadow: none;
 	outline: none;
 	cursor: pointer;
+	text-align: center;
 }
 
 #available-menu-items .accordion-section-title .no-items,
@@ -623,6 +625,7 @@
 	box-shadow: none;
 	outline: none;
 	cursor: pointer;
+	text-align: center;
 }
 
 #available-menu-items .menu-item-handle .item-add:focus {
@@ -811,7 +814,6 @@ li.assigned-to-menu-location .add-new-menu-item {
 .menu-delete:hover,
 .menu-delete:focus {
 	color: #f00;
-	text-decoration: none;
 }
 
 .menu-item-handle {

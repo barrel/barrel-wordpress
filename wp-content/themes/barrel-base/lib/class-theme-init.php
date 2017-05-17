@@ -14,13 +14,11 @@ class Base_Theme extends BB_Theme {
 		add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_scripts_and_styles' ) );
 
 		add_action( 'wp_head', array( &$this, 'print_scripts' ) );
-		add_action( 'admin_menu', array( &$this, 'remove_default_post_type' ) );
 		add_action( 'wp_footer', array( &$this, 'the_social_plugins' ) );
 
 		add_filter( 'show_admin_bar', '__return_false' );
 
 		add_action( 'init', array( &$this, 'exclude_attachments_from_search' ) );
-		add_action( 'init', array( &$this, 'add_excerpt_support' ) );
 		add_action( 'init', array( &$this, 'add_cf_support' ) );
 
 		add_shortcode( 'year', array( &$this, 'shortcode_year' ) );
@@ -35,8 +33,6 @@ class Base_Theme extends BB_Theme {
 		add_filter( 'excerpt_length', array( &$this, 'custom_excerpt_length' ), 999 );
 		remove_filter( 'acf_the_content', array( &$this, 'wpautop') );
 		add_filter( 'default_page_template_title', array(&$this, 'rename_default_template' ) );
-
-		add_filter( 'searchwp_custom_fields', array(&$this, 'index_acf_fields' ) );
 
 		$this->add_options_page();
 		$this->register_image_sizes();
@@ -101,16 +97,6 @@ class Base_Theme extends BB_Theme {
 	}
 
 	/**
-	 * Add support for Excerpt in Page and Events
-	 */
-	public function add_excerpt_support() {
-		add_post_type_support( 'page', 'excerpt' );
-		add_post_type_support( 'event', 'excerpt' );
-		add_post_type_support( 'call-to-action', 'excerpt' );
-		add_post_type_support( 'people', 'excerpt' );
-	}
-
-	/**
 	 * Body class when info bar is active
 	 * @param  array $class Array of classes
 	 * @return array
@@ -120,13 +106,6 @@ class Base_Theme extends BB_Theme {
 			$class[] = ' info-bar-active';
 		}
 		return $class;
-	}
-
-	/**
-	 * Remove default posts
-	 */
-	public function remove_default_post_type() {
-		remove_menu_page('edit.php');
 	}
 
 	/**
@@ -215,6 +194,8 @@ class Base_Theme extends BB_Theme {
 	public function enqueue_scripts_and_styles() {
 		$handle = self::$text_domain;
 		$git_version = substr( exec( "git rev-parse HEAD" ), 0, 6 );
+		$version = empty( $git_version ) ? wp_get_theme()->get( 'Version' ) : $git_version;
+
 		$jquery_handle = reregister_jquery();
 		$script_path = THEME_URI . "/assets";
 		$wp_vars = array(
@@ -223,11 +204,11 @@ class Base_Theme extends BB_Theme {
 		);
 
 		// scripts
-		wp_enqueue_script( $handle, "$script_path/js/main.min.js", array( $jquery_handle ), $git_version, true );
+		wp_enqueue_script( $handle, "$script_path/js/main.min.js", array( $jquery_handle ), $version, true );
 		wp_localize_script( $handle, 'wpVars', $wp_vars );
 
 		// styles
-		wp_enqueue_style( $handle, "$script_path/css/main.min.css", array(), $git_version );
+		wp_enqueue_style( $handle, "$script_path/css/main.min.css", array(), $version );
 	}
 
 	/**
@@ -237,11 +218,10 @@ class Base_Theme extends BB_Theme {
 	 */
 	public function image_size_names_choose( $sizes ) {
 		return array_merge( $sizes, array(
-			'base-small' => __( 'Small Image', 'base' ),
-			'base-medium' => __( 'Medium Image', 'base' ),
-			'base-large' => __( 'Large Cover Image', 'base' ),
-			'base-tiny' => __( 'Tiny Image', 'base' ),
-			'base-calendar-filter' => __( 'Calendar Filter Image', 'base' )
+			'tiny'   => __( 'Tiny Image', 'base' ),
+			'small'  => __( 'Small Image', 'base' ),
+			'medium' => __( 'Medium Image', 'base' ),
+			'large'  => __( 'Large Image', 'base' ),
 		) );
 	}
 
@@ -302,19 +282,16 @@ class Base_Theme extends BB_Theme {
 	public function register_image_sizes() {
 
 		// large image size is used for full-width cover images
-		add_image_size( 'base-large', 1440 );
+		add_image_size( 'large', 1440 );
 
 		// medium image size is used for featured post thumbnails in list context
-		add_image_size( 'base-medium', 450 );
+		add_image_size( 'medium', 450 );
 
 		// small image size is used for smaller items such as logos
-		add_image_size( 'base-small', 225 );
+		add_image_size( 'small', 225 );
 
 		// tiny image size is used for thumbnails (especially in WYSIWYG)
-		add_image_size( 'base-tiny', 100 );
-
-		// thumbnail image used for calendar filters
-		add_image_size( 'base-calendar-filter', 200, 113, true );
+		add_image_size( 'tiny', 100 );
 	}
 
 	/**
@@ -322,10 +299,10 @@ class Base_Theme extends BB_Theme {
 	 */
 	public function register_menus() {
 		register_nav_menus( array(
-			'header-primary' => __( 'Header Primary Menu', self::$text_domain ),
+			'header-primary'     => __( 'Header Primary Menu', self::$text_domain ),
 			'header-quick-links' => __( 'Header Quick Links Menu', self::$text_domain ),
-			'footer' => __( 'Footer Menu', self::$text_domain ),
-			'footer-meta' => __( 'Footer Copyright Links', self::$text_domain )
+			'footer'             => __( 'Footer Menu', self::$text_domain ),
+			'footer-meta'        => __( 'Footer Copyright Links', self::$text_domain )
 		) );
 	}
 
@@ -427,31 +404,26 @@ class Base_Theme extends BB_Theme {
 		return $buttons;
 	}
 
+	/**
+	 * Return the excerpt length 
+	 * @param $length 
+	 * @return int
+	 * @internal modify body as necessary
+	 */
 	public function custom_excerpt_length( $length ) {
 		return 25;
 	}
 
+	/**
+	 * Return the excerpt ending string
+	 * @param $more 
+	 * @return string
+	 * @internal modify body as necessary
+	 */
 	public function custom_excerpt_end($more) {
 		return '...';
 	}
 
-	public function index_acf_fields( $custom_field_value, $custom_field_name, $the_post ) {
-		$post_id = $the_post->ID;
-		$has_redirect = get_post_meta($post_id, 'redirect_event_page', true);
-		$redirect_type = get_post_meta($post_id, 'event_redirect_link_type', true);
-		$link_id = (int) get_post_meta($post_id, 'event_page_link', true);
-
-		// index the custom field value if this is not an event, or if it doesn't have an event_page_link field
-		if ( $custom_field_name !== 'event_page_link' || !$has_redirect || $redirect_type !== 'internal' || !$link_id ) {
-			return $custom_field_value;
-		}
-
-		// index the title and content of the linked post
-		$linked_post = get_post( $link_id );
-        $content_to_index = $linked_post->post_title . ' ' . $linked_post->post_content;
-
-		return $content_to_index;
-	}
 }
 
 new Base_Theme();
