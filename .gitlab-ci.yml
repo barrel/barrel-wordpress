@@ -1,9 +1,10 @@
 image: node:slim
 before_script:
-  - apt-get update
-  - apt-get -y install fontforge
-  - cd ./wp-content/themes/barrel-base && npm set progress=false && npm install
-  - npm install -g gulp
+  - apt-get update && apt-get -y install fontforge
+  - npm config set loglevel warn && npm set progress=false
+  - npm install -g gulp --loglevel=warn
+  - cd ./wp-content/themes/barrel-base
+  - npm install --loglevel=warn
 stages:
   - build
   - test
