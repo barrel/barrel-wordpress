@@ -11,7 +11,7 @@ stages:
 php_syntax_check:
   stage: test
   script: 
-    - apt-get install -y php
+    - apt-get install -y php7.0
     - which php
     - "git diff --name-only origin/master | grep .php | xargs -L1 php -l"
 js_lint:
