@@ -1,4 +1,4 @@
-image: node:slim
+image: node:6
 before_script:
   - apt-get update && apt-get -y install fontforge
   - npm config set loglevel warn && npm set progress=false
@@ -6,15 +6,16 @@ before_script:
   - cd ./wp-content/themes/barrel-base
   - npm install --loglevel=warn
 stages:
-  - build
   - test
-job1:
+  - build
+php_syntax_check:
+  stage: test
+  script: "git diff --name-only master | grep .php | xargs -L1 php -l"
+js_lint:
+  stage: test
+  script: "gulp validate"
+build:
   stage: build
   only:
     - master
-  script:
-    - gulp build
-job2:
-  stage: test
-  script:
-    - gulp validate
+  script: "gulp build"
