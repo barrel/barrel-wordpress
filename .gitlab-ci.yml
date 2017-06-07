@@ -1,6 +1,6 @@
 image: node:6
 before_script:
-  - apt-get update && apt-get -y install fontforge
+  - apt-get update && apt-get -y install fontforge xargs
   - npm config set loglevel warn && npm set progress=false
   - npm install -g gulp --loglevel=warn
   - cd ./wp-content/themes/barrel-base
