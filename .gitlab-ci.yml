@@ -10,7 +10,10 @@ stages:
   - build
 php_syntax_check:
   stage: test
-  script: "git diff --name-only origin/master | grep .php | xargs -L1 php -l"
+  script: 
+    - apt-get install -y php
+    - which php
+    - "git diff --name-only origin/master | grep .php | xargs -L1 php -l"
 js_lint:
   stage: test
   script: "gulp validate"
