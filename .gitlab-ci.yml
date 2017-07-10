@@ -1,19 +1,24 @@
-image: node:slim
+image: node:6
 before_script:
-  - apt-get update
-  - apt-get -y install fontforge
-  - cd ./wp-content/themes/barrel-base && npm set progress=false && npm install
-  - npm install -g gulp
+  - apt-get update && apt-get -y install fontforge findutils
+  - npm config set loglevel warn && npm set progress=false
+  - npm install -g gulp --loglevel=warn
+  - cd ./wp-content/themes/barrel-base
+  - npm install --loglevel=warn
 stages:
-  - build
   - test
-job1:
+  - build
+php_syntax_check:
+  stage: test
+  script: 
+    - apt-get install -y php7.0
+    - which php
+    - "git diff --name-only origin/master | grep .php | xargs -L1 php -l"
+js_lint:
+  stage: test
+  script: "gulp validate"
+build:
   stage: build
   only:
     - master
-  script:
-    - gulp build
-job2:
-  stage: test
-  script:
-    - gulp validate
+  script: "gulp build"
