@@ -11,7 +11,9 @@
 * Before activating the theme, be sure to install the following plugins:*
 
 1.  [Yoast SEO](https://wordpress.org/plugins/wordpress-seo/)
-2.  ...
+2.  Kraken.io 
+3.	Gravity Forms
+4. 
 
 ## Installation
 
