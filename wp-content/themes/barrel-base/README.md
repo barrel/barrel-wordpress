@@ -2,16 +2,15 @@
 
 ## Dependencies
 
-* This project uses nodejs in conjunction with grunt or gulp to manage dependencies and task automation.*
-
 1.  Ensure [Node.js](https://nodejs.org/) and [Gulp](http://gulpjs.com/) are installed globally on the target system.
 2.  Run `npm install` in the theme directory.
 3.  Run `gulp` to start ongoing development task, or `gulp build` to compile assets a single time.
 
-* Before activating the theme, be sure to install the following plugins:*
+* The following plugins are always included:*
 
 1.  [Yoast SEO](https://wordpress.org/plugins/wordpress-seo/)
-2.  ...
+2.  [Advanced Custom Fields](https://www.advancedcustomfields.com/)
+3.  [Gravity Forms](http://www.gravityforms.com/)
 
 ## Installation
 
