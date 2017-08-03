@@ -16,7 +16,7 @@
     <?php endif; ?>
   </div>
 
-  <?php 
+  <?php
     wp_nav_menu( array(
       'container' => 'nav'
     ) );
@@ -35,5 +35,7 @@
       </ul>
     </nav>
   <?php endif; ?>
+
+  <?php get_search_form(); ?>
 
 </header>
