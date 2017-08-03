@@ -5,6 +5,6 @@
 		<span class="screen-reader-text"><?php echo _x( 'Search for:', 'label', 'barrel-base-theme' ); ?></span>
 	</label>
 	<input type="search" id="<?php echo $unique_id; ?>" class="search-field" placeholder="<?php echo esc_attr_x( 'Search &hellip;', 'placeholder', 'barrel-base-theme' ); ?>" value="<?php echo get_search_query(); ?>" name="s" />
-	<button type="submit" class="search-submit"><?php echo _x( 'Search', 'submit button', 'barrel-base-theme' ); ?></button>
+	<button type="submit" class="search-submit" title="<?php echo _x( 'Search', 'submit button', 'barrel-base-theme' ); ?>"><span class="search-submit-icon"></span></button>
 </form>
 
