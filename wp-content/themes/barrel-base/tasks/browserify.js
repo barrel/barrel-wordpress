@@ -56,7 +56,7 @@ function browserifyTask (dev, cb) {
   function bundle () {
     bundleLogger.start('main.min.js')
 
-    var bundle = b.bundle()
+    b.bundle()
       .on('error', function (err) { console.error(err.message) })
       .on('end', function () {
         bundleLogger.end('main.min.js')

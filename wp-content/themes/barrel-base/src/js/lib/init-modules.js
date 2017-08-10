@@ -11,13 +11,13 @@ function initializeModules () {
     var el = modules[ i ]
     var $el = $(el)
     var name = el.getAttribute('data-module-init')
-
     // Find the module script
+    var Module
     try {
-      var Module = require('modules/' + name)
+      Module = require('modules/' + name)
     } catch (e) {
       console.log(e.toString())
-      var Module = false
+      Module = false
     }
 
     // Initialize the module with the calling element
