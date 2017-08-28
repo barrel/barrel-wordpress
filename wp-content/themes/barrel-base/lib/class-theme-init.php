@@ -321,27 +321,23 @@ class Base_Theme extends BB_Theme {
 		$style_formats = array(
 			array(
 				'title' => 'Main Heading',
-				'block' => 'h4',
 				'classes' => 'main-heading',
-				'wrapper' => false,
-			),
-			array(
-				'title' => 'Intro Text',
-				'block' => 'h3',
-				'classes' => 'intro-text',
-				'wrapper' => false,
+				'wrapper' => true,
 			),
 			array(
 				'title' => 'Sub Heading',
-				'block' => 'p',
 				'classes' => 'sub-heading',
 				'wrapper' => false,
 			),
 			array(
 				'title' => 'Secondary Sub Heading',
-				'block' => 'h5',
 				'classes' => 'secondary-sub-heading',
-				'wrapper' => false,
+				'wrapper' => true,
+			),
+			array(
+				'title' => 'Intro Text',
+				'classes' => 'intro-text',
+				'wrapper' => true,
 			),
 			array(
 				'title' => 'Button',
