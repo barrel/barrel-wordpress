@@ -24,8 +24,8 @@ gulp.task('dev', [ 'vendors', 'sass', 'watchify' ], function () {
 
   // Watch handles the scripts
   gulp.watch([ './src/js/**/*.js', './tasks/*.js', './gulpfile.js' ], function (event) {
-    if (event.type == 'changed') {
-      if (path.extname(event.path) == '.js') {
+    if (event.type === 'changed') {
+      if (path.extname(event.path) === '.js') {
         var jscs = require('gulp-jscs')
         var jshint = require('gulp-jshint')
 

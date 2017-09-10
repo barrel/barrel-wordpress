@@ -1,6 +1,6 @@
-var gulp = require('gulp'),
-  kraken = require('gulp-kraken'),
-  krakenConfig = {}
+var gulp = require('gulp')
+var kraken = require('gulp-kraken')
+var krakenConfig = {}
 
 try {
   krakenConfig = require('./kraken.json')

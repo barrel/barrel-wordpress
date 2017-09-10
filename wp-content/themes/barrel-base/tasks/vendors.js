@@ -3,7 +3,7 @@ var concat = require('gulp-concat')
 var uglify = require('gulp-uglify')
 var sourcemaps = require('gulp-sourcemaps')
 var vendorScripts = [
-	// array of paths
+  // array of paths
 ]
 
 gulp.task('vendors', function () {
