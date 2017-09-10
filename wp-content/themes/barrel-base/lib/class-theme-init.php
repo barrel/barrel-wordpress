@@ -13,25 +13,21 @@ class Base_Theme extends BB_Theme {
 		add_filter( 'image_size_names_choose', array( &$this, 'image_size_names_choose' ) );
 		add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_scripts_and_styles' ) );
 
-		add_action( 'wp_head', array( &$this, 'print_scripts' ) );
-		add_action( 'wp_footer', array( &$this, 'the_social_plugins' ) );
+		add_action( 'wp_head', array( &$this, 'print_scripts_head_meta' ) );
 
 		add_filter( 'show_admin_bar', '__return_false' );
 
 		add_action( 'init', array( &$this, 'exclude_attachments_from_search' ) );
-		add_action( 'init', array( &$this, 'add_cf_support' ) );
 
 		add_shortcode( 'year', array( &$this, 'shortcode_year' ) );
 
 		add_filter( 'tiny_mce_before_init', array( &$this, 'insert_formats' ) );
 		add_filter( 'mce_buttons_2', array( &$this, 'add_mce_button' ), 10, 2 );
-		add_filter( 'img_caption_shortcode', array( &$this, 'max_width_caption_shortcode'), 10, 3 );
 
 		add_editor_style();
 
-		add_filter( 'excerpt_more', array( &$this, 'custom_excerpt_end' ) );
-		add_filter( 'excerpt_length', array( &$this, 'custom_excerpt_length' ), 999 );
-		remove_filter( 'acf_the_content', array( &$this, 'wpautop') );
+		// if you want to prevent acf from filtering wysiwyg editor fields
+		// remove_filter( 'acf_the_content', array( &$this, 'wpautop') );
 		add_filter( 'default_page_template_title', array(&$this, 'rename_default_template' ) );
 
 		$this->add_options_page();
@@ -102,17 +98,7 @@ class Base_Theme extends BB_Theme {
 	 * @return array
 	 */
 	public function body_class( $class ) {
-		if ( has_infobar() ) {
-			$class[] = ' info-bar-active';
-		}
 		return $class;
-	}
-
-	/**
-	 * Add support for Custom Fields in Events
-	 */
-	public function add_cf_support() {
-		add_post_type_support( 'event', 'custom-fields' );
 	}
 
 	/**
@@ -131,61 +117,9 @@ class Base_Theme extends BB_Theme {
 	/**
 	 * Rename Default Template to Basic Page
 	 */
-	public function rename_default_template() {
+	public function rename_default_template() 
+	{
 		return __('Basic Page', 'base');
-	}
-
-	/**
-	 * Change width in caption shortcode to max-width for image upload in Wyziwig
-	 */
-	function max_width_caption_shortcode( $output, $attr, $content ) {
-
-		/* We're not worried abut captions in feeds, so just return the output here. */
-		if ( is_feed() )
-			return $output;
-
-		/* Set up the default arguments. */
-		$defaults = array(
-			'id' => '',
-			'align' => 'alignnone',
-			'width' => '',
-			'caption' => '',
-			'class' => 'img'
-		);
-
-		/* Merge the defaults with user input. */
-		$attr = shortcode_atts( $defaults, $attr );
-
-		//* Get media attachment title */
-		$id = str_replace('attachment_', '', $attr['id']);
-		$attachment = get_post($id);
-		$title = $attachment->post_title;
-		//$attachment_meta = wp_get_attachment($id);
-		//$img_title = $attachment_meta['title'];
-
-		/* If the width is less than 1 or there is no caption, return the content wrapped between the < tags. */
-		if ( 1 > $attr['width'] || empty( $attr['caption'] ) )
-			return $content;
-
-		/* Set up the attributes for the caption <div>. */
-		$attributes = ( !empty( $attr['id'] ) ? ' id="' . esc_attr( $attr['id'] ) . '"' : '' );
-		$attributes .= ' class="wp-caption ' . esc_attr( $attr['align'] ) . '"';
-		$attributes .= ' style="max-width: ' . esc_attr( $attr['width'] ) . 'px; width: 100%;"';
-
-		/* Open the caption <figure>. */
-		$output = '<figure' . $attributes .'>';
-
-		/* Allow shortcodes for the content the caption was created for. */
-		$output .= do_shortcode( $content );
-
-		/* Append the caption text. */
-		$output .= '<figcaption class="wp-caption-text">' . $attr['caption'] . ' ' . $title . '</figcaption>';
-
-		/* Close the caption </div>. */
-		$output .= '</figure>';
-
-		/* Return the formatted, clean caption. */
-		return $output;
 	}
 
 	/**
@@ -196,19 +130,26 @@ class Base_Theme extends BB_Theme {
 		$git_version = substr( exec( "git rev-parse HEAD" ), 0, 6 );
 		$version = empty( $git_version ) ? wp_get_theme()->get( 'Version' ) : $git_version;
 
-		$jquery_handle = reregister_jquery();
+		try {
+			jquery_deregister();
+		}
+		catch ( Exception $ex ){}
+
 		$script_path = THEME_URI . "/assets";
 		$wp_vars = array(
-			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-			'templateUrl' => get_stylesheet_directory_uri()
+			//'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
+			//'templateUrl' => get_stylesheet_directory_uri()
 		);
 
 		// scripts
-		wp_enqueue_script( $handle, "$script_path/js/main.min.js", array( $jquery_handle ), $version, true );
-		wp_localize_script( $handle, 'wpVars', $wp_vars );
+		wp_enqueue_script( $handle, "$script_path/js/main.min.js", null, $version, true );
+		if ( !empty( $wp_vars ) ) 
+		{
+			wp_localize_script( $handle, 'wpVars', $wp_vars );
+		}
 
 		// styles
-		wp_enqueue_style( $handle, "$script_path/css/main.min.css", array(), $version );
+		wp_enqueue_style( $handle, "$script_path/css/main.min.css", array(), $version, true );
 	}
 
 	/**
@@ -228,49 +169,25 @@ class Base_Theme extends BB_Theme {
 	/**
 	 * Print inline scripts and styles
 	 */
-	public function print_scripts() {
+	public function print_scripts_head_meta() 
+	{
 		global $pagenow;
-		$this->inline_typekit();
 		$this->site_favicons();
 	}
 
-	public function inline_typekit() {
-		$typekit_id = "";
-		if ( empty( $typekit_id ) ) {
-			return;
-		}
-		?>
-		<script data-cfasync="false" src="https://use.typekit.net/<?php echo $typekit_id; ?>.js"></script>
-		<script data-cfasync="false">try{Typekit.load({ async: true });}catch(e){}</script>
-		<?php
-	}
+	private function site_favicons() 
+	{
+		$favi = THEME_URI . '/assets/img/favicon/'; ?>
 
-	function site_favicons() {
-		?>
-		<link rel="apple-touch-icon" sizes="57x57" href="<?php echo THEME_URI; ?>/assets/img/favicons/apple-touch-icon-57x57.png">
-		<link rel="apple-touch-icon" sizes="60x60" href="<?php echo THEME_URI; ?>/assets/img/favicons/apple-touch-icon-60x60.png">
-		<link rel="apple-touch-icon" sizes="72x72" href="<?php echo THEME_URI; ?>/assets/img/favicons/apple-touch-icon-72x72.png">
-		<link rel="apple-touch-icon" sizes="76x76" href="<?php echo THEME_URI; ?>/assets/img/favicons/apple-touch-icon-76x76.png">
-		<link rel="apple-touch-icon" sizes="114x114" href="<?php echo THEME_URI; ?>/assets/img/favicons/apple-touch-icon-114x114.png">
-		<link rel="apple-touch-icon" sizes="120x120" href="<?php echo THEME_URI; ?>/assets/img/favicons/apple-touch-icon-120x120.png">
-		<link rel="apple-touch-icon" sizes="144x144" href="<?php echo THEME_URI; ?>/assets/img/favicons/apple-touch-icon-144x144.png">
-		<link rel="apple-touch-icon" sizes="152x152" href="<?php echo THEME_URI; ?>/assets/img/favicons/apple-touch-icon-152x152.png">
-		<link rel="apple-touch-icon" sizes="180x180" href="<?php echo THEME_URI; ?>/assets/img/favicons/apple-touch-icon-180x180.png">
-		<link rel="icon" type="image/png" href="<?php echo THEME_URI; ?>/assets/img/favicons/favicon-32x32.png" sizes="32x32">
-		<link rel="icon" type="image/png" href="<?php echo THEME_URI; ?>/assets/img/favicons/favicon-194x194.png" sizes="194x194">
-		<link rel="icon" type="image/png" href="<?php echo THEME_URI; ?>/assets/img/favicons/favicon-96x96.png" sizes="96x96">
-		<link rel="icon" type="image/png" href="<?php echo THEME_URI; ?>/assets/img/favicons/android-chrome-192x192.png" sizes="192x192">
-		<link rel="icon" type="image/png" href="<?php echo THEME_URI; ?>/assets/img/favicons/favicon-16x16.png" sizes="16x16">
-		<link rel="manifest" href="<?php echo THEME_URI; ?>/assets/img/favicons/manifest.json">
-		<link rel="mask-icon" href="<?php echo THEME_URI; ?>/assets/img/favicons/safari-pinned-tab.svg" color="#482b11">
-		<link rel="shortcut icon" href="<?php echo THEME_URI; ?>/assets/img/favicons/favicon.ico">
-		<meta name="apple-mobile-web-app-title" content="<?php echo get_option( 'blogname' ); ?>">
-		<meta name="application-name" content="<?php echo get_option( 'blogname' ); ?>">
-		<meta name="msapplication-TileColor" content="#da532c">
-		<meta name="msapplication-TileImage" content="<?php echo THEME_URI; ?>/assets/img/favicons/mstile-144x144.png">
-		<meta name="theme-color" content="#482b11">
-		<meta name="msapplication-config" content="<?php echo THEME_URI; ?>/assets/img/favicons/browserconfig.xml"/>
-		<?php
+		<link rel="apple-touch-icon" sizes="180x180" href="<?= $favi; ?>apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="<?= $favi; ?>favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="<?= $favi; ?>favicon-16x16.png">
+		<link rel="manifest" href="<?= $favi; ?>manifest.json">
+		<link rel="mask-icon" href="<?= $favi; ?>safari-pinned-tab.svg" color="#5bbad5">
+		<link rel="shortcut icon" href="<?= $favi; ?>favicon.ico">
+		<meta name="msapplication-config" content="<?= $favi; ?>browserconfig.xml">
+		<meta name="theme-color" content="#ffffff">
+	<?php 
 	}
 
 	/**
@@ -351,44 +268,12 @@ class Base_Theme extends BB_Theme {
 				'classes' => 'byline',
 				'wrapper' => false,
 			),
-			array(
-				'title' => 'Affiliation',
-				'block' => 'p',
-				'classes' => 'affiliation',
-				'wrapper' => false,
-			)
+
 		);
 
 		$init_array['style_formats'] = json_encode( $style_formats );
 
 		return $init_array;
-	}
-
-	/**
-	 * Social Share
-	 */
-	function the_social_plugins() {
-		?>
-		<div id="fb-root"></div>
-		<script>
-			window.fbAsyncInit = function() {
-				FB.init({
-					appId: '<?php the_field('facebook_app_id', 'option'); ?>',
-					xfbml: true,
-					version: 'v2.1'
-				});
-			};
-
-			(function(d, s, id){
-				var js, fjs = d.getElementsByTagName(s)[0];
-				if (d.getElementById(id)) {return;}
-				js = d.createElement(s); js.id = id;
-				js.src = "//connect.facebook.net/en_US/sdk.js";
-				fjs.parentNode.insertBefore(js, fjs);
-			}(document, 'script', 'facebook-jssdk'));
-		</script>
-		<script type="text/javascript" async src="//platform.twitter.com/widgets.js"></script>
-		<?php
 	}
 
 	/**
@@ -398,26 +283,6 @@ class Base_Theme extends BB_Theme {
 		/* Add it as first item in the row */
 		array_unshift( $buttons, 'styleselect' );
 		return $buttons;
-	}
-
-	/**
-	 * Return the excerpt length 
-	 * @param $length 
-	 * @return int
-	 * @internal modify body as necessary
-	 */
-	public function custom_excerpt_length( $length ) {
-		return 25;
-	}
-
-	/**
-	 * Return the excerpt ending string
-	 * @param $more 
-	 * @return string
-	 * @internal modify body as necessary
-	 */
-	public function custom_excerpt_end($more) {
-		return '...';
 	}
 
 }
