@@ -8,6 +8,7 @@ class Base_Theme extends BB_Theme {
 	public function __construct(){
 		parent::__construct();
 		$this->acf_json_path = TEMPLATEPATH . '/acf-json';
+		$this->cpt_json_path = TEMPLATEPATH . '/cpt-json';
 
 		add_action( 'after_setup_theme', array( &$this, 'register_menus' ) );
 		add_filter( 'image_size_names_choose', array( &$this, 'image_size_names_choose' ) );
@@ -55,6 +56,37 @@ class Base_Theme extends BB_Theme {
 	 * Register post types used in this theme
 	 */
 	public function add_post_types(){
+		$cpt_key_name = 'cptui_post_types';
+		$cpt_json_file = $this->cpt_json_path . "/$cpt_key_name.json";
+		$cpt_post_types = get_option( $cpt_key_name, array() );
+
+		if ( !empty( $cpt_post_types ) ) {
+			$cpt_json_data = json_encode( $cpt_post_types );
+
+			// create our data cpt dir if not exists
+			if ( !file_exists( dirname( $cpt_json_file ) ) )
+			{
+				mkdir( dirname( $cpt_json_file ), 0777, true );
+			}
+
+			// create the file if not exists yet
+			if ( !file_exists( $cpt_json_file ) )
+			{
+				file_put_contents( $cpt_json_file, $cpt_json_data );
+			}
+			else
+			{
+
+				// do diff
+				$theme_cpt_json_data = file_get_contents( $cpt_json_file );
+				if ( $cpt_json_data !== $theme_cpt_json_data )
+				{
+					echo exec( "diff $theme_cpt_json_data $cpt_json_data" );
+					exit;
+				}
+			}
+		}
+
 		$types = array(
 		);
 
