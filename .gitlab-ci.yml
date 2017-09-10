@@ -7,7 +7,7 @@ php_syntax_check:
   image: php:7
   stage: test
   script: 
-    - git diff --name-only origin/master | grep .php | xargs -L1 php -l
+    - git diff --diff-filter=ACMR --name-only origin/master | grep .php | xargs -L1 php -l
 js_lint:
   before_script:
     - npm config set loglevel warn && npm set progress=false
