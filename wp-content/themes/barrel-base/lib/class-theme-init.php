@@ -55,13 +55,41 @@ class Base_Theme extends BB_Theme {
 	/**
 	 * Register post types used in this theme
 	 */
-	public function add_post_types(){
-		$cpt_key_name = 'cptui_post_types';
+	public function add_post_types()
+	{
+		$this->cpt_content_type();
+		$types = array(
+		);
+
+		foreach( $types as $type ) {
+			$this->add_post_type($type);
+		}
+	}
+
+	/**
+	 * Register taxonomies used in this theme
+	 */
+	public function add_taxonomies()
+	{
+		$this->cpt_content_type( false );
+		$taxonomies = array(
+		);
+
+		foreach( $taxonomies as $taxonomy_args ) {
+			$post_type = $taxonomy_args['types'];
+			unset($taxonomy_args['types']);
+			$this->add_taxonomy( $taxonomy_args, $post_type );
+		}
+	}
+
+	public function cpt_content_type( $is_post_type = true ) 
+	{
+		$cpt_key_name = $is_post_type ? 'cptui_post_types' : 'cptui_taxonomies';
 		$cpt_json_file = $this->cpt_json_path . "/$cpt_key_name.json";
 		$cpt_post_types = get_option( $cpt_key_name, array() );
 
 		if ( !empty( $cpt_post_types ) ) {
-			$cpt_json_data = json_encode( $cpt_post_types );
+			$cpt_json_data = json_encode( $cpt_post_types, JSON_PRETTY_PRINT );
 
 			// create our data cpt dir if not exists
 			if ( !file_exists( dirname( $cpt_json_file ) ) )
@@ -77,43 +105,16 @@ class Base_Theme extends BB_Theme {
 			else
 			{
 
-				// do diff
+				// do diff and update if different
 				$theme_cpt_json_data = file_get_contents( $cpt_json_file );
 				if ( $cpt_json_data !== $theme_cpt_json_data )
 				{
 					echo exec( "diff $theme_cpt_json_data $cpt_json_data" );
-					exit;
+					file_put_contents( $cpt_json_file, $cpt_json_data );
 				}
 			}
 		}
 
-		$types = array(
-		);
-
-		foreach( $types as $type ) {
-			$this->add_post_type($type);
-		}
-	}
-
-	/**
-	 * Register taxonomies used in this theme
-	 */
-	public function add_taxonomies(){
-		$taxonomies = array(
-			array(
-				'types' => array( 'people'),
-				'plural' => 'People Categories',
-				'singular' => 'People Category',
-				'slug' => 'people-categories',
-				'name' => 'people_category'
-			)
-		);
-
-		foreach( $taxonomies as $taxonomy_args ) {
-			$post_type = $taxonomy_args['types'];
-			unset($taxonomy_args['types']);
-			$this->add_taxonomy( $taxonomy_args, $post_type );
-		}
 	}
 
 	/**
