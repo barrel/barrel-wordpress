@@ -57,7 +57,7 @@ class Base_Theme extends BB_Theme {
 	 */
 	public function add_post_types()
 	{
-		$this->cpt_content_type();
+		$ctp_post_types = $this->cpt_config_data();
 		$types = array(
 		);
 
@@ -71,7 +71,7 @@ class Base_Theme extends BB_Theme {
 	 */
 	public function add_taxonomies()
 	{
-		$this->cpt_content_type( false );
+		$cpt_taxonomies = $this->cpt_config_data( false );
 		$taxonomies = array(
 		);
 
@@ -82,39 +82,43 @@ class Base_Theme extends BB_Theme {
 		}
 	}
 
-	public function cpt_content_type( $is_post_type = true ) 
+	public function cpt_config_data( $is_post_type = true ) 
 	{
 		$cpt_key_name = $is_post_type ? 'cptui_post_types' : 'cptui_taxonomies';
 		$cpt_json_file = $this->cpt_json_path . "/$cpt_key_name.json";
-		$cpt_post_types = get_option( $cpt_key_name, array() );
+		$cpt_saved_data = get_option( $cpt_key_name, array() );
 
-		if ( !empty( $cpt_post_types ) ) {
-			$cpt_json_data = json_encode( $cpt_post_types, JSON_PRETTY_PRINT );
+		// create our data cpt dir if not exists
+		if ( !file_exists( dirname( $cpt_json_file ) ) )
+		{
+			mkdir( dirname( $cpt_json_file ), 0777, true );
+		}
 
-			// create our data cpt dir if not exists
-			if ( !file_exists( dirname( $cpt_json_file ) ) )
-			{
-				mkdir( dirname( $cpt_json_file ), 0777, true );
-			}
+		if ( !empty( $cpt_saved_data ) ) {
+			$cpt_json_data = json_encode( $cpt_saved_data, JSON_PRETTY_PRINT );
 
-			// create the file if not exists yet
+			// create the file if not exists yet, or update if changed
 			if ( !file_exists( $cpt_json_file ) )
 			{
 				file_put_contents( $cpt_json_file, $cpt_json_data );
 			}
 			else
 			{
-
-				// do diff and update if different
 				$theme_cpt_json_data = file_get_contents( $cpt_json_file );
 				if ( $cpt_json_data !== $theme_cpt_json_data )
 				{
-					echo exec( "diff $theme_cpt_json_data $cpt_json_data" );
 					file_put_contents( $cpt_json_file, $cpt_json_data );
 				}
 			}
 		}
+		else
+		{
+			// no saved data, check files
+			$theme_cpt_json_data = file_get_contents( $cpt_json_file );
+			$cpt_saved_data = json_decode( $theme_cpt_json_data );
+		}
 
+		return $cpt_saved_data;
 	}
 
 	/**
