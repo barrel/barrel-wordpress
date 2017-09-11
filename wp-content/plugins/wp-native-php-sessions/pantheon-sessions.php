@@ -1,14 +1,16 @@
 <?php
-/*
-Plugin Name: Native PHP Sessions for WordPress
-Version: 0.6.0
-Description: Offload PHP's native sessions to your database for multi-server compatibility.
-Author: Pantheon
-Author URI: https://www.pantheon.io/
-Plugin URI: https://wordpress.org/plugins/wp-native-php-sessions/
-Text Domain: pantheon-sessions
-Domain Path: /languages
-*/
+/**
+ * Plugin Name: Native PHP Sessions for WordPress
+ * Version: 0.6.2
+ * Description: Offload PHP's native sessions to your database for multi-server compatibility.
+ * Author: Pantheon
+ * Author URI: https://www.pantheon.io/
+ * Plugin URI: https://wordpress.org/plugins/wp-native-php-sessions/
+ * Text Domain: pantheon-sessions
+ * Domain Path: /languages
+ **/
+
+use Pantheon_Sessions\Session;
 
 class Pantheon_Sessions {
 
@@ -35,6 +37,8 @@ class Pantheon_Sessions {
 			$this->setup_database();
 			$this->set_ini_values();
 			$this->initialize_session_override();
+			add_action( 'set_logged_in_cookie', array( __CLASS__, 'action_set_logged_in_cookie' ), 10, 4 );
+			add_action( 'clear_auth_cookie', array( __CLASS__, 'action_clear_auth_cookie' ) );
 		}
 	}
 
@@ -43,7 +47,7 @@ class Pantheon_Sessions {
 	 */
 	private function define_constants() {
 
-		define( 'PANTHEON_SESSIONS_VERSION', '0.5' );
+		define( 'PANTHEON_SESSIONS_VERSION', '0.6.2' );
 
 		if ( ! defined( 'PANTHEON_SESSIONS_ENABLED' ) ) {
 			define( 'PANTHEON_SESSIONS_ENABLED', 1 );
@@ -131,7 +135,7 @@ class Pantheon_Sessions {
 	private function initialize_session_override() {
 		session_set_save_handler( '_pantheon_session_open', '_pantheon_session_close', '_pantheon_session_read', '_pantheon_session_write', '_pantheon_session_destroy', '_pantheon_session_garbage_collection' );
 		// Close the session before $wpdb destructs itself
-		add_action( 'shutdown', 'session_write_close', 999 );
+		add_action( 'shutdown', 'session_write_close', 999, 0 );
 		require_once dirname( __FILE__ ) . '/inc/class-session.php';
 	}
 
@@ -164,6 +168,19 @@ class Pantheon_Sessions {
 
 	}
 
+	public static function action_set_logged_in_cookie( $logged_in_cookie, $expire, $expiration, $user_id ) {
+		$session_id = session_id();
+		if ( $session_id && $session = Session::get_by_sid( $session_id ) ) {
+			$session->set_user_id( $user_id );
+		}
+	}
+
+	public static function action_clear_auth_cookie() {
+		$session_id = session_id();
+		if ( $session_id && $session = Session::get_by_sid( $session_id ) ) {
+			$session->set_user_id( 0 );
+		}
+	}
 
 	/**
 	 * Force the plugin to be the first loaded
