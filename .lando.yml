@@ -1,0 +1,7 @@
+name: barrel-base-theme
+recipe: pantheon
+config:
+  framework: wordpress
+  env: dev
+  site: barrel-base-theme
+  id: 55e6ab01-ecf0-4b68-ad70-7238f9af2320
