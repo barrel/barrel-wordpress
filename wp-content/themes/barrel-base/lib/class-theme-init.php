@@ -113,9 +113,13 @@ class Base_Theme extends BB_Theme {
 		}
 		else
 		{
-			// no saved data, check files
+			// no saved data, check files, load data
 			$theme_cpt_json_data = file_get_contents( $cpt_json_file );
-			$cpt_saved_data = json_decode( $theme_cpt_json_data );
+			if ( !empty( $theme_cpt_json_data ) ) 
+			{
+				$cpt_saved_data = json_decode( $theme_cpt_json_data, true );
+				update_option( $cpt_key_name, $cpt_saved_data );
+			}
 		}
 
 		return $cpt_saved_data;
