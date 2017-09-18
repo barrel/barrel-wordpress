@@ -3,8 +3,8 @@
  * @constructor
  * @param {Object} el - The hero element.
  */
-function Hero(el) {
-  this.el = el;
+function Hero (el) {
+  this.el = el
 }
 
-module.exports = Hero;
+module.exports = Hero

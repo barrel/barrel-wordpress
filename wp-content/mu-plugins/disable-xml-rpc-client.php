@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Barrel
+Plugin Name: Disable XML RPC
 Plugin URI: https://code.barrelny.com/
 Description: Common modules for any WordPress website.
 Version: 0.1

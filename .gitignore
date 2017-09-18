@@ -14,11 +14,15 @@ wp-content/wp-cache-config.php
 sitemap.xml
 sitemap.xml.gz
 *.log
+.htaccess
 
 # @TODO writable paths
 wp-content/cache/
 wp-content/backups/
 
+# Avoid accidental modification of pantheon.upstream.yml in sites
+# created from this upstream
+pantheon.upstream.yml
 
 # Packages #
 ############
