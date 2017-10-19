@@ -1,5 +1,5 @@
 {
-  "name": "barrel-base-theme",
+  "name": "barrel-base",
   "version": "1.1.1",
   "devDependencies": {
     "autoprefixer": "^6.4.1",
