@@ -3,7 +3,7 @@
 require_once( __DIR__ . '/class-base-theme.php' );
 
 class Base_Theme extends BB_Theme {
-	static $text_domain = "base";
+	static $text_domain = 'barrel-base';
 
 	public function __construct(){
 		parent::__construct();
@@ -161,7 +161,7 @@ class Base_Theme extends BB_Theme {
 	 */
 	public function rename_default_template() 
 	{
-		return __('Basic Page', 'base');
+		return __('Basic Page', 'barrel-base');
 	}
 
 	/**
@@ -201,10 +201,10 @@ class Base_Theme extends BB_Theme {
 	 */
 	public function image_size_names_choose( $sizes ) {
 		return array_merge( $sizes, array(
-			'tiny'   => __( 'Tiny Image', 'base' ),
-			'small'  => __( 'Small Image', 'base' ),
-			'medium' => __( 'Medium Image', 'base' ),
-			'large'  => __( 'Large Image', 'base' ),
+			'tiny'   => __( 'Tiny Image', 'barrel-base' ),
+			'small'  => __( 'Small Image', 'barrel-base' ),
+			'medium' => __( 'Medium Image', 'barrel-base' ),
+			'large'  => __( 'Large Image', 'barrel-base' ),
 		) );
 	}
 
