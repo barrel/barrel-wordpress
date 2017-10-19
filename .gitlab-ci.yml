@@ -12,7 +12,7 @@ js_lint:
   before_script:
     - npm config set loglevel warn && npm set progress=false
     - npm install -g standard --loglevel=warn
-    - cd ./wp-content/themes/barrel-base
+    - cd ./wp-content/themes/$THEME_NAME
   image: node:6
   stage: test
   script: standard
@@ -22,7 +22,7 @@ build:
     - npm config set loglevel warn && npm set progress=false
     - npm install -g gulp --loglevel=warn
     - npm install --loglevel=warn
-    - cd ./wp-content/themes/barrel-base
+    - cd ./wp-content/themes/$THEME_NAME
   stage: build
   only:
     - master

@@ -160,7 +160,7 @@ if ( !empty( $_SERVER['PANTHEON_ENVIRONMENT'] ) && ( "cli" !== php_sapi_name() )
   $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
   $_SERVER['SERVER_PORT'] = ( 
     isset( $_SERVER['HTTP_X_SSL'] ) && 'ON' === strtoupper( $_SERVER['HTTP_X_SSL'] ) ||
-    $_SERVER['HTTPS'] === 'on'
+    @$_SERVER['HTTPS'] === 'on'
   ) ? 443 : 80;
 
   // Redirect Logic
