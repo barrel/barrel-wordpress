@@ -53,7 +53,10 @@ class WPSEO_OnPage {
 	 * @return array
 	 */
 	public function add_weekly_schedule( array $schedules ) {
-		$schedules['weekly'] = array( 'interval' => WEEK_IN_SECONDS, 'display' => __( 'Once Weekly', 'wordpress-seo' ) );
+		$schedules['weekly'] = array(
+			'interval' => WEEK_IN_SECONDS,
+			'display'  => __( 'Once Weekly', 'wordpress-seo' ),
+		);
 
 		return $schedules;
 	}
@@ -122,9 +125,9 @@ class WPSEO_OnPage {
 		return new Yoast_Notification(
 			$notice,
 			array(
-				'type'  => Yoast_Notification::ERROR,
-				'id'    => 'wpseo-dismiss-onpageorg',
-				'capabilities' => 'manage_options',
+				'type'         => Yoast_Notification::ERROR,
+				'id'           => 'wpseo-dismiss-onpageorg',
+				'capabilities' => 'wpseo_manage_options',
 			)
 		);
 	}

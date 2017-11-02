@@ -29,7 +29,7 @@ class WPSEO_Link_Notifier {
 	 * Removes the notification when it is set and the amount of unindexed items is lower than the threshold.
 	 */
 	public function cleanup_notification() {
-		if ( ! $this->has_notification() || $this->requires_notification()  ) {
+		if ( ! $this->has_notification() || $this->requires_notification() ) {
 			return;
 		}
 
@@ -103,7 +103,7 @@ class WPSEO_Link_Notifier {
 			array(
 				'type'         => Yoast_Notification::WARNING,
 				'id'           => self::NOTIFICATION_ID,
-				'capabilities' => 'manage_options',
+				'capabilities' => 'wpseo_manage_options',
 				'priority'     => 0.8,
 			)
 		);
