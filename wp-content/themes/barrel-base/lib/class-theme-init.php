@@ -191,7 +191,7 @@ class Base_Theme extends BB_Theme {
 		}
 
 		// styles
-		wp_enqueue_style( $handle, "$script_path/css/main.min.css", array(), $version, true );
+		wp_enqueue_style( $handle, "$script_path/css/main.min.css", array(), $version, 'all' );
 	}
 
 	/**
