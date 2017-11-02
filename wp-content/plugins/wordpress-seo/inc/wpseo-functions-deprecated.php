@@ -130,7 +130,7 @@ function wpseo_invalid_custom_taxonomy() {
  */
 function wpseo_get_terms( $id, $taxonomy, $return_single = false ) {
 	_deprecated_function( __FUNCTION__, 'WPSEO 1.5.4', 'WPSEO_Replace_Vars::get_terms()' );
-	$replacer = new WPSEO_Replace_Vars;
+	$replacer = new WPSEO_Replace_Vars();
 
 	return $replacer->get_terms( $id, $taxonomy, $return_single );
 }
@@ -411,4 +411,28 @@ function wpseo_xml_sitemaps_base_url( $page ) {
 	_deprecated_function( __FUNCTION__, 'WPSEO 3.2.0', 'WPSEO_Sitemaps_Router::get_base_url()' );
 
 	return WPSEO_Sitemaps_Router::get_base_url( $page );
+}
+
+/**
+ * Remove the bulk edit capability from the proper default roles.
+ *
+ * Contributor is still removed for legacy reasons.
+ *
+ * @deprecated 5.5
+ */
+function wpseo_remove_capabilities() {
+	_deprecated_function( __FUNCTION__, 'WPSEO 5.5.0', 'WPSEO_Capability_Manager_Factory::get()->remove()' );
+
+	WPSEO_Capability_Manager_Factory::get()->remove();
+}
+
+/**
+ * Add the bulk edit capability to the proper default roles.
+ *
+ * @deprecated 5.5.0
+ */
+function wpseo_add_capabilities() {
+	_deprecated_function( __FUNCTION__, 'WPSEO 5.5.0', 'WPSEO_Capability_Manager_Factory::get()->add()' );
+
+	WPSEO_Capability_Manager_Factory::get()->add();
 }
