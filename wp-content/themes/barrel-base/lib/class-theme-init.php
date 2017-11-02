@@ -91,7 +91,7 @@ class Base_Theme extends BB_Theme {
 		// create our data cpt dir if not exists
 		if ( !file_exists( dirname( $cpt_json_file ) ) )
 		{
-			mkdir( dirname( $cpt_json_file ), 0777, true );
+			@mkdir( dirname( $cpt_json_file ), 0777, true );
 		}
 
 		if ( !empty( $cpt_saved_data ) ) {
@@ -100,21 +100,21 @@ class Base_Theme extends BB_Theme {
 			// create the file if not exists yet, or update if changed
 			if ( !file_exists( $cpt_json_file ) )
 			{
-				file_put_contents( $cpt_json_file, $cpt_json_data );
+				@file_put_contents( $cpt_json_file, $cpt_json_data );
 			}
 			else
 			{
-				$theme_cpt_json_data = file_get_contents( $cpt_json_file );
+				$theme_cpt_json_data = @file_get_contents( $cpt_json_file );
 				if ( $cpt_json_data !== $theme_cpt_json_data )
 				{
-					file_put_contents( $cpt_json_file, $cpt_json_data );
+					@file_put_contents( $cpt_json_file, $cpt_json_data );
 				}
 			}
 		}
 		else
 		{
 			// no saved data, check files, load data
-			$theme_cpt_json_data = file_get_contents( $cpt_json_file );
+			$theme_cpt_json_data = @file_get_contents( $cpt_json_file );
 			if ( !empty( $theme_cpt_json_data ) ) 
 			{
 				$cpt_saved_data = json_decode( $theme_cpt_json_data, true );
