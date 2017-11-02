@@ -87,18 +87,23 @@ class WPSEO_Meta_Storage implements WPSEO_Installable {
 
 		$query = $wpdb->prepare( '
 			SELECT COUNT( id ) AS incoming, target_post_id AS post_id
-			  FROM %2$s
-			 WHERE target_post_id IN( %3$s )
-		  GROUP BY target_post_id',
-			$this->get_table_name(),
-			$storage->get_table_name(),
-			implode( ', ', $post_ids )
+			FROM ' . $storage->get_table_name() . '
+			WHERE target_post_id IN(' . implode( ',', array_fill( 0, count( $post_ids ), '%d' ) ) . ')
+			GROUP BY target_post_id',
+			$post_ids
 		);
 
 		$results = $wpdb->get_results( $query );
 
+		$post_ids_non_zero = array();
 		foreach ( $results as $result ) {
 			$this->save_meta_data( $result->post_id, array( 'incoming_link_count' => $result->incoming ) );
+			$post_ids_non_zero[] = $result->post_id;
+		}
+
+		$post_ids_zero = array_diff( $post_ids, $post_ids_non_zero );
+		foreach ( $post_ids_zero as $post_id ) {
+			$this->save_meta_data( $post_id, array( 'incoming_link_count' => 0 ) );
 		}
 	}
 }

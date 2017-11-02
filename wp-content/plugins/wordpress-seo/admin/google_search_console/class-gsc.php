@@ -99,7 +99,7 @@ class WPSEO_GSC {
 			array(
 				'type'         => Yoast_Notification::WARNING,
 				'id'           => 'wpseo-dismiss-gsc',
-				'capabilities' => 'manage_options',
+				'capabilities' => 'wpseo_manage_options',
 			)
 		);
 	}
@@ -115,7 +115,7 @@ class WPSEO_GSC {
 	 * Function that outputs the redirect page
 	 */
 	public function display() {
-		require_once WPSEO_PATH . '/admin/google_search_console/views/gsc-display.php';
+		require_once WPSEO_PATH . 'admin/google_search_console/views/gsc-display.php';
 	}
 
 	/**

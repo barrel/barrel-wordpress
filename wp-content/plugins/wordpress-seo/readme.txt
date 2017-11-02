@@ -5,8 +5,8 @@ License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: SEO, XML sitemap, Google Search Console, Content analysis, Readability
 Requires at least: 4.6
-Tested up to: 4.8.1
-Stable tag: 5.4
+Tested up to: 4.8.2
+Stable tag: 5.7.1
 Requires PHP: 5.2.4
 
 Improve your WordPress SEO: Write better content and have a fully optimized WordPress site using the Yoast SEO plugin.
@@ -125,131 +125,79 @@ You'll find answers to many of your questions on [kb.yoast.com](https://kb.yoast
 
 == Changelog ==
 
-= 5.4.0 =
+= 5.7.1 =
 
-Release Date: September 6th, 2016
+Release Date: October 25th, 2017
+
+Bugfixes:
+	* Fixes a bug where the message "You are not receiving updates or support!" is shown incorrectly.
+	* Changes the reference to the correct ACF Content Analysis for Yoast SEO plugin.
+
+Enhancements:
+	* Adds a plugin suggestion for WooCommerce SEO when WooCommerce is installed.
+
+= 5.7.0 =
+
+Release Date: October 24th, 2017
+
+Enhancements:
+	* Adds notifications when we detect certain plugins are installed to suggest our AMP and ACF glue plugins.
+	* Adds the ability to start the configuration wizard from the admin bar menu.
+	* Adds better responsive styling for the video tabs in the Help Center.
+	* Replaces the link to Google AdWords with the https variant, props [Shane Gray](https://github.com/shane-gray).
+	* Changes to the desired spelling of `plugin` and `setup`, props [Pedro Mendonça](https://github.com/pedro-mendonca).
+
+Bugfixes:
+	* Fixes a bug where the text link counter doesn't count links for scheduled posts when they get published.
+	* Fixes a bug where the internal link count is not updated when a post is removed permanently.
+
+= 5.6.1 =
+
+Release Date: October 13th, 2017
+
+Bugfixes
+	* Fixes a bug where the SEO Manager role was not being able to save SEO settings.
+
+= 5.6.0 =
+
+Release Date: October 10th, 2017
+
+Enhancements
+	* Removes legacy license page and shows the new license page by default.
+	* Changes references from licenses to subscriptions and sites on the premium submenu page.
+	* Changes the appearance of the Help Center in line with our design approach.
+	* Introduces an explanation bar when the `Cornerstone content` filter is active.
+
+Bugfixes
+	* Fixes a bug where Hebrew slugs aren't decoded on display in the bulk editor.
+	* Fixes a bug where the internal link count is not updated when there are no links to that page or post anymore.
+	* Fixes the `Cornerstone content` filter to behave consistently with existing WordPress filters.
+
+= 5.5.1 =
+
+Release Date: September 28th, 2017
+
+* Bugfixes
+	* Fixes Snippet preview error when Yoast metabox has been removed.
+
+* Changes
+	* Change Yoast Blog feed to new endpoint.
+
+= 5.5.0 =
+
+Release Date: September 26th, 2017
 
 * Enhancements
-	* Added a hook to disabled the twitter card. (Props: @petenelson)
-
-* Performance
-	* Replaced the use of `get_posts` and `get_children` by `WP_Query`.
-
-* Bugfixes
-	* Archive pages are excluded from the sitemap based on the noindex setting. (Props: @stodorovic)
-	* Prevent the throwing of an error when `wpseoPostScraperL10n` is not defined.
-	* Escapes all input when generating links for the RSS feed.
-	* Apply the `wp_get_attachment_url` filter to Sitemap images.
-
-= 5.3.3 =
-
-Release Date: August 28th, 2017
+	* Updated the Dashboard Widget with a new design.
+	* Added additional explanations to the Configuration wizard.
+	* Added `contentinfo` landmark for assistive technologies to the Configuration wizard page.
+	* Introduces `wpseo_manager` and `wpseo_editor` roles.
+	* Introduces `wpseo_manage_options` capability to control which users have access to all SEO settings.
+	* Introduces `wpseo_edit_advanced_metadata` capability to control which users have access to the advanced SEO settings.
 
 * Bugfixes
-	* Fixes a bug where table listings were not giving expected content, props [Kyle B. Johnson](https://github.com/kjohnson).
-
-= 5.3.2 =
-
-Release Date: August 23th, 2017
-
-* Bugfixes
-	* Fixes a bug where an invalid license notification could be shown in certain situations.
-
-= 5.3.1 =
-
-Release Date: August 22nd, 2017
-
-* Bugfixes
-	* Fixes a bug where "mark as fixed" on the search console page didn't work.
-	* Fixes a bug where the configuration wizard JavaScript file was too large.
-
-= 5.3.0 =
-
-Release Date: August 22nd, 2017
-
-* Enhancements
-	* Adds missing I18n function call to make a string translatable
-	* Adds XML schema for image sitemap, props: [stodorovic](https://github.com/stodorovic)
-	* Adds schema.org meta-data on every page, instead of only on the homepage
-	* Adds the possibility to filter posts by readability score.
-	* Exposes tinyMCEHelper as window.YoastSEO.wp._tinyMCEHelper in JavaScript
-	* Exposes the ReplaceVar class in YoastReplaceVarPlugin as window.YoastReplaceVarPlugin.ReplaceVar in JavaScript
-
-* Bugfixes
-	* Adds sanitization for the Twitter Image meta field
-	* Fixes use of `register_meta` for usage in WordPress 4.6 and higher
-	* Initialize the providers on hook `after_theme_setup` to make sure custom providers are added properly, props: [stodorovic](https://github.com/stodorovic)
-	* Changes the label of the "Bad" score to "Needs improvement" while filtering on SEO or readability scores.
-
-= 5.2.0 =
-
-Release Date: August 8th, 2017
-
-* Enhancements
-	* Added wpseo_pre_adjacent_rel_links filter to bypass built-in rel prev/next functionality.
-	* Introduces classes to allow collecting data in the Premium plugin.
-	* Renamed OnPage.org to Ryte.
-	* Allow WordPress WHIP messages to be dismissed for a period of 4 weeks.
-	* Adds a filter for word combinations that consist of a single one-character word.
-	* Adds aria-current to the onboarding wizard active step.
-
-* Bugfixes
-	* Removes JQMIGRATE JavaScript warnings.
-
-= 5.1.0 =
-
-Release Date: July 25th, 2017
-
-* Enhancements
-	* Adds the post-type and taxonomy identifiers on the titles and metas settings tab.
-	* Adds support for importing of Jetpack SEO data.
-	* Improves the readability feature for Dutch, English, French, German, Italian and Spanish.
-	* Adds a WordPress SEO Premium motivation box on Yoast SEO settings pages.
-	* Adds a WordPress SEO Premium motivation on the social tabs.
-	* Adds support for third party sitemaps providers to be registered and used.
-	* Changes the column titles in the taxonomy list table to icons.
-	* Adds a subheader on the notification dashboard to clarify problems and issues which are muted.
-	* Improves avatars on the credit page, props [Mike DeHart](https://github.com/mikedehart)
-
-* Bugfixes
-	* Fixes a bug where `remove_meta_if_default` and `dont_save_meta_if_default` don't return the given input value as default.
-	* Fixes a performance issue related to calculating text link counts when saving a post.
-	* Fixes a typo in the readme.txt, props [Raymond Rutjes](https://github.com/rayrutjes)
-
-= 5.0.2 =
-
-Release Date: July 13th, 2017
-
-* Only load babel polyfill if it hasn't been loaded by another plugin yet.
-* Adds a feature toggle to disable the link counter tool & link columns.
-* Fixes a compatibility issue with WordPress 4.6.
-* Fixes an issue where the link columns would disappear after quick-editing a post.
-
-= 5.0.1 =
-
-Release Date: July 6th, 2017
-
-* Fixes a fatal error that could occur when trying to save a post that has `<a>`-tags with invalid URLs in it.
-
-= 5.0.0 =
-
-Release Date: July 6th, 2017
-
-* Bugfixes
-	* Fixes a bug where images via `https` were not working, props [Jannik Zschiesche](https://github.com/apfelbox).
-	* Fixes a bug where the whip notification can be shown multiple times.
-
-* Enhancements
-	* Introduces a module that counts links in the content.
-	* Adds Flesch Reading for Italian.
-	* Changes 'page title' to 'seo title' in the snippet preview.
- 	* Changes recommended maximum sentence length for Italian from 20 to 25 words, based on more in-depth research.
- 	* Implements the extracted version of the Algolia Search which is now present in `yoast-components`.
- 	* Adds a banner for the structured data course.
-
- * Under the hood
- 	* Introduces a database table to keep track of the linking structure. If the table cannot be created, a notification will be shown.
- 	* When there are posts or pages to reindex, a notice will be shown.
+	* Fixed a bug where certain options (`site_type`, `environment_type` and `has_multiple_authors`) would be reset to their default value whenever one of the feature toggles were changed.
+	* Ensured that `has_multiple_authors` gets validated.
 
 = Earlier versions =
 
