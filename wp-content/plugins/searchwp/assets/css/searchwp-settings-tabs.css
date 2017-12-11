@@ -1,0 +1,135 @@
+@charset "UTF-8";
+
+.swp-header {
+	background:#fff;
+	margin-left:-20px;
+	padding:0 20px;
+	overflow:hidden;
+	position:relative;
+}
+
+.swp-header:before {
+	display:block;
+	position:absolute;
+	content:'';
+	background:#dfdfdf;
+	right:0;
+	bottom:0;
+	left:0;
+	height:1px;
+}
+
+#swp-header-nav {
+	margin:0;
+	padding:0;
+	border:0;
+	font-size:1.5em;
+}
+
+#swp-header-nav .nav-tab {
+	border:0;
+	margin-right:0;
+	cursor:pointer;
+	display:inline-block;
+	line-height:3.4em;
+	padding:0.35em 1em 0;
+	color:inherit;
+	font-size:0.68em;
+	font-weight:normal;
+	background:transparent;
+}
+
+#swp-header-nav .nav-tab-active {
+	background:#f1f1f1;
+	position:relative;
+}
+
+#swp-header-nav a.nav-tab-license {
+	float:right;
+}
+
+#swp-header-nav .nav-tab-active:before,
+#swp-header-nav .nav-tab-active:after {
+	display:block;
+	position:absolute;
+	content:'';
+	width:1px;
+	background:#dfdfdf;
+	top:0;
+	bottom:0;
+}
+
+#swp-header-nav .nav-tab-active:before {
+	left:0;
+}
+
+#swp-header-nav .nav-tab-active:after {
+	right:0;
+}
+
+.searchwp-license-management {
+	margin:0;
+	padding:0;
+	position:absolute;
+	top:50%;
+	right:20px;
+	-webkit-transform: translateY(-50%);
+	-ms-transform: translateY(-50%);
+	transform: translateY(-50%);
+}
+
+.searchwp-tab-license-inactive span {
+	display:inline-block;
+	line-height:1;
+	border-radius:2px;
+	padding:0.5em 0.6em 0.4em;
+}
+
+.swp-header-nav .nav-tab-extensions {
+	position:relative;
+}
+
+.swp-header-nav .nav-tab-extensions:focus {
+	box-shadow:none;
+}
+
+.swp-header-nav .nav-tab-extensions span:after {
+	display:inline-block;
+	content:'▼';
+	line-height:1;
+	font-size:0.7em;
+	margin-left:0.7em;
+	position:relative;
+	top:-.1em;
+}
+
+#searchwp-extensions-dropdown {
+	position:absolute;
+	background:#fff;
+	border:1px solid #dfdfdf;
+	padding:0.4em 1em 0.6em;
+	min-width:13em;
+	border-top:0;
+	display:none; /* shown via JS */
+}
+
+#searchwp-extensions-dropdown.searchwp-sub-menu-active {
+	background:#f1f1f1 !important;
+}
+
+#searchwp-extensions-dropdown ul {
+	list-style:none;
+	margin:0;
+	padding:0;
+}
+
+#searchwp-extensions-dropdown li:last-of-type {
+	margin-bottom:0;
+}
+
+#searchwp-extensions-dropdown a {
+	display:block;
+	text-decoration:none;
+	font-size:0.95em;
+	padding:0.1em 0;
+}
