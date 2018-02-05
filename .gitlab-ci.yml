@@ -28,7 +28,8 @@ build:
     - master
   script: "gulp build"
 feature:
-  only: /^feature\/.*$/
+  only: 
+    - /^feature\/.*$/
   image: savaslabs/terminus-docker
   stage: build
   before_script:
