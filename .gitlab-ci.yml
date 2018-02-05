@@ -27,3 +27,9 @@ build:
   only:
     - master
   script: "gulp build"
+feature:
+  only: /^feature\/.*$/
+  image: savaslabs/terminus-docker
+  before_script:
+    - terminus auth:login --machine-token=$TERMINUS_TOKEN
+    - terminus multidev:create $PANTHEON_SITE_ID $CI_COMMIT_REF_NAME
