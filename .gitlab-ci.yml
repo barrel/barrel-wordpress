@@ -4,6 +4,7 @@ stages:
 php_syntax_check:
   before_script:
     - apt-get update && apt-get -y install git
+    - php -v
   image: php:7
   stage: test
   script: 
