@@ -31,7 +31,7 @@ build:
 feature:
   only: 
     - /^feature\/.*$/
-  image: savaslabs/terminus-docker
+  image: pantheon-public/build-tools-ci
   stage: build
   before_script:
     - terminus auth:login --machine-token=$TERMINUS_TOKEN
