@@ -91,7 +91,11 @@ class SearchWPUpgrade {
 		 * that matches what WordPress does out of the box; include post types that are
 		 * not specifically set to exclude_from_search
 		 */
-		$settings = array( 'engines' => array( 'default' => array(), ), );
+		$settings = array(
+			'engines' => array(
+				'default' => array(),
+			),
+		);
 
 		$post_types = array_merge(
 			array(
@@ -100,68 +104,45 @@ class SearchWPUpgrade {
 			),
 			get_post_types(
 				array(
-					'exclude_from_search' 	=> false,
-					'_builtin' 				=> false,
+					'exclude_from_search' => false,
+					'_builtin' => false,
 				)
 			)
 		);
 
+		// @since 2.9.0 we have a new engine model generator
 		foreach ( $post_types as $post_type ) {
 
-			$settings['engines']['default'][ $post_type ] = array(
-				'enabled'	=> true,
-				'weights'	=> array()
-			);
+			$settings['engines']['default'][ $post_type ] = SWP()->get_default_config_for_post_type( $post_type );
 
-			$postTypeObject = get_post_type_object( $post_type );
+			// Default post type config is disabled, but in this case we want to enable these post types
+			// because these post types were what was considered for search before installing SearchWP
+			$settings['engines']['default'][ $post_type ]['enabled'] = true;
 
-			// set default title weight if applicable
-			if ( post_type_supports( $postTypeObject->name, 'title' ) ) {
-				$settings['engines']['default'][ $post_type ]['weights']['title'] = searchwp_get_engine_weight( null, 'title' );
-			}
-
-			// set default content weight if applicable
-			if ( post_type_supports( $postTypeObject->name, 'editor' ) ) {
-				$settings['engines']['default'][ $post_type ]['weights']['content'] = searchwp_get_engine_weight( null, 'content' );
-			}
-
-			// set default slug weight if applicable
-			if ( 'page' === $postTypeObject->name || $postTypeObject->publicly_queryable ) {
-				$settings['engines']['default'][ $post_type ]['weights']['slug'] = searchwp_get_engine_weight( null, 'slug' );
-			}
-
-			// set default taxonomy weight(s) if applicable
-			$taxonomies = get_object_taxonomies( $postTypeObject->name );
-			if ( is_array( $taxonomies ) && count( $taxonomies ) ) {
-				$settings['engines']['default'][ $post_type ]['weights']['tax'] = array();
-				foreach ( $taxonomies as $taxonomy ) {
-					if ( 'post_format' !== $taxonomy ) { // we don't want Post Formats here
-						$settings['engines']['default'][ $post_type ]['weights']['tax'][ $taxonomy ] = searchwp_get_engine_weight( null, 'tax' );
-					}
-				}
-			}
-
-			// set default excerpt weight if applicable
-			if ( post_type_supports( $postTypeObject->name, 'excerpt' ) ) {
-				$settings['engines']['default'][ $post_type ]['weights']['excerpt'] = searchwp_get_engine_weight( null, 'excerpt' );
-			}
-
-			// set default comment weight if applicable
-			if ( post_type_supports( $postTypeObject->name, 'comments' ) ) {
-				$settings['engines']['default'][ $post_type ]['weights']['comment'] = searchwp_get_engine_weight( null, 'comment' );
-			}
-
-			// set our default options
-			$settings['engines']['default'][ $post_type ]['options'] = array(
-				'exclude'       => '',
-				'attribute_to'  => '',
-				'stem'          => '',
-			);
-
+			// We're also going to do some additional formatting as introduced by 2.9.0
+			// Because of the way the data model is set up in Vue the default is an empty
+			// object but for back compat we're going to move it back to an array here
+			$settings['engines']['default'][ $post_type ]['weights']['cf'] = array();
 		}
 
 		// allow developers to filter the default engine settings
+		$default_engine = $settings['engines']['default'];
 		$settings['engines'] = apply_filters( 'searchwp_initial_engine_settings', $settings['engines'] );
+
+		// @since 2.9.0 we need to ensure that there is a default engine
+		if ( ! isset( $settings['engines']['default'] ) ) {
+			$filtered_engines = $settings['engines'];
+			$settings['engines']['default'] = $default_engine;
+			$settings['engines'] = array_merge( $settings['engines'], $filtered_engines );
+		}
+
+		// Always run through the validator
+		$valid_settings = SWP()->validate_settings(
+			array(
+				'engines' => $settings['engines'],
+			)
+		);
+		$settings['engines'] = $valid_settings['engines'];
 
 		searchwp_generate_settings( $settings['engines'] );
 
@@ -169,6 +150,8 @@ class SearchWPUpgrade {
 
 		searchwp_add_option( 'progress', 0 );
 
+		// Set a flag to prevent the indexer from automatically starting (and also tell SearchWP to short circuit until further notice)
+		searchwp_set_setting( 'initial_settings', false );
 	}
 
 	/**
@@ -676,13 +659,38 @@ class SearchWPUpgrade {
 				// so we need to delete it and then re-add it using the proper autoload flag
 				delete_option( SEARCHWP_PREFIX . $option );
 
-				add_option( SEARCHWP_PREFIX . $option, $existing, null, 'no' );
+				add_option( SEARCHWP_PREFIX . $option, $existing, '', 'no' );
 				unset( $existing );
 			}
+		}
 
+		if ( version_compare( $this->last_version, '2.9', '<' ) ) {
+			// back up the settings
+			searchwp_add_settings_backup();
+
+			// Set the flag to indicate that there are already existing settings that have been set
+			searchwp_set_setting( 'initial_settings', true );
+
+			// Set the flag to indicate that the existing engine configuration is considered legacy
+			searchwp_set_setting( 'legacy_engines', true );
 		}
 	}
 
+}
+
+/**
+ * Create a backup of the current SearchWP settings
+ *
+ * @since 2.9.0
+ */
+function searchwp_add_settings_backup() {
+	$live_settings = searchwp_get_option( 'settings' );
+	$settings_backups = searchwp_get_option( 'settings_backup' );
+	if ( empty( $settings_backups ) ) {
+		$settings_backups = array();
+	}
+	$settings_backups[ current_time( 'timestamp' ) ] = $live_settings;
+	update_option( SEARCHWP_PREFIX . 'settings_backup', $settings_backups, 'no' );
 }
 
 /**

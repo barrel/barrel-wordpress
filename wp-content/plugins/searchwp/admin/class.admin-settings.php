@@ -43,8 +43,8 @@ class SearchWP_Admin_Settings {
 		if ( wp_script_is( 'select2', 'registered' ) ) {
 			wp_dequeue_style( 'select2' );
 			wp_deregister_style( 'select2' );
-			wp_dequeue_script( 'select2');
-			wp_deregister_script('select2');
+			wp_dequeue_script( 'select2' );
+			wp_deregister_script( 'select2' );
 		}
 
 		wp_register_style( 'select2',               $base_url . 'assets/vendor/select2/css/select2.min.css', null, '4.0.2', 'screen' );
@@ -63,23 +63,30 @@ class SearchWP_Admin_Settings {
 		wp_enqueue_style( 'swp_settings_tabs_css' );
 		wp_enqueue_style( 'select2' );
 
-		wp_enqueue_script( 'underscore' );
+		// Always need jQuery
 		wp_enqueue_script( 'jquery' );
-		wp_enqueue_script( 'jquery-ui-tooltip' );
-		wp_enqueue_script( 'select2' );
 
-		// wp_enqueue_script( 'swp_admin_js' ); // this is echo'd directly into the page
+		// Only need these assets if we're using the legacy UI
+		$show_legacy_ui = apply_filters( 'searchwp_legacy_settings_ui', false );
+		if ( $show_legacy_ui ) {
+			wp_enqueue_script( 'underscore' );
+			wp_enqueue_script( 'jquery-ui-tooltip' );
+			wp_enqueue_script( 'select2' );
 
-		// only trigger the progress script if it's not the alternative indexer
-		if ( ! isset( $_GET['nonce'] ) && ! $parent->is_using_alternate_indexer() ) {
-			// if a nonce was set we're dealing with advanced settings which might be purging the index
-			// if this script were included the background process would be invoked, we don't want that right now
-			wp_localize_script( 'swp_progress', 'ajax_object',
-				array(
-					'ajax_url' => admin_url( 'admin-ajax.php' ),
-					'nonce'    => wp_create_nonce( 'swpprogress' ) )
-			);
-			wp_enqueue_script( 'swp_progress' );
+			// wp_enqueue_script( 'swp_admin_js' ); // this is echo'd directly into the page
+
+			// only trigger the progress script if it's not the alternative indexer
+			if ( ! isset( $_GET['nonce'] ) && ! $parent->is_using_alternate_indexer() ) {
+				// if a nonce was set we're dealing with advanced settings which might be purging the index
+				// if this script were included the background process would be invoked, we don't want that right now
+				wp_localize_script( 'swp_progress', 'ajax_object',
+					array(
+						'ajax_url' => admin_url( 'admin-ajax.php' ),
+						'nonce'    => wp_create_nonce( 'swpprogress' ),
+					)
+				);
+				wp_enqueue_script( 'swp_progress' );
+			}
 		}
 	}
 
@@ -118,11 +125,11 @@ class SearchWP_Admin_Settings {
 			}
 			.searchwp-tab-license-inactive span {
 				color:#fff;
-				background-color:<?php echo esc_html( $link_hover_color ); ?>;
+				background-color: #d54e21;
 			}
 			.searchwp-tab-license-inactive:hover span {
 				color:#fff;
-				background-color:<?php echo esc_html( $link_hover_color ); ?>;
+				background-color: #d54e21;
 			}
 
 			.searchwp-tab-license-inactive.nav-tab-active span,
@@ -185,24 +192,30 @@ class SearchWP_Admin_Settings {
 	 */
 	function render_view_engine() {
 
-		// output a notice for the initial index being built
-		$notices = searchwp_get_setting( 'notices' );
-		$initial_notified = ( is_array( $notices ) && in_array( 'initial', $notices, true ) ) ? true : false;
-		if ( searchwp_get_setting( 'initial_index_built' ) && ! $initial_notified ) : ?>
-			<div class="updated">
-				<p><?php esc_html_e( 'Initial index has been built, the progress bar will be hidden until it is needed again.', 'searchwp' ); ?></p>
-			</div>
-			<?php
-			if ( is_array( $notices ) ) {
-				$notices[] = 'initial';
-			} else {
-				$notices = array( 'initial' );
-			}
-			searchwp_set_setting( 'notices', $notices );
-			?>
-		<?php endif;
+		$show_legacy_ui = apply_filters( 'searchwp_legacy_settings_ui', false );
 
-		include( dirname( __FILE__ ) . '/view-settings-engines.php' );
+		if ( empty( $show_legacy_ui ) ) {
+			include( dirname( __FILE__ ) . '/view-settings-engines.php' );
+		} else {
+			// output a notice for the initial index being built
+			$notices = searchwp_get_setting( 'notices' );
+			$initial_notified = ( is_array( $notices ) && in_array( 'initial', $notices, true ) ) ? true : false;
+			if ( searchwp_get_setting( 'initial_index_built' ) && ! $initial_notified ) : ?>
+				<div class="updated">
+					<p><?php esc_html_e( 'Initial index has been built, the progress bar will be hidden until it is needed again.', 'searchwp' ); ?></p>
+				</div>
+				<?php
+				if ( is_array( $notices ) ) {
+					$notices[] = 'initial';
+				} else {
+					$notices = array( 'initial' );
+				}
+				searchwp_set_setting( 'notices', $notices );
+				?>
+			<?php endif;
+
+			include( dirname( __FILE__ ) . '/view-settings-engines-legacy.php' );
+		}
 	}
 
 	/**

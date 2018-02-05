@@ -13,7 +13,7 @@ include_once ABSPATH . 'wp-admin/includes/file.php';
  * Class SearchWPDebug is responsible for various debugging operations
  */
 class SearchWPDocumentParser {
-	
+
 	private $id;
 	private $post;
 	private $filename;
@@ -85,17 +85,17 @@ class SearchWPDocumentParser {
 		$file_id = absint( $file_id );
 
 		$this->indexer = new SearchWPIndexer();
-		
+
 		$this->id = $file_id;
 		$this->post = get_post( $this->id );
 		$this->mime_type = $this->post->post_mime_type;
 		$this->filename = get_attached_file( $this->id );
-		
+
 		// as of 2.6.2 stored PDF content is not removed when the index is purged
 		// so as to save all of the time it takes to parse that content (also
 		// to be considerate of PDF content that was painstakingly manually populated)
 		$this->stored_content = $this->get_stored_document_content();
-		
+
 		// allow filtration of mimes
 		foreach ( $this->mimes as $mime_type_group => $mimes ) {
 			$this->mimes[ $mime_type_group ] = apply_filters( "searchwp_mimes_{$mime_type_group}", $mimes );
@@ -109,11 +109,11 @@ class SearchWPDocumentParser {
 	 */
 	function get_stored_document_content() {
 		$stored_content = get_post_meta( $this->id, SEARCHWP_PREFIX . 'content', true );
-		
+
 		if ( empty( $stored_content ) ) {
 			$stored_content = '';
 		}
-		
+
 		return $stored_content;
 	}
 
@@ -407,7 +407,7 @@ class SearchWPDocumentParser {
 
 	/**
 	 * Extract PDF content from the file
-	 * 
+	 *
 	 * @return string
 	 */
 	private function extract_pdf_content() {
@@ -418,7 +418,7 @@ class SearchWPDocumentParser {
 			do_action( 'searchwp_log', 'PDF content externally populated ' . $this->id );
 			return $pdf_content;
 		}
-			
+
 		$pdf_content = $this->extract_pdf_text( $this->post->ID );
 
 		return $pdf_content;
@@ -428,7 +428,7 @@ class SearchWPDocumentParser {
 	 * Extract plain text from PDF
 	 *
 	 * @since 2.5
-	 * 
+	 *
 	 * @param $post_id integer The post ID of the PDF in the Media library
 	 *
 	 * @return string The contents of the PDF
@@ -465,7 +465,8 @@ class SearchWPDocumentParser {
 		}
 
 		// PdfParser runs only on 5.3+ but SearchWP runs on 5.2+
-		if ( version_compare( PHP_VERSION, '5.3', '>=' ) ) {
+		// PdfParser also uses mb_check_encoding() without checking for it
+		if ( version_compare( PHP_VERSION, '5.3', '>=' ) && function_exists( 'mb_check_encoding' ) ) {
 
 			/** @noinspection PhpIncludeInspection */
 			include_once( $searchwp->dir . '/vendor/pdfparser-bootloader.php' );
@@ -486,6 +487,10 @@ class SearchWPDocumentParser {
 					do_action( 'searchwp_log', 'PDF parsing failed: ' . sanitize_text_field( $e->getMessage() ) );
 					return false;
 				}
+			}
+		} else {
+			if ( ! function_exists( 'mb_check_encoding' ) ) {
+				do_action( 'searchwp_log', 'Unable to load PDF parser, please install mbstring' );
 			}
 		}
 

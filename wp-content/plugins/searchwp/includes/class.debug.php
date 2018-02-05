@@ -72,7 +72,9 @@ class SearchWPDebug {
 		$entry = '[' . date( 'Y-d-m G:i:s', current_time( 'timestamp' ) ) . '][' . sanitize_text_field( $type ) . ']';
 
 		// flag it with the process ID
-		$entry .= '[' . SearchWP::instance()->get_pid() . ']';
+		if ( apply_filters( 'searchwp_debug_include_pid', false ) ) {
+			$entry .= '[' . SearchWP::instance()->get_pid() . ']';
+		}
 
 		// sanitize the message
 		$message = sanitize_text_field( esc_html( $message ) );

@@ -1,3 +1,36 @@
+### 2.9.5
+- **[Fix]** Fixed an issue where 'Any Custom Field' did not work as expected in some cases
+- **[Fix]** Fixed an issue where taxonomies added since the last engine save may not be available
+- **[Improvement]** Actual weight multiplier is displayed in tooltip
+
+### 2.9.4
+- **[Fix]** Fixed a CSS bug causing multiselect overlapping when configuring multiple post types
+- **[Fix]** Fixed an issue preventing searches of hierarchical post types in the admin
+
+### 2.9.3
+- **[Fix]** Fixed a `searchwp_and_logic_only` regression introduced in 2.9
+- **[Improvement]** Better handling of initial default engine model
+
+### 2.9.2
+- **[Fix]** Fixed an issue with some custom `ORDER BY` statements
+
+### 2.9.1
+- **[Fix]** Fixed a potential issue with `sql_mode=only_full_group_by` support (added in 2.9)
+- **[Fix]** Avoid error when parsing PDFs without `mbstring`
+
+### 2.9
+- **[New]** Redesigned engine configuration interface!
+- **[New]** Index is now further optimized as per engine settings
+- **[New]** New filter `searchwp_weight_max` to customize a maximum weight
+- **[New]** New filter `searchwp_legacy_settings_ui` to use legacy settings UI
+- **[New]** New filter `searchwp_indexer_apply_engines_rules` to control whether engine rules are considered during indexing
+- **[New]** New filter `searchwp_indexer_additional_meta_exclusions` to control whether default additional Custom Fields are excluded from indexing
+- **[New]** New filter `searchwp_supports_label_{post_type}_{support}` to customize the label used for a post type native attribute
+- **[Improvement]** Additional debug statements output when enabled
+- **[Improvement]** Better formatting of HTML comment debug output
+- **[Fix]** Less aggressive handling of `pre_get_posts` during searching
+- **[Fix]** Fix an issue with `sql_mode=only_full_group_by` (default in MySQL 5.7)
+
 ### 2.8.17
 - **[Update]** Updated updater
 - **[Fix]** Fixed an issue with database table creation
