@@ -1,6 +1,8 @@
 stages:
-  - test
   - build
+  - test
+  - stage
+  - production
 php_syntax_check:
   before_script:
     - apt-get update && apt-get -y install git
@@ -31,8 +33,16 @@ build:
 feature:
   only: 
     - /^feature\/.*$/
-  image: pantheon-public/build-tools-ci
+  image: barrelny/pantheon-ci:0.1
   stage: build
+  before_script:
+    - terminus auth:login --machine-token=$TERMINUS_TOKEN
+  script:
+    - terminus multidev:create $PANTHEON_SITE_ID $CI_COMMIT_REF_NAME
+deploy:
+  only: develop
+  image: barrelny/pantheon-ci:0.1
+  stage: production
   before_script:
     - terminus auth:login --machine-token=$TERMINUS_TOKEN
   script:
