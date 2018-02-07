@@ -6,7 +6,6 @@
     the_post();
 
     the_module('post');
-    the_module('hero');
 
   }
 
