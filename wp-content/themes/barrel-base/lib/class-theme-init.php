@@ -82,7 +82,7 @@ class Base_Theme extends BB_Theme {
 		}
 	}
 
-	public function cpt_config_data( $is_post_type = true ) 
+	public function cpt_config_data( $is_post_type = true )
 	{
 		$cpt_key_name = $is_post_type ? 'cptui_post_types' : 'cptui_taxonomies';
 		$cpt_json_file = $this->cpt_json_path . "/$cpt_key_name.json";
@@ -115,7 +115,7 @@ class Base_Theme extends BB_Theme {
 		{
 			// no saved data, check files, load data
 			$theme_cpt_json_data = @file_get_contents( $cpt_json_file );
-			if ( !empty( $theme_cpt_json_data ) ) 
+			if ( !empty( $theme_cpt_json_data ) )
 			{
 				$cpt_saved_data = json_decode( $theme_cpt_json_data, true );
 				update_option( $cpt_key_name, $cpt_saved_data );
@@ -159,7 +159,7 @@ class Base_Theme extends BB_Theme {
 	/**
 	 * Rename Default Template to Basic Page
 	 */
-	public function rename_default_template() 
+	public function rename_default_template()
 	{
 		return __('Basic Page', 'barrel-base');
 	}
@@ -184,14 +184,16 @@ class Base_Theme extends BB_Theme {
 		);
 
 		// scripts
-		wp_enqueue_script( $handle, "$script_path/js/main.min.js", null, $version, true );
-		if ( !empty( $wp_vars ) ) 
+		wp_enqueue_script( $handle, "$script_path/main.js", null, $version, ( IS_DEV ? false : true ) );
+		if ( !empty( $wp_vars ) )
 		{
 			wp_localize_script( $handle, 'wpVars', $wp_vars );
 		}
 
 		// styles
-		wp_enqueue_style( $handle, "$script_path/css/main.min.css", array(), $version, 'all' );
+    if ( !IS_DEV ) {
+		  wp_enqueue_style( $handle, "$script_path/main.css", array(), $version, 'all' );
+    }
 	}
 
 	/**
@@ -211,13 +213,13 @@ class Base_Theme extends BB_Theme {
 	/**
 	 * Print inline scripts and styles
 	 */
-	public function print_scripts_head_meta() 
+	public function print_scripts_head_meta()
 	{
 		global $pagenow;
 		$this->site_favicons();
 	}
 
-	private function site_favicons() 
+	private function site_favicons()
 	{
 		$favi = THEME_URI . '/assets/img/favicon/'; ?>
 
@@ -229,7 +231,7 @@ class Base_Theme extends BB_Theme {
 		<link rel="shortcut icon" href="<?= $favi; ?>favicon.ico">
 		<meta name="msapplication-config" content="<?= $favi; ?>browserconfig.xml">
 		<meta name="theme-color" content="#ffffff">
-	<?php 
+	<?php
 	}
 
 	public function print_scripts_before_body_end ()

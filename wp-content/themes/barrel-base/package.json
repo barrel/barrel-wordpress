@@ -1,8 +1,12 @@
 {
   "name": "barrel-base",
   "version": "1.2.2",
+  "scripts": {
+    "start": "brrl -w",
+    "build": "brrl -b -e production"
+  },
   "devDependencies": {
-    "@barrelny/cli": "0.0.10",
+    "@barrelny/cli": "0.0.13",
     "autoprefixer": "^6.4.1",
     "browserify": "^13.1.0",
     "browserify-shim": "^3.8.12",

@@ -1,33 +1,88 @@
-var $ = require('jquery')
+let __cache = {}
 
-/**
- * Finds all elements with a "data-module-init" attribute
- * and calls the corresponding script
- */
-function initializeModules () {
-  var modules = document.querySelectorAll('[data-module-init]')
+const errors = {
+  duplicate ([id, ...args]) {
+    return [
+      `a duplicate key ${id} was found in the cache. This instance will be overwritten.`,
+      ...args
+    ]
+  },
+  undefined ([id, ...args]) {
+    return [
+      `can't find ${id} in the cache`,
+      ...args
+    ]
+  },
+  error ([id, ...args]) {
+    return [
+      `${id} threw an error\n\n`,
+      ...args
+    ]
+  }
+}
 
-  for (var i = 0; i < modules.length; i++) {
-    var el = modules[ i ]
-    var $el = $(el)
-    var name = el.getAttribute('data-module-init')
-    // Find the module script
-    var Module
-    try {
-      Module = require('modules/' + name)
-    } catch (e) {
-      console.log(e.toString())
-      Module = false
-    }
+function log (level, type, ...args) {
+  console[level]('⚙️ micromanager -', ...errors[type](args))
+}
 
-    // Initialize the module with the calling element
-    if (typeof Module === 'function' && !$el.data('module')) {
-      var mod = new Module(el)
+function init (types, ctx = document) {
+  return {
+    cache: {
+      set (id, instance) {
+        if (__cache[id]) log('warn', 'duplicate', id)
+        __cache[id] = instance
+      },
+      get (id) {
+        try {
+          return __cache[id]
+        } catch (e) {
+          log('warn', 'undefined', id)
+          return null
+        }
+      },
+      dump () {
+        return __cache
+      }
+    },
+    mount () {
+      for (let type in types) {
+        const attr = 'data-' + type
+        const nodes = [].slice.call(ctx.querySelectorAll(`[${attr}]`))
+        const path = types[type].replace(/^\/|\/$/, '')
 
-      // Save module instance to jQuery data
-      $(el).data('module', mod)
+        for (let i = 0; i < nodes.length; i++) {
+          const name = nodes[i].getAttribute(attr)
+
+          try {
+            const instance = type === 'module'
+              ? require(`modules-root/${name}/${name}.js`).default(nodes[i])
+              : require(`modules-root/${name}.js`).default(nodes[i])
+
+            nodes[i].removeAttribute(attr)
+
+            if (instance) {
+              this.cache.set(instance.displayName || name, instance)
+            }
+          } catch (e) {
+            log('error', 'error', name, e)
+          }
+        }
+      }
+
+      return this
+    },
+    unmount () {
+      for (let key in __cache) {
+        const instance = __cache[key]
+        if (instance.unmount) {
+          instance.unmount()
+          delete __cache[key]
+        }
+      }
+
+      return this
     }
   }
 }
 
-module.exports = initializeModules
+export default init
