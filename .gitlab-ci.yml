@@ -41,8 +41,9 @@ feature:
   script:
     - PREFIX=feature/
     - PANTHEON_MULTIDEV=${CI_COMMIT_REF_NAME:${#PREFIX}:11}
-    - echo "Creating multidev, $PANTHEON_MULTIDEV"
-    - terminus multidev:create $PANTHEON_SITE_ID $PANTHEON_MULTIDEV
+    - echo "Checking if ENV $PANTHEON_MULTIDEV exists..."
+    - MATCH=$(terminus multidev:list --format=list --fields=id barrel-base-theme | grep ci)
+    - if [ "$MATCH" == "$PANTHEON_MULTIDEV" ]; then echo "Creating multidev, $PANTHEON_MULTIDEV"; terminus multidev:create $PANTHEON_SITE_ID $PANTHEON_MULTIDEV; fi
 deploy:
   only: 
     - develop
