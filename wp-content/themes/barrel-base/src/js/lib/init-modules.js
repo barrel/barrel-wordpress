@@ -48,7 +48,6 @@ function init (types, ctx = document) {
       for (let type in types) {
         const attr = 'data-' + type
         const nodes = [].slice.call(ctx.querySelectorAll(`[${attr}]`))
-        const path = types[type].replace(/^\/|\/$/, '')
 
         for (let i = 0; i < nodes.length; i++) {
           const name = nodes[i].getAttribute(attr)
