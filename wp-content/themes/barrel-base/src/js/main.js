@@ -1,6 +1,7 @@
-var $ = require('jquery')
-var initializeModules = require('./lib/init-modules.js')
+import init from './lib/init-modules'
 
-$(function () {
-  initializeModules()
+document.addEventListener('DOMContentLoaded', () => {
+  init({
+    module: 'modules'
+  }).mount()
 })

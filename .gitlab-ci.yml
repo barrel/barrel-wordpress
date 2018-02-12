@@ -7,7 +7,7 @@ php_syntax_check:
   image: php:7
   stage: test
   script: 
-    - git diff --diff-filter=ACMR --name-only origin/master | grep .php | xargs -L1 php -l
+    - git diff --diff-filter=ACMR --name-only origin/master -- '*.php' | xargs -L1 php -l
 js_lint:
   before_script:
     - npm config set loglevel warn && npm set progress=false
@@ -27,3 +27,12 @@ build:
   only:
     - master
   script: "gulp build"
+feature:
+  only: 
+    - /^feature\/.*$/
+  image: savaslabs/terminus-docker
+  stage: build
+  before_script:
+    - terminus auth:login --machine-token=$TERMINUS_TOKEN
+  script:
+    - terminus multidev:create $PANTHEON_SITE_ID $CI_COMMIT_REF_NAME

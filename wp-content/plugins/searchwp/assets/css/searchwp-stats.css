@@ -1,0 +1,131 @@
+.swp-group:before,
+.swp-group:after {
+	display:table;
+	line-height:0;
+	content:"";
+}
+
+.swp-group:after {
+	clear:both;
+}
+
+#swp-searches-chart,
+.swp-searches-chart {
+	width:100%;
+	min-height:265px;
+}
+
+.swp-searches-chart svg {
+	min-height:265px;
+}
+
+.swp-stats {
+	padding-top:15px;
+}
+
+.swp-stats h2 {
+	margin-bottom:5px;
+}
+
+#wpbody-content .swp-stats,
+#wpbody-content .swp-stat {
+	-moz-box-sizing:border-box;
+	box-sizing:border-box;
+}
+
+#wpbody-content .swp-stats-4 .swp-stat {
+	padding-top:0;
+	width:23.5%;
+	margin-right:2%;
+	float:left;
+}
+
+#wpbody-content .swp-stats-4 .swp-stat:nth-of-type(4) {
+	margin-right:0;
+	float:right
+}
+
+@media all and (max-width: 1340px) {
+	#wpbody-content .swp-stats-4 .swp-stat {
+		width:49%;
+		margin:0 0 20px;
+		float:left;
+	}
+	#wpbody-content .swp-stats-4 .swp-stat:nth-of-type(2) {
+		float:right;
+	}
+}
+
+@media all and (max-width: 635px) {
+	#wpbody-content .swp-stats-4 .swp-stat,
+	#wpbody-content .swp-stats-4 .swp-stat:nth-of-type(2),
+	#wpbody-content .swp-stats-4 .swp-stat:nth-of-type(4) {
+		width:100%;
+		float:none;
+	}
+}
+
+.swp-stats table {
+	width:100%;
+}
+
+.swp-stats tr {
+	display:table-row;
+}
+
+.swp-stats th {
+	text-align:left;
+}
+
+.swp-stats td {
+	width:50%;
+	position:relative;
+}
+
+.swp-stats tr > td:nth-of-type(1) {
+	width:70%;
+}
+
+.swp-stats tr > td:nth-of-type(2) {
+	width:30%;
+}
+
+.swp-stats td div {
+	text-overflow:ellipsis;
+	white-space:nowrap;
+	overflow:hidden;
+	width:90%;
+}
+
+.swp-searches-chart-wrapper {
+	max-width:100%;
+	overflow:auto;
+}
+
+.swp-stat .hndle {
+	cursor:auto;
+}
+
+.swp-delete {
+	text-decoration:none;
+	-moz-box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+	box-sizing:border-box;
+	display:inline-block;
+	width:12px;
+	height:12px;
+	border-radius:5px;
+	border:1px solid #dadada;
+	overflow:hidden;
+	font-size:8px;
+	line-height:0.9em;
+	text-align:center;
+	background:#f5f5f5;
+	cursor:pointer;
+	margin-right:5px !important;
+	color:#656565;
+	font-weight:normal;
+	padding:0 !important;
+	position:relative;
+	top:2px;
+}

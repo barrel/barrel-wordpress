@@ -1,1 +1,0 @@
-{"version":3,"sources":["_typography.scss"],"names":[],"mappings":"AAAA,KACE,eAAmB,CACpB","file":"main.min.css","sourcesContent":["body {\n  background: lighten(white, 10%);\n}"],"sourceRoot":"../../src/scss/"}

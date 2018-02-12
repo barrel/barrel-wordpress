@@ -1,32 +1,11 @@
 {
   "name": "barrel-base",
-  "version": "1.2.2",
-  "devDependencies": {
-    "autoprefixer": "^6.4.1",
-    "browserify": "^13.1.0",
-    "browserify-shim": "^3.8.12",
-    "glob": "^7.0.6",
-    "gulp": "^3.9.1",
-    "gulp-concat": "^2.6.0",
-    "gulp-jscs": "~4.0.0",
-    "gulp-jshint": "~2.0.1",
-    "gulp-kraken": "^0.2.0",
-    "gulp-livereload": "^3.8.1",
-    "gulp-postcss": "^6.1.1",
-    "gulp-rename": "^1.2.2",
-    "gulp-sass": "^2.3.2",
-    "gulp-sourcemaps": "^1.6.0",
-    "gulp-uglify": "^2.0.0",
-    "gulp-util": "^3.0.7",
-    "jscs-stylish": "^0.3.1",
-    "jshint": "^2.9.3",
-    "jshint-stylish": "^2.2.1",
-    "minifyify": "^7.3.3",
-    "pretty-hrtime": "^1.0.2",
-    "standard": "^10.0.2",
-    "watchify": "^3.7.0"
+  "version": "1.3.0",
+  "scripts": {
+    "start": "brrl -w",
+    "build": "brrl -b -e production"
   },
-  "browserify-shim": {
-    "jquery": "global:jQuery"
+  "devDependencies": {
+    "@barrelny/cli": "0.0.13"
   }
 }

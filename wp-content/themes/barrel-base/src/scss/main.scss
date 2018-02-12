@@ -3,6 +3,4 @@
 @import "base/typography";
 
 // Imports from module folders (Paths are expanded within Gulp task)
-@import "modules/post";
-@import "modules/hero";
-@import "modules/search-form";
+@import "<Modules>";

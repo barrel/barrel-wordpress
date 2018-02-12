@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 1.3.0 - 2018-02-11
+### CHANGED:
+- Update Core and platform
+- Add webpack config, remove browserify
+
 ## 1.2.2 - 2017-11-02
 ### CHANGED:
 - Update Core and supplied plugins

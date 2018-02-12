@@ -1,0 +1,4 @@
+production:
+  target: http://barrel-base-theme.lndo.site:8000
+development:
+  target: http://barrel-base-theme.lndo.site:8000

@@ -1,0 +1,11 @@
+debug.log
+assets/vendor/chartist/scss/.sass-cache
+.DS_Store
+debug.txt
+node_modules
+/hooks.log
+/gethooks.sh
+/.sass-cache
+/vendor/smalot
+/vendor/tecnickcom
+/vendor/wamania

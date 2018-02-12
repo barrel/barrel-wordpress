@@ -1,0 +1,19 @@
+/* Imports from src directory*/
+body {
+  background: #ffffff;
+}
+/* Imports from module folders (Paths are expanded within Gulp task)*/
+.hero{
+
+}
+.post{
+
+}
+.search-submit {
+  background: none;
+  border: 0;
+}
+.search-submit-icon:after {
+  content: '\1F50E';
+  display: block;
+}

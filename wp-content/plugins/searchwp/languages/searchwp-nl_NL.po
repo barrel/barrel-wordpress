@@ -1,0 +1,1298 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: SearchWP\n"
+"POT-Creation-Date: 2015-06-17 10:45-0500\n"
+"PO-Revision-Date: 2015-08-02 08:33+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.3\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: admin/class.admin-settings.php:127
+msgid "Help"
+msgstr "Help"
+
+#: admin/class.admin-settings.php:176
+msgid ""
+"Initial index has been built, the progress bar will be hidden until it is "
+"needed again."
+msgstr ""
+"Initiële index is gemaakt, de voortgangsbalk zal verborgen blijven tot het "
+"moment dat het nodig is."
+
+#: admin/class.admin-settings.php:225 searchwp.php:745 searchwp.php:935
+msgid "Settings"
+msgstr "Instellingen"
+
+#: admin/class.dashboard.php:37 admin/stats.php:29 searchwp.php:2181
+msgid "Search Statistics"
+msgstr "Zoekstatistieken"
+
+#: admin/class.dashboard.php:82 admin/class.dashboard.php:90
+#: admin/export-import.php:29 admin/stats.php:37 admin/stats.php:112
+msgid "Default"
+msgstr "Standaard"
+
+#: admin/class.dashboard.php:109 admin/stats.php:244
+msgid "Today"
+msgstr "Vandaag"
+
+#: admin/class.dashboard.php:113 admin/stats.php:451
+msgid "Past 30 Days"
+msgstr "Afgelopen 30 dagen"
+
+#: admin/class.dashboard.php:120
+msgid "View Full Stats"
+msgstr "Bekijk de volledige stastieken"
+
+#: admin/class.dashboard.php:143 admin/stats.php:267 admin/stats.php:317
+#: admin/stats.php:367 admin/stats.php:417 admin/stats.php:474
+msgid "Query"
+msgstr "Zoekopdracht"
+
+#: admin/class.dashboard.php:144
+msgid "Count"
+msgstr "Tellen"
+
+#: admin/class.dashboard.php:157
+msgid "No searches for this time period."
+msgstr "Geen zoekopdrachten in deze tijdsperiode"
+
+#: admin/class.extensions.php:29
+msgid "Extensions"
+msgstr "Aanvullingen"
+
+#: admin/class.extensions.php:44
+msgid "SearchWP"
+msgstr "SearchWP"
+
+#: admin/class.extensions.php:48 searchwp.php:2487
+msgid "Back to SearchWP Settings"
+msgstr "Terug naar de SearchWP instellingen"
+
+#: admin/class.nags.php:97
+#, php-format
+msgid ""
+"The SearchWP indexer runs as fast as it can without overloading your server; "
+"there are filters to customize it's aggressiveness. <a href=\"%s\">Find out "
+"more &raquo;</a> <a class=\"swp-dismiss\" href=\"%s\">Dismiss</a>"
+msgstr ""
+"De SearchWP indexeerfunctie werkt zo snel mogelijk zonder de server te "
+"belasten. Er zijn filter om de snelheid aan te passen. <a href=\"%s\">kom "
+"meer te weten &raquo;</a> <a class=\"swp-dismiss\" href=\"%s\">Verwijderen</"
+"a>"
+
+#: admin/class.nags.php:115
+msgid ""
+"In order to receive updates and support, you must have an active license."
+msgstr ""
+"Om updates en support te ontvangen, dien je een actieve licentie te hebben."
+
+#: admin/class.nags.php:115 admin/settings-impl-license.php:49
+msgid "Manage License"
+msgstr "Beheer licentie"
+
+#: admin/class.nags.php:115 admin/view-settings-help.php:15
+msgid "Purchase License"
+msgstr "Koop licentie"
+
+#: admin/class.nags.php:115 admin/class.nags.php:130
+msgid "Dismiss"
+msgstr "Verzenden"
+
+#: admin/class.nags.php:130
+#, php-format
+msgid ""
+"Your server is running MySQL version %1$s which may prevent search results "
+"from appearing due to <a href=\"http://bugs.mysql.com/bug.php?id=41156\">bug "
+"41156</a>. Please update MySQL to a more recent version (at least 5.2)."
+msgstr ""
+"Jouw server gebruikt MySQL versie %1$s welke mogelijk het vertonen van "
+"zoekresultaten verbonden aan <a href=\"http://bugs.mysql.com/bug.php?"
+"id=41156\"> voorkomt, bug 41156</a>. Update MySQL naar een nieuwere versie "
+"(minstens 5.2)."
+
+#: admin/class.notices.php:53
+#, php-format
+msgid ""
+"SearchWP has detected HTTP Basic Authentication, in order for the indexer to "
+"operate as expected you must provide credentials via the <a href=\"%s"
+"\"><code>searchwp_basic_auth_creds</code></a> hook, or disable HTTP Basic "
+"Authentication."
+msgstr ""
+"SearchWP heeft HTTP basis  waarmerk geconstateerd. Om de indexeerfunctie "
+"goed te laten werken, dien je indentificatie te verschaffen via het <a href="
+"\"%s\"><code>searchwp_basic_auth_creds</code></a> punt of de HTTP Basis "
+"Authentication uit te schakelen."
+
+#: admin/class.notices.php:76
+msgid ""
+"Your SearchWP debug log is quite large. Please remember to disable debugging "
+"and delete <code>~/wp-content/plugins/searchwp/debug.log</code> when you are "
+"done."
+msgstr ""
+"Jouw SearchWP debug logboek is flink groot. Herinner bij er aan om  "
+"debugging en verwijderen uit te schakelen <code>~/wp-content/plugins/"
+"searchwp/debug.log</code> indien de taak afgerond is."
+
+#: admin/class.notices.php:194
+msgid "Missing SearchWP integration"
+msgstr "SearchWP integratie niet aanwezig"
+
+#: admin/class.notices.php:194
+#, php-format
+msgid ""
+"In order for SearchWP to work with %s you will need to install and activate "
+"the <a href=\"%s\">%s</a> Extension."
+msgstr ""
+"Om  het werken van SearchWP met %s mogelijk te maken dien je de <a href=\"%s"
+"\">%s</a> toepassing te installeren en te activeren."
+
+#: admin/class.notices.php:194
+#, php-format
+msgid "To dismiss this notice please see <a href=\"%s\">these docs</a>."
+msgstr ""
+"Om deze opmerking te verwijderen bekijk <a href=\"%s\"> deze documenten</a>."
+
+#: admin/class.notices.php:241
+msgid "SearchWP failed to index"
+msgstr "SearchWP is er niet in geslaagd te indexeren"
+
+#: admin/class.notices.php:241
+msgid "post"
+msgstr "Pagina"
+
+#: admin/class.notices.php:241
+msgid "posts"
+msgstr "Pagina's"
+
+#: admin/class.notices.php:241
+msgid "View details"
+msgstr "Bekijk details"
+
+#: admin/class.notices.php:254 admin/settings-impl-advanced.php:363
+msgid "The SearchWP indexer is currently <strong>disabled</strong>"
+msgstr "De SearchWP indexeerfunctie is momenteel <strong>niet actief</strong>"
+
+#: admin/class.notices.php:317
+msgid ""
+"SearchWP has detected a <strong>theme conflict</strong> with the active "
+"theme."
+msgstr ""
+"SearchWP heeft een <strong>theme conflict</strong> geconstateerd met het "
+"actieve theme."
+
+#: admin/class.notices.php:317 admin/class.notices.php:369
+msgid "More info &raquo;"
+msgstr "Meer informatie &raquo;"
+
+#: admin/class.notices.php:319
+msgid ""
+"In order for SearchWP to display it's results, occurrences of <code>new "
+"WP_Query</code> and <code>query_posts()</code> must be removed from your "
+"search results template."
+msgstr ""
+"Om het voor SearchWP mogelijk te maken de resultaten te tonen, vertoningen "
+"van een <code>nieuwe WP_Query</code> en <code>query_posts()</code> dienen te "
+"worden verwijderen van de zoekresultaten template."
+
+#: admin/class.notices.php:321
+msgid "File location"
+msgstr "File locatie"
+
+#: admin/class.notices.php:327
+msgid "Line"
+msgstr "Lijn"
+
+#: admin/class.notices.php:331
+msgid ""
+"Please ensure the offending lines are removed from the theme template to "
+"avoid conflicts with SearchWP. When removed, this notice will disappear. You "
+"may also dismiss this message using"
+msgstr ""
+"Wees er zeker van dat de tegenstrijdige invoeringen zijn verwijderd van het "
+"thematemplate om conflicten met SearchWP te voorkomen. Indien verwijderd zal "
+"de melding verdwijnen."
+
+#: admin/class.notices.php:332
+msgid ""
+"You may dismiss this (and all like this) message by adding "
+"<code>add_filter( 'searchwp_show_conflict_notices', '__return_false' );</"
+"code> to your theme's <code>functions.php</code>."
+msgstr ""
+"Je kunt dit bericht (deze berichten) verwijderen door het toevoegen van "
+"<code>add_filter( 'searchwp_show_conflict_notices', '__return_false' );</"
+"code> aan de themacode <code>functions.php</code>."
+
+#: admin/class.notices.php:369
+#, php-format
+msgid ""
+"SearchWP has detected a <strong>potential (<em>not guaranteed</em>)</strong> "
+"action/filter conflict with <code>%s</code> caused by an active plugin or "
+"the active theme."
+msgstr ""
+"SearchWP heeft een <strong>potentieel (<em>niet gegarandeerd</em>)</strong> "
+"actie/filter conflict geconstateerd welket <code>%s</code> veroorzaakt wrodt "
+"door een actieve plugin of actief thema."
+
+#: admin/class.notices.php:371
+msgid ""
+"<strong>This is simply a <em>preliminary</em> detection of a <em>possible</"
+"em> conflict.</strong> Many times these detections can be <strong>safely "
+"dismissed</strong>"
+msgstr ""
+"<strong>Dit is een <em>inleidende</em> opsporing van een <em>mogelijk</em> "
+"conflict.</strong> In de meeste gevallen kunnen deze aanwijzingen veilig "
+"worden verwijderd"
+
+#: admin/class.notices.php:372
+msgid ""
+"<em>If (and only if) you are experiencing issues</em> with search results "
+"not changing or not appearing, the following Hooks (put in place by other "
+"plugins or your active theme) <em>may be</em> contributing to the problem:"
+msgstr ""
+"<em>Indien (en alleen indien) je zaken constateert</em> dat zoekresultaten "
+"niet verschijnen of wijzigen, de volgende aspecten (zoals andere plugins of "
+"je actieve thema) <em>mogelijk</em> bijdragen aan het probleem;"
+
+#: admin/class.notices.php:379
+msgid "(method) in"
+msgstr "(methode) in"
+
+#: admin/class.notices.php:379
+msgid " (class)"
+msgstr "(classificatie)"
+
+#: admin/class.notices.php:381
+msgid "(function)"
+msgstr "(functie)"
+
+#: admin/class.notices.php:393
+#, php-format
+msgid ""
+"<strong>If you believe there to be a conflict (e.g. search results not "
+"showing up):</strong> use this information you can determine how to best "
+"disable this interference. For more information please see <a href=\"%s"
+"\">this Knowledge Base article</a>."
+msgstr ""
+"<strong>Indien je gelooft dat er een conflict is (bijvoorbeeld "
+"zoekresultaten worden niet getoond):</strong> gebruik deze informatie om te "
+"bepalen hoe je dit het beste kunt oplossen. Voor meer informatie bekijk <a "
+"href=\"%s\">this Knowledge Base article</a>."
+
+#: admin/class.notices.php:394
+msgid "Dismiss this message"
+msgstr "Verwijder deze boodschap"
+
+#: admin/class.notices.php:438
+msgid ""
+"<strong>Potentially incomplete results:</strong> Since you <em>do not have "
+"Media enabled</em> for any search engine, you should implement the "
+"<code>searchwp_index_attachments</code> hook to ensure Media is properly "
+"indexed by SearchWP. Once attachment indexing has been enabled, ensure there "
+"is no progress bar on the SearchWP Settings screen, confirming all Media is "
+"indexed."
+msgstr ""
+"<strong>Potentieel incompleet resultaat:</strong> Tot het moment dat je "
+"<em>Media niet hebt geactiveerd</em> voor geen enkele zoekmogelijkheid, dien "
+"je de <code>searchwp_index_attachments</code> te implementeren om er voor te "
+"zorgen dat Media op de juiste wijze wordt geïndexeerd door SearchWP. Indien "
+"indexering van bijlagen is geactiveerd, is er geen voortgangsbalk is op het "
+"instellingen scherm van SearchWP, die weergeeft dat alle Media is "
+"geïndexeerd."
+
+#: admin/class.systeminfo.php:39
+msgid ""
+"To copy the system info, click below then press CTRL + C (PC) or CMD + C "
+"(Mac)."
+msgstr ""
+"Om de systeem informatie te kopiëren, klik onderstaand en vervolgens gebruik "
+"CTRL + C (PC) or CMD + C (Mac)."
+
+#: admin/export-import.php:12
+msgid "Settings Export"
+msgstr "Export instellingen"
+
+#: admin/export-import.php:13
+msgid ""
+"Export SearchWP the configuration(s) for SearchWP search engines as JSON. "
+"This allows you to easily import your settings into another site."
+msgstr ""
+"Exporteer de configuratie(s) voor SearchWP zoekmachines zoals JSON. Dit "
+"geeft je de mogelijkheid om eenvoudig de instellingen te importeren in een "
+"andere website."
+
+#: admin/export-import.php:21
+msgid "Export Data"
+msgstr "Exportgegevens"
+
+#: admin/export-import.php:26
+msgid "Search Engines"
+msgstr "Zoekmachines"
+
+#: admin/export-import.php:27
+msgid "Checked search engines will be included in the export"
+msgstr "Gecontroleerde zoekmachines zijn opgenomen in de export"
+
+#: admin/export-import.php:38
+msgid "ERROR: No SearchWP engines found!"
+msgstr "FOUT: Geen zoekmachines gevonden!"
+
+#: admin/export-import.php:43
+msgid "Settings Import"
+msgstr "Import instellingen"
+
+#: admin/export-import.php:44
+msgid ""
+"Paste the JSON from a SearchWP settings export below to import search engine "
+"configuration(s)."
+msgstr ""
+"Voeg onderstaand de JSON van de SearchWP exporteerinstellingen in om de "
+"zoekmachines configuratie(s) te importeren."
+
+#: admin/export-import.php:45
+msgid ""
+"<strong>NOTE:</strong> Existing configurations with matching labels <em>will "
+"be overwritten!</em> This cannot be undone."
+msgstr ""
+"<strong>NOTITIE:</strong> Bestaande configuraties met overeenkomstige labels "
+"<em>zullen worden overschreven!</em> Dit kan niet ongedaan worden gemaakt."
+
+#: admin/export-import.php:58
+msgid "Import"
+msgstr "Importeer"
+
+#: admin/export-import.php:77
+msgid "Are you SURE you want to import these settings? This cannot be undone."
+msgstr ""
+"Weet je zeker dat je deze instellingen wilt importeren? Dit kan niet "
+"ongedaan worden gemaakt."
+
+#: admin/settings-impl-advanced.php:41
+msgid "Database tables missing! Recreate them on the Advanced Settings screen."
+msgstr ""
+"Database tabellen ontbreken! Maak deze (opnieuw) aan in het uitgebreide "
+"instellingen scherm."
+
+#: admin/settings-impl-advanced.php:55
+msgid "Advanced"
+msgstr "Uitgebreid"
+
+#: admin/settings-impl-advanced.php:84
+msgid "Done"
+msgstr "Uitgevoerd"
+
+#: admin/settings-impl-advanced.php:109 admin/stats.php:13 admin/stats.php:19
+#: searchwp.php:2532 searchwp.php:2551
+msgid "Invalid request"
+msgstr "Onjuist verzoek"
+
+#: admin/settings-impl-advanced.php:156
+msgid "Recreate Database Tables"
+msgstr ""
+"Maak database tabellen nogmaals aan. Er zullen geen wijzigingen op in de "
+"bestaande index."
+
+#: admin/settings-impl-advanced.php:157
+msgid ""
+"SearchWP's database tables cannot be found. This may happen if a site "
+"migration was incomplete. Recreate the tables and initiate an index build."
+msgstr ""
+"SearchWP database tabellen kunnen niet worden gevonden. Dit kan voorkomen "
+"indien een migratie niet volledig is uitgevoerd. Maak de tabellen nogmaals "
+"aan en start een index opbouw."
+
+#: admin/settings-impl-advanced.php:158
+#, php-format
+msgid "Database tables created! <a href=\"%s\">Rebuild index &raquo;</a>"
+msgstr ""
+"Database tabellen aangemaakt! <a href=\"%s\">Herbouw de index &raquo;</a>"
+
+#: admin/settings-impl-advanced.php:168
+msgid "Reset Index"
+msgstr "Stel index opnieuw in"
+
+#: admin/settings-impl-advanced.php:169
+msgid ""
+"<strong>Completely</strong> empty the index. <em>Search statistics will be "
+"left as is.</em>"
+msgstr ""
+"Leeg de index volledig. <em>Er treden geen wijzigingen op in de "
+"zoekstatistieken.</em>"
+
+#: admin/settings-impl-advanced.php:170
+#, php-format
+msgid ""
+"The index <strong>has been reset</strong>. <a href=\"%s\">Rebuild index "
+"&raquo;</a>"
+msgstr ""
+"De index is opnieuw ingesteld. <a href=\"%s\">Herbouw de index  &raquo;</a>"
+
+#: admin/settings-impl-advanced.php:175
+msgid "Wake Up Indexer"
+msgstr "Starten van de indexeerfunctie"
+
+#: admin/settings-impl-advanced.php:176
+msgid "If the indexer appears to have stalled, try waking it up."
+msgstr "Indien de indexeerfunctie is gestopt, probeer deze te starten."
+
+#: admin/settings-impl-advanced.php:177
+#, php-format
+msgid ""
+"Attempted to wake up the indexer. <a href=\"%s\">View progress &raquo;</a>"
+msgstr ""
+"Geprobeerd de indexeerfunctie te starten. <a href=\"%s\">Zie voortgang "
+"&raquo;</a>"
+
+#: admin/settings-impl-advanced.php:182
+msgid "Show More"
+msgstr "Toon meer"
+
+#: admin/settings-impl-advanced.php:188
+msgid "Reset Statistics"
+msgstr "Stel statistieken opnieuw in"
+
+#: admin/settings-impl-advanced.php:189
+msgid ""
+"<strong>Completely</strong> reset your Search Statistics. <em>Existing index "
+"will be left as is.</em>"
+msgstr ""
+"Je zoekstatistieken zijn opnieuw volledig  ingesteld. <em>Er treden geen "
+"wijzigingen op in de bestaande index.<em>"
+
+#: admin/settings-impl-advanced.php:190
+msgid "Search statistics reset"
+msgstr "Opnieuw instellen zoekstatistieken"
+
+#: admin/settings-impl-advanced.php:195
+msgid "Toggle Indexer"
+msgstr "Knop voor indexeerfunctie"
+
+#: admin/settings-impl-advanced.php:196
+msgid ""
+"Toggle the indexer status. It will pick up where it left off when re-enabled."
+msgstr ""
+"Knop voor de status van de indexeerfunctie. Deze zal opgestart wroden vanaf "
+"het punt waar het gebleven is bij herstart."
+
+#: admin/settings-impl-advanced.php:202
+msgid "Restore Conflict Notices"
+msgstr "Herstel conflictmeldingen"
+
+#: admin/settings-impl-advanced.php:203
+msgid "Restore all dismissed conflict notifications."
+msgstr "Herstel alle verwijderde conflictmeldingen."
+
+#: admin/settings-impl-advanced.php:204
+msgid "Conflict notices restored"
+msgstr "Conflictmeldingen hersteld"
+
+#: admin/settings-impl-advanced.php:211
+msgid "Toggle Nuke on Delete"
+msgstr "Knop om alles te verwijderen"
+
+#: admin/settings-impl-advanced.php:212
+msgid "Nuke on Delete"
+msgstr "Totale verwijdering"
+
+#: admin/settings-impl-advanced.php:212 templates/tmpl.engine.config.php:416
+#: templates/tmpl.engine.config.php:442
+msgid "Enabled"
+msgstr "Ingeschakeld"
+
+#: admin/settings-impl-advanced.php:213
+msgid ""
+"Remove <strong>all traces</strong> of SearchWP upon plugin deletion "
+"(including index)."
+msgstr ""
+"Verwijder <strong>alle sporen</strong> na verwijdering van de SearchWP "
+"plugin (inclusief index)"
+
+#: admin/settings-impl-advanced.php:222
+msgid "Index Statistics"
+msgstr "Indexeer statistieken"
+
+#: admin/settings-impl-advanced.php:226
+#, php-format
+msgid ""
+"The indexer reacts to edits made and will apply updates accordingly. <a href="
+"\"%s\" target=\"_BLANK\">More information &raquo;</a>"
+msgstr ""
+"De indexeerfunctie reageert op de gemaakte wijzigingen en zullen "
+"dienovereenkomstig van kracht zijn. <a href=\"%s\" target=\"_BLANK\">Meer "
+"informatie &raquo;</a>"
+
+#: admin/settings-impl-advanced.php:231
+msgid "Last Activity"
+msgstr "Laatste activiteit"
+
+#: admin/settings-impl-advanced.php:240
+msgid "Indexed"
+msgstr "Geïndexeerd"
+
+#: admin/settings-impl-advanced.php:241 admin/settings-impl-advanced.php:247
+msgid "entry"
+msgstr "Invoer"
+
+#: admin/settings-impl-advanced.php:241 admin/settings-impl-advanced.php:247
+msgid "entries"
+msgstr "Invoeringen"
+
+#: admin/settings-impl-advanced.php:246
+msgid "Unindexed"
+msgstr "Ongeïndexeerd"
+
+#: admin/settings-impl-advanced.php:255
+msgid "Main row count"
+msgstr "Aantal getelde rijen"
+
+#: admin/settings-impl-advanced.php:256
+msgid "row"
+msgstr "Rij"
+
+#: admin/settings-impl-advanced.php:256
+msgid "rows"
+msgstr "Rijen"
+
+#: admin/settings-impl-advanced.php:260
+msgid "Note: the index is always kept as small as posisble."
+msgstr "Notitie: de index wordt altijd zo klein mogelijk gehouden."
+
+#: admin/settings-impl-advanced.php:275
+msgid "Are you SURE you want to delete the entire SearchWP index?"
+msgstr "Weet je zeker dat je de gehele SearchWP index wilt verwijderen?"
+
+#: admin/settings-impl-advanced.php:276 admin/settings-impl-advanced.php:282
+msgid "Are you completely sure? THIS CAN NOT BE UNDONE!"
+msgstr "Weet je het echt helemaal zeker? DIT KAN NIET ONGEDAAN GEMAAKT WORDEN!"
+
+#: admin/settings-impl-advanced.php:281
+msgid "Are you SURE you want to completely reset your Search Stats?"
+msgstr ""
+"Weet je ZEKER dat je de zoekstatistieken volledig opnieuw wilt instellen?"
+
+#: admin/settings-impl-advanced.php:384
+msgid "Nuke on Delete <strong>enabled</strong>"
+msgstr "Totale verwijdering <strong>ingeschakeld</strong>"
+
+#: admin/settings-impl-advanced.php:419
+msgid "There was an error recreating the database tables."
+msgstr ""
+"Er is een fout opgetreden bij het herinstellen van de database tabellen."
+
+#: admin/settings-impl-advanced.php:439
+msgid "Settings imported"
+msgstr "Instellingen geïmporteerd"
+
+#: admin/settings-impl-license.php:36
+msgid "License"
+msgstr "Licentie"
+
+#: admin/settings-impl-license.php:49
+msgid ""
+"A license key was found, but it is <strong>inactive</strong>. Automatic "
+"updates <em>will not be available</em> until your license is activated."
+msgstr ""
+"Een licentiecode is gevonden, echter deze is  <strong>inactief</strong>. "
+"Automatische updates zullen niet beschikbaar zijn</em> totdat je licentie is "
+"geactiveerd."
+
+#: admin/settings-impl-license.php:50
+#, php-format
+msgid ""
+"Having trouble activating your license? Please see <a href=\"%s\">this KB "
+"article &raquo;</a>"
+msgstr ""
+"Heb je problemen met het activeren van je licentie? Bekijk <a href=\"%s"
+"\">this KB article &raquo;</a>"
+
+#: admin/settings-impl-license.php:63
+msgid "License not active"
+msgstr "Licentie niet geactiveerd"
+
+#: admin/settings-impl-license.php:79
+msgid "Manage Your SearchWP License"
+msgstr "Beheer je SearchWP licentie"
+
+#: admin/settings-impl-license.php:80
+msgid "Active"
+msgstr "Geactiveerd"
+
+#: admin/settings-impl-license.php:80
+msgid "Inactive"
+msgstr "Niet geactiveerd"
+
+#: admin/settings-impl-license.php:84
+msgid "Your SearchWP license is currently active."
+msgstr "Je SearchWP licentie is op dit moment geactiveerd."
+
+#: admin/settings-impl-license.php:86
+msgid ""
+"SearchWP requires an active license to receive automatic upates and support. "
+"Enter your license key to activate it."
+msgstr ""
+"SearchWP vereist een geactiveerde licentie om automatische updates en "
+"support te ontvangen. Voer je licentiesleutel in om de plugin te activeren."
+
+#: admin/settings-impl-license.php:95
+msgid "Deactivate"
+msgstr "Deactiveer"
+
+#: admin/settings-impl-license.php:98
+msgid "Activate"
+msgstr "Activeer"
+
+#: admin/settings-impl-license.php:103
+#, php-format
+msgid "Active for another %s"
+msgstr "Activeer voor een andere %s"
+
+#: admin/settings-impl-license.php:105
+#, php-format
+msgid ""
+"Your license key is available both on your payment receipt and in your <a "
+"href=\"%s\">Account</a>"
+msgstr ""
+"Je licentiecode is te vinden op je rekening en in je <a href=\"%s\">Account</"
+"a>"
+
+#: admin/settings.php:19
+msgid "Default Search Engine"
+msgstr "Standaard Zoekmachine"
+
+#: admin/settings.php:19 admin/settings.php:44 searchwp.php:1016
+msgid "Statistics"
+msgstr "Statistieken"
+
+#: admin/settings.php:23
+msgid ""
+"These settings will override WordPress default searches. Customize which "
+"post types are included in search and how much weight each content type "
+"receives."
+msgstr ""
+"Deze instellingen overschrijven de Wordpress standaard zoekinstellingen. Pas "
+"de zoekopdrachten naar behoefte aan."
+
+#: admin/settings.php:27 admin/settings.php:60
+msgid ""
+"Only checked post types will be included in search results. If a post type "
+"isn't displayed, ensure <code>exclude_from_search</code> is set to false "
+"when registering it."
+msgstr ""
+"Alleen aangegeven zoekopdrachten zullen worden uitgevoerd in de "
+"zoekresultaten. Indien iets niet wordt getoond, bekijk of de instellingen "
+"juist staan."
+
+#: admin/settings.php:51
+msgid "Supplemental Search Engines"
+msgstr "Aanvullende zoekmachines"
+
+#: admin/settings.php:55
+msgid ""
+"Here you can build supplemental search engines to use in specific sections "
+"of your site. When used, the default search engine settings are completely "
+"ignored."
+msgstr ""
+"Op deze plaats kun je aanvullende zoekmachines aangeven die te gebruiken "
+"zijn op specifieke plaatsen in je website. Indien je deze gebruikt worden de "
+"standaard instellingen volledig genegeerd."
+
+#: admin/settings.php:80
+msgid "Add New Supplemental Engine"
+msgstr "Voeg nieuwe aanvullende zoekmachine toe"
+
+#: admin/stats.php:52
+msgid "Searches over the past 30 days"
+msgstr "Zoekopdrachten van de laatste 30 dagen"
+
+#: admin/stats.php:228
+msgid "Popular Searches"
+msgstr "Meest ingevoerde zoekopdrachten"
+
+#: admin/stats.php:268 admin/stats.php:318 admin/stats.php:368
+#: admin/stats.php:418 admin/stats.php:475
+msgid "Searches"
+msgstr "Zoekopdrachten"
+
+#: admin/stats.php:289
+msgid "There have been no searches today."
+msgstr "Er zijn geen zoekopdrachten gedaan vandaag."
+
+#: admin/stats.php:295
+msgid "Week"
+msgstr "Week"
+
+#: admin/stats.php:339
+msgid "There have been no searches within the past 7 days."
+msgstr "Er zijn geen zoekopdrachten gedaan de afgelopen 7 dagen."
+
+#: admin/stats.php:345
+msgid "Month"
+msgstr "Maand"
+
+#: admin/stats.php:389
+msgid "There have been no searches within the past 30 days."
+msgstr "Er zijn geen zoekopdrachten gedaan de afgelopen 30 dagen."
+
+#: admin/stats.php:395
+msgid "Year"
+msgstr "Jaar"
+
+#: admin/stats.php:439
+msgid "There have been no searches within the past year."
+msgstr "Er zijn geen zoekopdrachten gedaan het afgelopen jaar."
+
+#: admin/stats.php:448
+msgid "Failed Searches"
+msgstr "Niet geslaagde zoekopdrachten"
+
+#: admin/stats.php:496
+msgid "There have been no failed searches within the past 30 days."
+msgstr "Er zijn geen niet geslaagde zoekopdrachten de afgelopen 30 dagen."
+
+#: admin/stats.php:514
+msgid "Are you sure you want to ignore this search from all statistics?"
+msgstr "Weet je zeker dat je deze zoekopdracht wilt negeren in alle statieken?"
+
+#: admin/view-settings-engines.php:20
+msgid "Indexing is"
+msgstr "Indexeren is"
+
+#: admin/view-settings-engines.php:21
+msgid "almost"
+msgstr "bijna"
+
+#: admin/view-settings-engines.php:21
+msgid "complete"
+msgstr "volledig"
+
+#: admin/view-settings-engines.php:25
+msgid ""
+"This process is running in the background. You can leave this page and the "
+"index will continue to be built until completion."
+msgstr ""
+"Dit proces wordt uitgevoerd in de achtergrond. Je kunt deze pagina verlaten "
+"en ondertussen wordt het indexeren volledig afgerond."
+
+#: admin/view-settings-engines.php:30
+#, php-format
+msgid ""
+"The indexer has been <strong>temporarily scaled back</strong> to reduce "
+"server load. This is monitored automatically. <a href=\"%s\">More "
+"information &raquo;</a>"
+msgstr ""
+"De indexeerfunctie wordt zo ingesteld dat de server zo min mogelijk wordt "
+"belast. Dit wordt automatisch gedaan. <a href=\"%s\">Voor meer informatie "
+"&raquo;</a>"
+
+#: admin/view-settings-engines.php:44 templates/tmpl.engine.config.php:284
+msgid "Any"
+msgstr "Enige"
+
+#: admin/view-settings-help.php:12
+msgid "SearchWP Help"
+msgstr "SearchWP Help"
+
+#: admin/view-settings-help.php:14
+msgid ""
+"Support is available only to <strong>active license holders</strong>. You "
+"must activate your license to receive support. If you do not have a license "
+"you may purchase one at any time."
+msgstr ""
+"Support is uitsluitend beschikbaar voor licentiehouders. Je dient een "
+"actieve licentiecode te hebben om support te ontvangen. Indien je geen "
+"licentiecode hebt kun je deze kopen."
+
+#: admin/view-settings-help.php:15
+msgid "Activate License"
+msgstr "Activeer licentie"
+
+#: admin/view-settings-help.php:67
+msgid "System Information"
+msgstr "Systeem informatie"
+
+#: admin/view-settings-help.php:69
+#, php-format
+msgid ""
+"When submitting this information to support staff it will also be helpful if "
+"you can create a <a href=\"%s\">Gist</a> of your search results template "
+"which is found here:"
+msgstr ""
+"Indien je deze informatie doorstuurt naar de supportmedewerkers is het "
+"prettig indien je een <a href=\"%s\">bericht</a> maakt van het resultaat "
+"welke hier is gevonden:"
+
+#: admin/view-settings-help.php:71
+#, php-format
+msgid ""
+"Please provide this information (ideally as a link to a <a href=\"%s\">Gist</"
+"a>) when requested by support staff"
+msgstr ""
+"Indien de supportmedewerkers dit verzoeken geef deze informatie (bij "
+"voorkeur als een link naar <a href=\"%s\">Bericht</a>)"
+
+#: includes/class.search.php:1802
+msgid "Engine settings not found"
+msgstr "Instellingen zoekmachine niet gevonden"
+
+#: includes/class.search.php:2218
+msgid "SearchWP Error"
+msgstr "SearchWP fout "
+
+#: includes/class.search.php:2227
+msgid "View SQL_BIG_SELECTS Fix"
+msgstr "Bekijk SQL_BIG_SELECTS reparatie"
+
+#: searchwp.php:43
+msgid ""
+"SearchWP requires WordPress 3.5 or higher. Please upgrade before activating "
+"this plugin."
+msgstr ""
+"SearchWP vereist Wordpress 3.5 of hoger. Upgrade wordpress voordat je de "
+"plugin activeert."
+
+#: searchwp.php:900
+msgid " ago"
+msgstr "geleden"
+
+#: searchwp.php:944
+msgid "Enable Indexer"
+msgstr "Schakel indexeerfunctie in"
+
+#: searchwp.php:944
+msgid "Disable Indexer"
+msgstr "Schakel indexeerfunctie uit"
+
+#: searchwp.php:966
+msgid "In index queue"
+msgstr "In indexrij"
+
+#: searchwp.php:979
+msgid "This entry is being indexed"
+msgstr "Deze invoer wordt geïndexeerd"
+
+#: searchwp.php:981
+msgid "This entry is indexed"
+msgstr "Deze invoer is geïndexeerd"
+
+#: searchwp.php:988
+msgid "Not indexed "
+msgstr "Niet geïndexeerd"
+
+#: searchwp.php:988
+msgid "status is"
+msgstr "Status is"
+
+#: searchwp.php:991
+msgid "Not indexed"
+msgstr "Niet geïndexeerd"
+
+#: searchwp.php:995 searchwp.php:2238
+msgid "Last indexed"
+msgstr "Laatste indexering"
+
+#: searchwp.php:1114
+msgid ""
+"<p>SearchWP <strong>has been automatically deactivated</strong> because it "
+"failed to create necessary database table(s):</p>"
+msgstr ""
+"<p>SearchWP <strong>is automatische gedeactiveerd</strong> omdat het niet "
+"gelukt is de noodzakelijke database tabel(len) te maken:</p>"
+
+#: searchwp.php:1116
+msgid ""
+"<p>Please ensure the applicable MySQL user has <code>CREATE</code> "
+"permissions and try activating again.</p>"
+msgstr ""
+"<p>Verzeker je er van dat de geschikte MySQL gebruiker  toestemming "
+"<code>CREATE</code> heeft en probeer nogmaals te activeren. </p>   Please "
+"ensure the applicable MySQL user has <code>CREATE</code> permissions and try "
+"activating again.</p>"
+
+#: searchwp.php:1117
+msgid "Back to Plugins"
+msgstr "Terug naar plugins"
+
+#: searchwp.php:1371
+msgid "SearchWP must be updated to the latest version to work with "
+msgstr ""
+"SearchWP dient te worden geupdate naar de laatste versie om te kunnen werken "
+"met"
+
+#: searchwp.php:1495
+msgid "Invalid SearchWP Engine: "
+msgstr "Niet geschikte SearchWP zoekmachine:"
+
+#: searchwp.php:1920
+msgid "Minimum word length triggered"
+msgstr "Minimale woordlengte aangezet"
+
+#: searchwp.php:1927
+msgid "Common word (stopword) removed"
+msgstr "Algemeen woord (stopwoord) verwijderd"
+
+#: searchwp.php:1934
+msgid "Search query length too long"
+msgstr "Lengte van het zoekverzoek te lang "
+
+#: searchwp.php:2181
+msgid "Search Stats"
+msgstr "Zoekstatistieken"
+
+#: searchwp.php:2441
+msgid "Outstanding Index Issues"
+msgstr "Uitstekende indexissues"
+
+#: searchwp.php:2443
+msgid "Nothing is currently excluded from the indexer."
+msgstr "Op dit moment is niets uitgesloten in de indexeerfunctie."
+
+#: searchwp.php:2447
+msgid ""
+"SearchWP was unable to fully implement <code>utf8mb4</code> (Emoji) support "
+"which may prevent indexing some content. Please open a support ticket for "
+"more assistance."
+msgstr ""
+"SearchWP was  niet in staat om volledige <code>utf8mb4</code> (Emoji) "
+"support te implementeren welke mogelijk voorkomt dat sommige inhoud wordt "
+"geïndexeerd. Maak een supportticket aan voor assistentie."
+
+#: searchwp.php:2454
+msgid ""
+"SearchWP was unable to index the following content, and it is actively being "
+"excluded from subsequent index runs."
+msgstr "SearchWP was niet in staat om de volgende inhoud te indexeren."
+
+#: searchwp.php:2454
+msgid "Reintroduce All"
+msgstr "Stel opnieuw alles in"
+
+#: searchwp.php:2462 templates/tmpl.engine.config.php:165
+msgid "Title"
+msgstr "Titel"
+
+#: searchwp.php:2463
+msgid "Reintroduce to indexer"
+msgstr "Stel opnieuw in voor indexeerfunctie"
+
+#: searchwp.php:2474
+msgid "Manually populate PDF content if reintroduction fails"
+msgstr "Handmatig aanwezige PDF inhoud indien opnieuw instellen mislukt"
+
+#: searchwp.php:2480
+msgid "Reintroduce"
+msgstr "Opnieuw instellen"
+
+#: searchwp.php:2564 searchwp.php:2612
+msgid "SearchWP Alternate Indexer"
+msgstr "SearchWP afwisselende indexeerfunctie "
+
+#: searchwp.php:2566
+msgid "Current progress:"
+msgstr "Huidige voortgang:"
+
+#: searchwp.php:2567
+msgid ""
+"If the percentage is not increasing it <strong>does not necessarily mean</"
+"strong> there is a problem. SearchWP takes multiple passes when indexing, "
+"please allow adequate time for the indexer to run."
+msgstr ""
+"Indien het percentage niet oploopt betekent dit niet dat er een probleem is. "
+"SearchWP neemt diverse stappen bij het indexeren. Laat de indexeerfunctie "
+"zijn tijd nemen om de taak af te ronden."
+
+#: searchwp.php:2570
+msgid "Triggering next index chunk, please wait..."
+msgstr "Aan het volgende indexstuk wordt gewerkt, een ogenblik... "
+
+#: searchwp.php:2591
+msgid "Index built!"
+msgstr "Index afgerond!"
+
+#: searchwp.php:2613
+#, php-format
+msgid ""
+"There are <strong>%d</strong> entries left to index. <strong>YOU MUST LEAVE "
+"THIS BROWSER WINDOW OPEN</strong> during indexing."
+msgstr ""
+"Er zijn<strong>%d</strong> invoeringen om te indexeren. <strong>JE DIENT DE "
+"BROWSER OPEN TE LATEN<strong> gedurende het indexeren."
+
+#: searchwp.php:2614
+msgid "This action builds the initial index and only needs to be run once."
+msgstr ""
+"Deze actie veroorzaakt de startindex en dient slechts eenmalig te worden "
+"uitgevoerd."
+
+#: searchwp.php:2619
+msgid "Build Initial Index"
+msgstr "Maak startindex"
+
+#: searchwp.php:2759
+msgid "Invalid settings."
+msgstr "Niet geschikte instellingen."
+
+#: searchwp.php:2904
+msgid "SearchWP Frequent (Every five minutes until initial index is built)"
+msgstr ""
+"SearchWP frequentie (iedere vijf minuten totdat de eerste index is "
+"samengesteld)"
+
+#: searchwp.php:3407
+#, php-format
+msgid ""
+"SearchWP has been activated and the index is now being built. <a href=\"%s"
+"\">View progress and settings</a>"
+msgstr ""
+"SearchWP is geactiveerd en de index wordt aangemaakt. <a href=\"%s\" Bekijk "
+"de voortgang en instellingen</a>"
+
+#: searchwp.php:3426
+msgid "SearchWP File Content"
+msgstr "SearchWP Bestandsinhoud"
+
+#: searchwp.php:3494
+msgid ""
+"The content below will be indexed for this file. If you are experiencing "
+"unexpected search results, ensure accuracy here."
+msgstr ""
+"De onderstaande inhoud zal worden geïndexeerd voor dit bestand. Indien er "
+"niet verwachte zoekresultaten uitkomen, wijzig de zoekopdracht."
+
+#: searchwp.php:3507
+msgid ""
+"Only plain text files, PDFs, and office documents are supported at this time."
+msgstr ""
+"Alleen platte tekst, PDF's en Office documenten worden op dit moment "
+"ondersteund."
+
+#: searchwp.php:3521
+msgid "Indexed PDF Metadata"
+msgstr "Geïndexeerde PDF metadata"
+
+#: searchwp.php:3525
+msgid "Key"
+msgstr "Sleutel"
+
+#: searchwp.php:3526
+msgid "Value"
+msgstr "Waarde"
+
+#: templates/tmpl.engine.config.php:132
+msgid "Media"
+msgstr "Media"
+
+#: templates/tmpl.engine.config.php:146
+msgid ""
+"These values add weight to results.<br /><br />A weight of 1 is neutral<br /"
+">Between 0 &amp; 1 lowers result weight<br />Over 1 increases result "
+"weight<br />Zero omits the result<br /><span class=\"searchwp-weight-warning"
+"\">-1 excludes matches</span>"
+msgstr ""
+"Deze waarde zoeken gewicht aan het resultaat. <br /><br />Een gewicht van 1 "
+"is neutraal<br />Tussen 0 &amp; 1 verlaagt het gewichtt<br />Hoger dan 1 "
+"verhoogt het gewicht<br />0 geeft geen gewicht<br /><span class=\"searchwp-"
+"weight-warning\">-1 geeft geen resultaat</span>"
+
+#: templates/tmpl.engine.config.php:148
+msgid "Applicable entries"
+msgstr "Mogelijke invoeringen"
+
+#: templates/tmpl.engine.config.php:157
+msgid "Content Type"
+msgstr "Inhoudstype"
+
+#: templates/tmpl.engine.config.php:158
+msgid "Weight"
+msgstr "Gewicht"
+
+#: templates/tmpl.engine.config.php:171
+msgid "Content"
+msgstr "Inhoud"
+
+#: templates/tmpl.engine.config.php:171
+msgid "Description"
+msgstr "Beschrijving"
+
+#: templates/tmpl.engine.config.php:177
+msgid "Slug"
+msgstr "Slug"
+
+#: templates/tmpl.engine.config.php:205
+msgid "Excerpt"
+msgstr "Excerpt"
+
+#: templates/tmpl.engine.config.php:205
+msgid "Caption"
+msgstr "Caption"
+
+#: templates/tmpl.engine.config.php:212
+msgid "Comments"
+msgstr "Comments"
+
+#: templates/tmpl.engine.config.php:237
+msgid "Document (PDF) content (when applicable)"
+msgstr "Document (PDF) inhoud (indien mogelijk)"
+
+#: templates/tmpl.engine.config.php:262
+msgid "PDF metadata (when applicable)"
+msgstr "PDF metagegevens (indien geschikt)"
+
+#: templates/tmpl.engine.config.php:273
+msgid "Custom Fields"
+msgstr "Aangepaste velden"
+
+#: templates/tmpl.engine.config.php:305
+msgid "Add Custom Field"
+msgstr "Voeg aangepast veld toe"
+
+#: templates/tmpl.engine.config.php:308
+msgid ""
+"Include Custom Field data in search results. Meta values do not need to be "
+"plain strings, available keywords in metadata are extracted and indexed."
+msgstr "Voer aangepast dataveld toe in het zoekresultaat."
+
+#: templates/tmpl.engine.config.php:322
+msgid "Exclude IDs: "
+msgstr "Uitgesloten ID's"
+
+#: templates/tmpl.engine.config.php:329
+msgid "Comma separated IDs"
+msgstr "Voer de ID's van de pagina's, kommagescheiden, in "
+
+#: templates/tmpl.engine.config.php:331
+msgid ""
+"Comma separated post IDs. Will be excluded entirely, even if attributed to."
+msgstr "Kommagescheiden paginanummers. Deze worden volledig uitgesloten."
+
+#: templates/tmpl.engine.config.php:348
+#, php-format
+msgid "Exclude %s:"
+msgstr "Uitgesloten %s:"
+
+#: templates/tmpl.engine.config.php:359 templates/tmpl.engine.config.php:397
+msgid "Leave blank to omit"
+msgstr "Geen invoer"
+
+#: templates/tmpl.engine.config.php:367
+msgid "Entries with these will be excluded entirely, even if attributed to."
+msgstr "Deze invoeringen worden volledig uitgesloten."
+
+#: templates/tmpl.engine.config.php:377
+msgid "Limit File Type(s) to"
+msgstr "Beperk file types tot"
+
+#: templates/tmpl.engine.config.php:384
+msgid "All Documents"
+msgstr "Alle documenten"
+
+#: templates/tmpl.engine.config.php:385
+msgid "PDFs"
+msgstr "PDF's"
+
+#: templates/tmpl.engine.config.php:386
+msgid "Plain Text"
+msgstr "Platte tekst"
+
+#: templates/tmpl.engine.config.php:387
+msgid "Images"
+msgstr "Afbeeldingen"
+
+#: templates/tmpl.engine.config.php:388
+msgid "Video"
+msgstr "Video"
+
+#: templates/tmpl.engine.config.php:389
+msgid "Audio"
+msgstr "Geluid"
+
+#: templates/tmpl.engine.config.php:405
+msgid "If populated, Media results will be limited to these Media types"
+msgstr "Indien ingevuld. Media resultaten zijn beperkt tot deze mediatypes."
+
+#: templates/tmpl.engine.config.php:412
+msgid "Attribute post parent"
+msgstr "Schrijf toe aan hoofdpagina"
+
+#: templates/tmpl.engine.config.php:419
+msgid ""
+"When enabled, search weights will be applied to the post parent, not the "
+"post GUID"
+msgstr ""
+"Indien ingeschakeld, zoekgewichten zullen van toepassing zijn op de "
+"hoofdpagina"
+
+#: templates/tmpl.engine.config.php:426
+msgid "Attribute search results to "
+msgstr "Schrijf zoekresultaten toe aan"
+
+#: templates/tmpl.engine.config.php:429
+msgid "Single post ID"
+msgstr "Paginanummer"
+
+#: templates/tmpl.engine.config.php:432
+msgid ""
+"<strong>Expects single post ID</strong><br/>If permalinks for this post type "
+"should not be included in search results, you can have it's search weight "
+"count toward another post ID."
+msgstr ""
+"<strong>Paginanummer</strong><br/>Indien de permalink voor dit paginatype "
+"niet ingesloten is in het zoekresultaat, kun je het geiwcht toekennen aan "
+"een ander paginanummer."
+
+#: templates/tmpl.engine.config.php:438
+msgid "Use keyword stem"
+msgstr "Gebruik gedeelte van het woord"
+
+#: templates/tmpl.engine.config.php:445
+msgid ""
+"<em>May increase search latency</em><br />For example: when enabled, "
+"searches for <strong>fishing</strong> and <strong>fished</strong> will "
+"generate the same results. When disabled, results may be different."
+msgstr ""
+"<em>Dit kan de zoektijd vergroten</em><br />Bijvoorbeeld: indien "
+"ingeschakeld, zoekopdrachten voor <strong>vissen</strong> en <strong>gevist</"
+"strong> zal dezelfde resultaten geven. Indien uitgeschakeld kan dit een "
+"ander resultaat opleveren."
+
+#: templates/tmpl.supplemental.config.php:35
+msgid "Remove"
+msgstr "Verwijder"
+
+#: vendor/EDD_SL_Plugin_Updater.php:176
+#, php-format
+msgid ""
+"There is a new version of %1$s available. <a target=\"_blank\" class="
+"\"thickbox\" href=\"%2$s\">View version %3$s details</a>."
+msgstr ""
+"Er is een nieuwe versie van %1$s beschikbaar. <a target=\"_blank\" class="
+"\"thickbox\" href=\"%2$s\">Bekijk details van versie %3$s </a>."
+
+#: vendor/EDD_SL_Plugin_Updater.php:183
+#, php-format
+msgid ""
+"There is a new version of %1$s available. <a target=\"_blank\" class="
+"\"thickbox\" href=\"%2$s\">View version %3$s details</a> or <a href=\"%4$s"
+"\">update now</a>."
+msgstr ""
+"Er is een nieuwe versie van %1$s beschikbaar. <a target=\"_blank\" class="
+"\"thickbox\" href=\"%2$s\">Bekijk details van versie %3$s </a> of <a href="
+"\"%4$s\">update nu</a>."
+
+#: vendor/EDD_SL_Plugin_Updater.php:323
+msgid "You do not have permission to install plugin updates"
+msgstr "Je hebt geen toestemming om plugin updates te installeren"
+
+#: vendor/EDD_SL_Plugin_Updater.php:323
+msgid "Error"
+msgstr "Fout"

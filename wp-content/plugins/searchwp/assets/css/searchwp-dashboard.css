@@ -1,0 +1,36 @@
+.searchwp-stats-segment {
+	width:48%;
+	float:left;
+}
+.searchwp-stats-segment:last-of-type {
+	float:right;
+}
+#dashboard-widgets .searchwp-stats-segment h4 {
+	font-weight:bold;
+	font-size:14px;
+	margin-bottom:1em;
+}
+.searchwp-dashboard-widget table {
+	width:100%;
+	border-collapse: collapse;
+}
+.searchwp-dashboard-widget th {
+	text-align:left;
+	font-size:12px;
+}
+.searchwp-dashboard-widget td {
+	padding:0.2em 0;
+}
+.searchwp-dashboard-widget td div {
+	text-overflow:ellipsis;
+	white-space:nowrap;
+	overflow:hidden;
+	width:90%;
+}
+.searchwp-stats-segment-next {
+	clear:both;
+}
+.searchwp-stats-segment-next p {
+	padding:1em 0 0;
+	margin:0;
+}
