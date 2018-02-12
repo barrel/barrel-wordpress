@@ -34,7 +34,7 @@ build:
 feature:
   only: 
     - /^feature\/.*$/
-  image: barrelny/pantheon-ci:0.0.3
+  image: barrelny/pantheon-ci:0.0.4
   stage: build
   before_script:
     - terminus auth:login --machine-token=$TERMINUS_TOKEN
