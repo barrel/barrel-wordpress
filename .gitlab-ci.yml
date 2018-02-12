@@ -39,7 +39,9 @@ feature:
   before_script:
     - terminus auth:login --machine-token=$TERMINUS_TOKEN
   script:
-    - PREFIX=feature/; PANTHEON_MULTIDEV = ${CI_COMMIT_REF_NAME:${#PREFIX}:11}
+    - PREFIX=feature/
+    - PANTHEON_MULTIDEV=${CI_COMMIT_REF_NAME:${#PREFIX}:11}
+    - echo "Creating multidev, $PANTHEON_MULTIDEV"
     - terminus multidev:create $PANTHEON_SITE_ID $PANTHEON_MULTIDEV
 deploy:
   only: 
@@ -49,5 +51,7 @@ deploy:
   before_script:
     - terminus auth:login --machine-token=$TERMINUS_TOKEN
   script:
-    - PREFIX=feature/; PANTHEON_MULTIDEV = ${CI_COMMIT_REF_NAME:${#PREFIX}:11}
+    - PREFIX=feature/
+    - PANTHEON_MULTIDEV=${CI_COMMIT_REF_NAME:${#PREFIX}:11}
+    - echo "Creating multidev, $PANTHEON_MULTIDEV"
     - terminus multidev:create $PANTHEON_SITE_ID $PANTHEON_MULTIDEV
