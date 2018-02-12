@@ -1,5 +1,0 @@
-Theme Tasks
-==============
-
-###Guidelines
-

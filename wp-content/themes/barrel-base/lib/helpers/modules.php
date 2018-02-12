@@ -7,9 +7,9 @@
  * @return string
  */
 function get_module( $module_name, $args = array() ) {
-	ob_start();
-	the_module( $module_name, $args );
-	return ob_get_clean();
+  ob_start();
+  the_module( $module_name, $args );
+  return ob_get_clean();
 }
 
 /**
@@ -19,11 +19,11 @@ function get_module( $module_name, $args = array() ) {
  * @return bool|string
  */
 function the_module( $module_name, $args = array() ) {
-	if ( empty( $module_name ) ) {
-		return;
-	}
+  if ( empty( $module_name ) ) {
+    return;
+  }
 
-	extract( $args, EXTR_SKIP );
+  extract( $args, EXTR_SKIP );
 
-	include( TEMPLATEPATH . "/modules/$module_name/$module_name.php" );
+  include( TEMPLATEPATH . "/modules/$module_name/$module_name.php" );
 }

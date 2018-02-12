@@ -7,4 +7,4 @@ function Hero (el) {
   this.el = el
 }
 
-module.exports = Hero
+export default Hero

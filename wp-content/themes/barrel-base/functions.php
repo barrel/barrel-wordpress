@@ -1,4 +1,5 @@
 <?php
+define('IS_DEV', isset( $_SERVER['HTTP_X_DEV'] ) ? true : false );
 
 // Backend only
 include_once( __DIR__ . '/lib/class-theme-init.php' );
