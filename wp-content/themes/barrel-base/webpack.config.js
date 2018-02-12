@@ -7,7 +7,7 @@ module.exports = {
   },
   output: {
     path: path.join(__dirname, 'assets'),
-    filename: '[name].js'
+    filename: '[name].min.js'
   },
   module: {
     rules: [
