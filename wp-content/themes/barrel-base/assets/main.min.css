@@ -2,6 +2,10 @@
 body {
   background: #ffffff;
 }
+.h1 {
+  font-weight: 600;
+  font-size: 25px;
+}
 /* Imports from module folders (Paths are expanded within Gulp task)*/
 .hero{
 
