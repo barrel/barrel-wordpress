@@ -28,9 +28,13 @@ module.exports = {
         extract: true,
         use: [
           'style-loader',
-          'css-loader?importLoaders=1',
+          'css-loader?importLoaders=1&minimize=1',
           'postcss-loader'
         ]
+      },
+      {
+        test: /\.(eot|svg|ttf|woff|woff2)$/,
+        loader: 'file-loader?name=/fonts/[name].[ext]'
       }
     ]
   },
