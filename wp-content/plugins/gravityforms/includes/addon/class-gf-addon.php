@@ -304,6 +304,7 @@ abstract class GFAddOn {
 		// No conflict scripts
 		add_filter( 'gform_noconflict_scripts', array( $this, 'register_noconflict_scripts' ) );
 		add_filter( 'gform_noconflict_styles', array( $this, 'register_noconflict_styles' ) );
+		add_action( 'gform_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10, 2 );
 
 	}
 
@@ -945,7 +946,7 @@ abstract class GFAddOn {
 				}
 			} else {
 				$query_matches      = isset( $condition['query'] ) ? $this->_request_condition_matches( $_GET, $condition['query'] ) : true;
-				$post_matches       = isset( $condition['post'] ) ? $this->_request_condition_matches( $_POST, $condition['query'] ) : true;
+				$post_matches       = isset( $condition['post'] ) ? $this->_request_condition_matches( $_POST, $condition['post'] ) : true;
 				$admin_page_matches = isset( $condition['admin_page'] ) ? $this->_page_condition_matches( $condition['admin_page'], rgar( $condition, 'tab' ) ) : true;
 				$field_type_matches = isset( $condition['field_types'] ) ? $this->_field_condition_matches( $condition['field_types'], $form ) : true;
 
@@ -1080,9 +1081,16 @@ abstract class GFAddOn {
 			$field_types = array( $field_types );
 		}
 
+		/* @var GF_Field[] $fields */
 		$fields = GFAPI::get_fields_by_type( $form, $field_types );
 		if ( count( $fields ) > 0 ) {
-			return true;
+			foreach ( $fields as $field ) {
+				if ( $field->is_administrative() && ! $field->allowsPrepopulate && ! GFForms::get_page() ) {
+					continue;
+				}
+
+				return true;
+			}
 		}
 
 		return false;
@@ -1356,6 +1364,9 @@ abstract class GFAddOn {
 
 		$display = rgar( $field, 'hidden' ) || rgar( $field, 'type' ) == 'hidden' ? 'style="display:none;"' : '';
 
+		// Prepare setting description.
+		$description = rgar( $field, 'description' ) ? '<span class="gf_settings_description">' . $field['description'] . '</span>' : null;
+
 		?>
 
 		<tr id="gaddon-setting-row-<?php echo $field['name'] ?>" <?php echo $display; ?>>
@@ -1363,7 +1374,10 @@ abstract class GFAddOn {
 				<?php $this->single_setting_label( $field ); ?>
 			</th>
 			<td>
-				<?php $this->single_setting( $field ); ?>
+				<?php
+					$this->single_setting( $field );
+					echo $description;
+				?>
 			</td>
 		</tr>
 
@@ -1833,7 +1847,7 @@ abstract class GFAddOn {
 	 *
 	 * @return string - The markup of an individual checkbox item
 	 */
-	public function checkbox_item( $choice, $horizontal_class, $attributes, $value, $tooltip, $error_icon='' ) {
+	public function checkbox_item( $choice, $horizontal_class, $attributes, $value, $tooltip, $error_icon = '' ) {
 		
 		$hidden_field_value = $value == '1' ? '1' : '0';
 		$icon_class         = rgar( $choice, 'icon' ) ? ' gaddon-setting-choice-visual' : '';
@@ -1846,7 +1860,7 @@ abstract class GFAddOn {
 		} else {
 			$markup = $this->checkbox_input( $choice, $attributes, $value, $tooltip );
 		}
-
+		
 		$checkbox_item .= $markup . $error_icon . '</div>';
 
 		return $checkbox_item;
@@ -2006,12 +2020,21 @@ abstract class GFAddOn {
 		$value         = $this->get_setting( $field['name'], rgar( $field, 'default_value' ) );
 		$name          = '' . esc_attr( $field['name'] );
 
-		$html = sprintf(
-			'<select name="%1$s" %2$s>%3$s</select>',
-			'_gaddon_setting_' . $name, implode( ' ', $attributes ), $this->get_select_options( $field['choices'], $value )
-		);
-		
-		$html .= rgar( $field, 'after_select' );
+		// If no choices were provided and there is a no choices message, display it.
+		if ( ( empty( $field['choices'] ) || ! rgar( $field, 'choices' ) ) && rgar( $field, 'no_choices' ) ) {
+
+			$html = $field['no_choices'];
+
+		} else {
+
+			$html = sprintf(
+				'<select name="%1$s" %2$s>%3$s</select>',
+				'_gaddon_setting_' . $name, implode( ' ', $attributes ), $this->get_select_options( $field['choices'], $value )
+			);
+
+			$html .= rgar( $field, 'after_select' );
+
+		}
 
 		if ( $this->field_failed_validation( $field ) ) {
 			$html .= $this->get_error_icon( $field );
@@ -2816,12 +2839,14 @@ abstract class GFAddOn {
 		 */
 		$fields = apply_filters( 'gform_addon_field_map_choices', $fields, $form_id, $field_type, $exclude_field_types );
 
-		$callable = array( get_called_class(), 'get_instance' );
-		if ( is_callable( $callable ) ) {
-			$addon = call_user_func( $callable );
-			$slug  = $addon->get_slug();
+		if ( function_exists( 'get_called_class' ) ) {
+			$callable = array( get_called_class(), 'get_instance' );
+			if ( is_callable( $callable ) ) {
+				$add_on = call_user_func( $callable );
+				$slug   = $add_on->get_slug();
 
-			$fields = apply_filters( "gform_{$slug}_field_map_choices", $fields, $form_id, $field_type, $exclude_field_types );
+				$fields = apply_filters( "gform_{$slug}_field_map_choices", $fields, $form_id, $field_type, $exclude_field_types );
+			}
 		}
 
  		return $fields;
@@ -3163,7 +3188,7 @@ abstract class GFAddOn {
 				continue;
 			}
 
-			if ( ! empty( $args['property'] ) && ( ! isset( $field->$args['property'] ) || $field->$args['property'] != $args['property_value'] ) ) {
+			if ( ! empty( $args['property'] ) && ( ! isset( $field->{$args['property']} ) || $field->{$args['property']} != $args['property_value'] ) ) {
 				continue;
 			}
 
@@ -3371,8 +3396,9 @@ abstract class GFAddOn {
 			'gaddon_no_output_field_properties',
 			array(
 				'default_value', 'label', 'choices', 'feedback_callback', 'checked', 'checkbox_label', 'value', 'type',
-				'validation_callback', 'required', 'hidden', 'tooltip', 'dependency', 'messages', 'name', 'args', 'exclude_field_types',
-				'field_type', 'after_input', 'input_type', 'icon', 'save_callback', 'enable_custom_value', 'enable_custom_key', 'merge_tags', 'key_field', 'value_field',
+				'validation_callback', 'required', 'hidden', 'tooltip', 'dependency', 'messages', 'name', 'args',
+				'exclude_field_types', 'field_type', 'after_input', 'input_type', 'icon', 'save_callback',
+				'enable_custom_value', 'enable_custom_key', 'merge_tags', 'key_field', 'value_field', 'callback',
 			), $field
 		);
 
@@ -4625,7 +4651,7 @@ abstract class GFAddOn {
 	 *
 	 * @param $form
 	 *
-	 * @return string
+	 * @return array
 	 */
 	public function get_form_settings( $form ) {
 		return rgar( $form, $this->_slug );
@@ -6120,6 +6146,26 @@ abstract class GFAddOn {
 	 */
 	public function get_path() {
 		return $this->_path;
+	}
+
+	/**
+	 * Get all or a specific capability for Add-On.
+	 *
+	 * @since  2.2.5.27
+	 * @access public
+	 *
+	 * @param string $capability Capability to return.
+	 *
+	 * @return string|array
+	 */
+	public function get_capabilities( $capability = '' ) {
+
+		if ( rgblank( $capability ) ) {
+			return $this->_capabilities;
+		}
+
+		return isset( $this->{'_capabilities_' . $capability} ) ? $this->{'_capabilities_' . $capability} : array();
+
 	}
 
 	/**
