@@ -7,4 +7,9 @@
   "presets": [
     "es2015"
   ],
+  "env": {
+    "production": {
+      "presets": ["minify"]
+    }
+  }
 }
