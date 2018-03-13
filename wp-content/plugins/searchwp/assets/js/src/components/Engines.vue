@@ -273,7 +273,7 @@ export default {
 
                                                 // If the weight is zero, it's not part of the fingerprint because it won't be indexed
                                                 if (postTypeTaxonomies[ taxonomy ] > 0) {
-                                                    fingerprint.taxonomies.push(taxonomy);
+                                                    fingerprint.taxonomies.push(postType + '_' + taxonomy);
                                                 }
                                             }
                                         }
@@ -283,7 +283,7 @@ export default {
                                     keyfinder(enginePostType, 'cf').forEach(function(postTypeMetakeyPairs){
                                         for (let metakeyPair in postTypeMetakeyPairs){
                                             if (postTypeMetakeyPairs.hasOwnProperty(metakeyPair)){
-                                                fingerprint.metadata.push(postTypeMetakeyPairs[ metakeyPair ].metakey);
+                                                fingerprint.metadata.push(postType + '_' + postTypeMetakeyPairs[ metakeyPair ].metakey);
                                             }
                                         }
                                     });
@@ -293,7 +293,7 @@ export default {
                                         for (let option in postTypeOptions){
                                             if (postTypeOptions.hasOwnProperty(option)){
                                                 if (0 === option.indexOf('limit_to_') || 0 === option.indexOf('exclude_')){
-                                                    fingerprint.rules.push(option);
+                                                    fingerprint.rules.push(postType + '_' + option);
                                                 }
                                             }
                                         }

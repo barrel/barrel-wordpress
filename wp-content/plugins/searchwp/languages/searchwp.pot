@@ -3,14 +3,14 @@ msgid ""
 msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 "Project-Id-Version: SearchWP\n"
-"POT-Creation-Date: 2017-11-17 08:12-0500\n"
+"POT-Creation-Date: 2018-03-08 13:30-0500\n"
 "PO-Revision-Date: 2017-11-17 08:11-0500\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.4\n"
+"X-Generator: Poedit 2.0.6\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-Flags-xgettext: --add-comments=translators:\n"
 "X-Poedit-WPHeader: searchwp.php\n"
@@ -32,31 +32,31 @@ msgid ""
 msgstr ""
 
 #: admin/class.admin-settings.php:252 admin/settings-impl-advanced.php:448
-#: searchwp.php:799 searchwp.php:1005
+#: searchwp.php:888 searchwp.php:1094
 msgid "Settings"
 msgstr ""
 
-#: admin/class.ajax.php:136
+#: admin/class.ajax.php:140
 msgid "None"
 msgstr ""
 
-#: admin/class.ajax.php:144
-msgid "Now"
+#: admin/class.ajax.php:148 includes/class.i18n.php:84
+msgid "Right now"
 msgstr ""
 
 #. translators: %s = human-readable time difference
-#: admin/class.ajax.php:148
+#: admin/class.ajax.php:152
 #, php-format
 msgctxt "%s = human-readable time difference"
 msgid "%s ago"
 msgstr ""
 
-#: admin/class.ajax.php:484
+#: admin/class.ajax.php:500
 msgid "Supplemental Engine"
 msgstr ""
 
-#: admin/class.dashboard.php:36 admin/stats.php:61 includes/class.i18n.php:93
-#: searchwp.php:2559
+#: admin/class.dashboard.php:36 admin/stats.php:61 includes/class.i18n.php:92
+#: searchwp.php:2717
 msgid "Search Statistics"
 msgstr ""
 
@@ -82,7 +82,7 @@ msgstr ""
 msgid "Extensions"
 msgstr ""
 
-#: admin/class.extensions.php:63 searchwp.php:2871
+#: admin/class.extensions.php:63 searchwp.php:3035
 msgid "Back to SearchWP Settings"
 msgstr ""
 
@@ -107,7 +107,7 @@ msgstr ""
 msgid "Purchase License"
 msgstr ""
 
-#: admin/class.nags.php:137 admin/class.nags.php:155 includes/class.i18n.php:48
+#: admin/class.nags.php:137 admin/class.nags.php:155 includes/class.i18n.php:47
 msgid "Dismiss"
 msgstr ""
 
@@ -365,12 +365,12 @@ msgstr ""
 msgid "Advanced"
 msgstr ""
 
-#: admin/settings-impl-advanced.php:269 includes/class.i18n.php:51
+#: admin/settings-impl-advanced.php:269 includes/class.i18n.php:50
 msgid "Done"
 msgstr ""
 
 #: admin/settings-impl-advanced.php:294 admin/stats.php:13 admin/stats.php:19
-#: searchwp.php:2916 searchwp.php:2935 searchwp.php:3065
+#: searchwp.php:3080 searchwp.php:3106 searchwp.php:3241
 msgid "Invalid request"
 msgstr ""
 
@@ -393,7 +393,7 @@ msgstr ""
 msgid "Database tables created! <a href=\"%s\">Rebuild index &raquo;</a>"
 msgstr ""
 
-#: admin/settings-impl-advanced.php:417 includes/class.i18n.php:84
+#: admin/settings-impl-advanced.php:417
 msgid "Reset Index"
 msgstr ""
 
@@ -450,7 +450,7 @@ msgstr ""
 msgid "Conflict notices restored"
 msgstr ""
 
-#: admin/settings-impl-advanced.php:449 includes/class.i18n.php:90
+#: admin/settings-impl-advanced.php:449 includes/class.i18n.php:89
 msgid "Saved!"
 msgstr ""
 
@@ -472,11 +472,11 @@ msgid ""
 "Admin/Dashboard, not the front end."
 msgstr ""
 
-#: admin/settings-impl-advanced.php:507 includes/class.i18n.php:66
+#: admin/settings-impl-advanced.php:507 includes/class.i18n.php:65
 msgid "Last Activity"
 msgstr ""
 
-#: admin/settings-impl-advanced.php:516 includes/class.i18n.php:64
+#: admin/settings-impl-advanced.php:516 includes/class.i18n.php:63
 msgid "Indexed"
 msgstr ""
 
@@ -485,15 +485,15 @@ msgid "entry"
 msgstr ""
 
 #: admin/settings-impl-advanced.php:517 admin/settings-impl-advanced.php:523
-#: includes/class.i18n.php:54
+#: includes/class.i18n.php:53
 msgid "entries"
 msgstr ""
 
-#: admin/settings-impl-advanced.php:522 includes/class.i18n.php:98
+#: admin/settings-impl-advanced.php:522 includes/class.i18n.php:97
 msgid "Unindexed"
 msgstr ""
 
-#: admin/settings-impl-advanced.php:531 includes/class.i18n.php:71
+#: admin/settings-impl-advanced.php:531 includes/class.i18n.php:70
 msgid "Main row count"
 msgstr ""
 
@@ -501,7 +501,7 @@ msgstr ""
 msgid "row"
 msgstr ""
 
-#: admin/settings-impl-advanced.php:532 includes/class.i18n.php:86
+#: admin/settings-impl-advanced.php:532 includes/class.i18n.php:85
 msgid "rows"
 msgstr ""
 
@@ -554,46 +554,63 @@ msgid ""
 "article &raquo;</a>"
 msgstr ""
 
-#: admin/settings-impl-license.php:69
+#: admin/settings-impl-license.php:75
 msgid "License not active"
 msgstr ""
 
-#: admin/settings-impl-license.php:85
+#: admin/settings-impl-license.php:106
 msgid "Manage Your SearchWP License"
 msgstr ""
 
-#: admin/settings-impl-license.php:86
+#: admin/settings-impl-license.php:107
 msgid "Active"
 msgstr ""
 
-#: admin/settings-impl-license.php:86
+#: admin/settings-impl-license.php:107
 msgid "Inactive"
 msgstr ""
 
-#: admin/settings-impl-license.php:90
+#: admin/settings-impl-license.php:111
 msgid "Your SearchWP license is currently active."
 msgstr ""
 
-#: admin/settings-impl-license.php:92
+#: admin/settings-impl-license.php:113
 msgid ""
 "SearchWP requires an active license to receive automatic upates and support. "
 "Enter your license key to activate it."
 msgstr ""
 
-#: admin/settings-impl-license.php:101
+#: admin/settings-impl-license.php:119 admin/settings-impl-license.php:121
+#: includes/class.i18n.php:76
+msgid "Note:"
+msgstr ""
+
+#: admin/settings-impl-license.php:119
+msgid "Your license key is populated using this constant:"
+msgstr ""
+
+#: admin/settings-impl-license.php:121
+msgid "Your license key is populated using this hook:"
+msgstr ""
+
+#: admin/settings-impl-license.php:132
 msgid "Deactivate"
 msgstr ""
 
-#: admin/settings-impl-license.php:104
+#: admin/settings-impl-license.php:135
 msgid "Activate"
 msgstr ""
 
-#: admin/settings-impl-license.php:109
+#: admin/settings-impl-license.php:143
+msgid "Does not expire"
+msgstr ""
+
+#: admin/settings-impl-license.php:145
 #, php-format
 msgid "Active for another %s"
 msgstr ""
 
-#: admin/settings-impl-license.php:111
+#: admin/settings-impl-license.php:149
 #, php-format
 msgid ""
 "Your license key is available both on your payment receipt and in your <a "
@@ -608,7 +625,7 @@ msgstr ""
 msgid "Default Search Engine"
 msgstr ""
 
-#: admin/settings.php:28 admin/settings.php:53 searchwp.php:1088
+#: admin/settings.php:28 admin/settings.php:53 searchwp.php:1183
 msgid "Statistics"
 msgstr ""
 
@@ -700,39 +717,39 @@ msgstr ""
 msgid "Any"
 msgstr ""
 
-#: admin/view-settings-engines.php:76 templates/tmpl.engine.config.php:402
+#: admin/view-settings-engines.php:93 templates/tmpl.engine.config.php:402
 msgid "All Documents"
 msgstr ""
 
-#: admin/view-settings-engines.php:77 templates/tmpl.engine.config.php:403
+#: admin/view-settings-engines.php:94 templates/tmpl.engine.config.php:403
 msgid "PDFs"
 msgstr ""
 
-#: admin/view-settings-engines.php:78 templates/tmpl.engine.config.php:404
+#: admin/view-settings-engines.php:95 templates/tmpl.engine.config.php:404
 msgid "Plain Text"
 msgstr ""
 
-#: admin/view-settings-engines.php:79 templates/tmpl.engine.config.php:405
+#: admin/view-settings-engines.php:96 templates/tmpl.engine.config.php:405
 msgid "Images"
 msgstr ""
 
-#: admin/view-settings-engines.php:80 templates/tmpl.engine.config.php:406
+#: admin/view-settings-engines.php:97 templates/tmpl.engine.config.php:406
 msgid "Video"
 msgstr ""
 
-#: admin/view-settings-engines.php:81 templates/tmpl.engine.config.php:407
+#: admin/view-settings-engines.php:98 templates/tmpl.engine.config.php:407
 msgid "Audio"
 msgstr ""
 
-#: admin/view-settings-engines.php:82 templates/tmpl.engine.config.php:408
+#: admin/view-settings-engines.php:99 templates/tmpl.engine.config.php:408
 msgid "Office Documents"
 msgstr ""
 
-#: admin/view-settings-engines.php:83 templates/tmpl.engine.config.php:409
+#: admin/view-settings-engines.php:100 templates/tmpl.engine.config.php:409
 msgid "OpenOffice Documents"
 msgstr ""
 
-#: admin/view-settings-engines.php:84 templates/tmpl.engine.config.php:410
+#: admin/view-settings-engines.php:101 templates/tmpl.engine.config.php:410
 msgid "iWork Documents"
 msgstr ""
 
@@ -887,211 +904,208 @@ msgstr ""
 msgid "Native WordPress searches will return these post types"
 msgstr ""
 
-#: includes/class.i18n.php:46 includes/class.i18n.php:47
+#: includes/class.i18n.php:46
 msgid "Delete Engine"
 msgstr ""
 
-#: includes/class.i18n.php:49
+#: includes/class.i18n.php:48
 msgid "Document Content"
 msgstr ""
 
-#: includes/class.i18n.php:50
+#: includes/class.i18n.php:49
 msgid "Document Properties"
 msgstr ""
 
-#: includes/class.i18n.php:52
+#: includes/class.i18n.php:51
 msgid ""
 "These post types will be included in your search results, all other post "
 "types will be excluded"
 msgstr ""
 
-#: includes/class.i18n.php:53
+#: includes/class.i18n.php:52
 msgid ""
 "You must add at least one post type in order for this engine to return "
 "results"
 msgstr ""
 
-#: includes/class.i18n.php:55
+#: includes/class.i18n.php:54
 msgid "Exclude"
 msgstr ""
 
-#: includes/class.i18n.php:56
+#: includes/class.i18n.php:55
 msgid "Excluded"
 msgstr ""
 
-#: includes/class.i18n.php:57
+#: includes/class.i18n.php:56
 msgid "Exclude by taxonomy"
 msgstr ""
 
-#: includes/class.i18n.php:58
+#: includes/class.i18n.php:57
 msgid "Excluded IDs"
 msgstr ""
 
-#: includes/class.i18n.php:59
+#: includes/class.i18n.php:58
 msgid "Find terms"
 msgstr ""
 
-#: includes/class.i18n.php:60
+#: includes/class.i18n.php:59
 msgid "Index Progress"
 msgstr ""
 
-#: includes/class.i18n.php:61
-msgid "Note: the index is automatically updated and kept as small as possible"
+#: includes/class.i18n.php:60
+msgid ""
+"Note: the index is automatically maintained to be kept as small as possible"
 msgstr ""
 
-#: includes/class.i18n.php:62
+#: includes/class.i18n.php:61
 msgid "Index out of date"
 msgstr ""
 
-#: includes/class.i18n.php:63
-msgid "Engines saved but the index is now out of date, it must be rebuilt"
+#: includes/class.i18n.php:62
+msgid "Engines saved but the index is now out of date, it should be rebuilt"
 msgstr ""
 
-#: includes/class.i18n.php:65
+#: includes/class.i18n.php:64
 msgid "To enable SearchWP, please review and save your initial settings"
 msgstr ""
 
-#: includes/class.i18n.php:67
+#: includes/class.i18n.php:66
 msgid ""
 "To take advantage of recent updates please review and save your settings"
 msgstr ""
 
-#: includes/class.i18n.php:68
+#: includes/class.i18n.php:67
 msgid "Limit by taxonomy"
 msgstr ""
 
-#: includes/class.i18n.php:69
+#: includes/class.i18n.php:68
 msgid "Limit to"
 msgstr ""
 
-#: includes/class.i18n.php:70
+#: includes/class.i18n.php:69
 msgid "Limited to"
 msgstr ""
 
-#: includes/class.i18n.php:72
+#: includes/class.i18n.php:71
 msgid "Maximum"
 msgstr ""
 
-#: includes/class.i18n.php:73
+#: includes/class.i18n.php:72
 msgid "More info"
 msgstr ""
 
-#: includes/class.i18n.php:74
+#: includes/class.i18n.php:73
 msgid "Minimum"
 msgstr ""
 
-#: includes/class.i18n.php:75
+#: includes/class.i18n.php:74
 msgid "Native attribute"
 msgstr ""
 
-#: includes/class.i18n.php:76
+#: includes/class.i18n.php:75
 msgid "No terms found"
 msgstr ""
 
 #: includes/class.i18n.php:77
-msgid "Note:"
-msgstr ""
-
-#: includes/class.i18n.php:78
 msgid ""
 "is not available to PHP. As a result, Office document content will not be "
 "indexed."
 msgstr ""
 
-#: includes/class.i18n.php:79
+#: includes/class.i18n.php:78
 msgid "More Info"
 msgstr ""
 
-#: includes/class.i18n.php:80
+#: includes/class.i18n.php:79
 msgid "Options"
 msgstr ""
 
-#: includes/class.i18n.php:81
+#: includes/class.i18n.php:80
 msgid "PDF Metadata"
 msgstr ""
 
-#: includes/class.i18n.php:82
+#: includes/class.i18n.php:81
 msgid "There was a problem saving the engine settings"
 msgstr ""
 
-#: includes/class.i18n.php:83 templates/tmpl.supplemental.config.php:35
+#: includes/class.i18n.php:82 templates/tmpl.supplemental.config.php:35
 msgid "Remove"
 msgstr ""
 
-#: includes/class.i18n.php:85
-msgid "Right now"
+#: includes/class.i18n.php:83
+msgid "Rebuild Index"
 msgstr ""
 
-#: includes/class.i18n.php:87
+#: includes/class.i18n.php:86
 msgid "Rules"
 msgstr ""
 
-#: includes/class.i18n.php:88
+#: includes/class.i18n.php:87
 msgid "Save Engine"
 msgstr ""
 
-#: includes/class.i18n.php:89
+#: includes/class.i18n.php:88
 msgid "Save Engines"
 msgstr ""
 
-#: includes/class.i18n.php:91 templates/tmpl.engine.config.php:449
+#: includes/class.i18n.php:90 templates/tmpl.engine.config.php:449
 msgid "Single post ID"
 msgstr ""
 
-#: includes/class.i18n.php:92
+#: includes/class.i18n.php:91
 msgid "Search"
 msgstr ""
 
-#: includes/class.i18n.php:94
+#: includes/class.i18n.php:93
 msgid "Taxonomy"
 msgstr ""
 
-#: includes/class.i18n.php:95
+#: includes/class.i18n.php:94
 msgid "Taxonomies"
 msgstr ""
 
-#: includes/class.i18n.php:96
+#: includes/class.i18n.php:95
 msgid "Transfer weight to:"
 msgstr ""
 
-#: includes/class.i18n.php:97
+#: includes/class.i18n.php:96
 msgid "Transfer weight to parent"
 msgstr ""
 
-#: includes/class.i18n.php:99
+#: includes/class.i18n.php:98
 msgid "Use Defaults"
 msgstr ""
 
-#: includes/class.i18n.php:100
+#: includes/class.i18n.php:99
 msgid "Use Keyword Stem"
 msgstr ""
 
-#: includes/class.i18n.php:101 searchwp.php:844
+#: includes/class.i18n.php:100 searchwp.php:933
 #: templates/tmpl.engine.config.php:169
 msgid "Weight"
 msgstr ""
 
-#: includes/class.i18n.php:102
+#: includes/class.i18n.php:101
 msgid "Weight Multiplier"
 msgstr ""
 
-#: includes/class.i18n.php:103
+#: includes/class.i18n.php:102
 msgid "Weight Assignment"
 msgstr ""
 
-#: includes/class.i18n.php:104
+#: includes/class.i18n.php:103
 msgid "Weight Transfer"
 msgstr ""
 
-#: includes/class.i18n.php:105
+#: includes/class.i18n.php:104
 msgid "Without attributes, this post type will not show up in results"
 msgstr ""
 
-#: includes/class.i18n.php:109
+#: includes/class.i18n.php:108
 msgid "There was an error, please open a support ticket."
 msgstr ""
 
-#: includes/class.i18n.php:110
+#: includes/class.i18n.php:109
 msgid "Missing nonce."
 msgstr ""
 
@@ -1099,11 +1113,11 @@ msgstr ""
 msgid "Engine settings not found"
 msgstr ""
 
-#: includes/class.search.php:2632
+#: includes/class.search.php:2653
 msgid "SearchWP Error"
 msgstr ""
 
-#: includes/class.search.php:2641
+#: includes/class.search.php:2662
 msgid "View SQL_BIG_SELECTS Fix"
 msgstr ""
 
@@ -1119,7 +1133,7 @@ msgstr ""
 msgid "No searches for this time period."
 msgstr ""
 
-#: includes/functions.php:540 searchwp.php:845 searchwp.php:2846
+#: includes/functions.php:540 searchwp.php:934 searchwp.php:3010
 #: templates/tmpl.engine.config.php:176
 msgid "Title"
 msgstr ""
@@ -1136,15 +1150,15 @@ msgstr ""
 msgid "Comments"
 msgstr ""
 
-#: includes/functions.php:563 templates/tmpl.engine.config.php:182
+#: includes/functions.php:564 templates/tmpl.engine.config.php:182
 msgid "Description"
 msgstr ""
 
-#: includes/functions.php:566 templates/tmpl.engine.config.php:216
+#: includes/functions.php:567 templates/tmpl.engine.config.php:216
 msgid "Caption"
 msgstr ""
 
-#: includes/functions.php:601 templates/tmpl.engine.config.php:188
+#: includes/functions.php:602 templates/tmpl.engine.config.php:188
 msgid "Slug"
 msgstr ""
 
@@ -1154,210 +1168,210 @@ msgid ""
 "this plugin."
 msgstr ""
 
-#: searchwp.php:843
+#: searchwp.php:932
 msgid "Post ID"
 msgstr ""
 
-#: searchwp.php:970
+#: searchwp.php:1057
 msgid " ago"
 msgstr ""
 
-#: searchwp.php:1015
+#: searchwp.php:1104
 msgid "Enable Indexer"
 msgstr ""
 
-#: searchwp.php:1015
+#: searchwp.php:1104
 msgid "Disable Indexer"
 msgstr ""
 
-#: searchwp.php:1037
+#: searchwp.php:1132
 msgid "In index queue"
 msgstr ""
 
-#: searchwp.php:1051
+#: searchwp.php:1146
 msgid "This entry is being indexed"
 msgstr ""
 
-#: searchwp.php:1053
+#: searchwp.php:1148
 msgid "This entry is indexed"
 msgstr ""
 
-#: searchwp.php:1060
+#: searchwp.php:1155
 msgid "Not indexed "
 msgstr ""
 
-#: searchwp.php:1060
+#: searchwp.php:1155
 msgid "status is"
 msgstr ""
 
-#: searchwp.php:1063
+#: searchwp.php:1158
 msgid "Not indexed"
 msgstr ""
 
-#: searchwp.php:1067 searchwp.php:2615
+#: searchwp.php:1162 searchwp.php:2779
 msgid "Last indexed"
 msgstr ""
 
-#: searchwp.php:1211
+#: searchwp.php:1309
 msgid ""
 "<p>SearchWP <strong>has been automatically deactivated</strong> because it "
 "failed to create necessary database table(s):</p>"
 msgstr ""
 
-#: searchwp.php:1213
+#: searchwp.php:1311
 msgid ""
 "<p>Please ensure the applicable MySQL user has <code>CREATE</code> "
 "permissions and try activating again.</p>"
 msgstr ""
 
-#: searchwp.php:1214
+#: searchwp.php:1312
 msgid "Back to Plugins"
 msgstr ""
 
-#: searchwp.php:1479
+#: searchwp.php:1628
 msgid "SearchWP must be updated to the latest version to work with "
 msgstr ""
 
-#: searchwp.php:1671
+#: searchwp.php:1822
 msgid "Invalid SearchWP Engine: "
 msgstr ""
 
-#: searchwp.php:2149
+#: searchwp.php:2308
 msgid "Minimum word length triggered"
 msgstr ""
 
-#: searchwp.php:2156
+#: searchwp.php:2315
 msgid "Common word (stopword) removed"
 msgstr ""
 
-#: searchwp.php:2163
+#: searchwp.php:2322
 msgid "Search query length too long"
 msgstr ""
 
-#: searchwp.php:2559
+#: searchwp.php:2717
 msgid "Search Stats"
 msgstr ""
 
-#: searchwp.php:2825
+#: searchwp.php:2989
 msgid "Outstanding Index Issues"
 msgstr ""
 
-#: searchwp.php:2827
+#: searchwp.php:2991
 msgid "Nothing is currently excluded from the indexer."
 msgstr ""
 
-#: searchwp.php:2831
+#: searchwp.php:2995
 msgid ""
 "SearchWP was unable to fully implement <code>utf8mb4</code> (Emoji) support "
 "which may prevent indexing some content. Please open a support ticket for "
 "more assistance."
 msgstr ""
 
-#: searchwp.php:2838
+#: searchwp.php:3002
 msgid ""
 "SearchWP was unable to index the following content, and it is actively being "
 "excluded from subsequent index runs."
 msgstr ""
 
-#: searchwp.php:2838
+#: searchwp.php:3002
 msgid "Reintroduce All"
 msgstr ""
 
-#: searchwp.php:2847
+#: searchwp.php:3011
 msgid "Reintroduce to indexer"
 msgstr ""
 
-#: searchwp.php:2858
+#: searchwp.php:3022
 msgid "Manually populate PDF content if reintroduction fails"
 msgstr ""
 
-#: searchwp.php:2864
+#: searchwp.php:3028
 msgid "Reintroduce"
 msgstr ""
 
-#: searchwp.php:2948 searchwp.php:2996
+#: searchwp.php:3119 searchwp.php:3172
 msgid "SearchWP Alternate Indexer"
 msgstr ""
 
-#: searchwp.php:2950
+#: searchwp.php:3121
 msgid "Current progress:"
 msgstr ""
 
-#: searchwp.php:2951
+#: searchwp.php:3122
 msgid ""
 "If the percentage is not increasing it <strong>does not necessarily mean</"
 "strong> there is a problem. SearchWP takes multiple passes when indexing, "
 "please allow adequate time for the indexer to run."
 msgstr ""
 
-#: searchwp.php:2954
+#: searchwp.php:3125
 msgid "Triggering next index chunk, please wait..."
 msgstr ""
 
-#: searchwp.php:2975
+#: searchwp.php:3146
 msgid "Index built!"
 msgstr ""
 
-#: searchwp.php:2997
+#: searchwp.php:3173
 #, php-format
 msgid ""
 "There are <strong>%d</strong> entries left to index. <strong>YOU MUST LEAVE "
 "THIS BROWSER WINDOW OPEN</strong> during indexing."
 msgstr ""
 
-#: searchwp.php:2998
+#: searchwp.php:3174
 msgid "This action builds the initial index and only needs to be run once."
 msgstr ""
 
-#: searchwp.php:3003
+#: searchwp.php:3179
 msgid "Build Initial Index"
 msgstr ""
 
-#: searchwp.php:3149
+#: searchwp.php:3325
 msgid "Invalid settings."
 msgstr ""
 
-#: searchwp.php:3295
+#: searchwp.php:3471
 msgid "SearchWP Frequent (Every five minutes until initial index is built)"
 msgstr ""
 
-#: searchwp.php:3795
+#: searchwp.php:3982
 msgid "SearchWP File Content"
 msgstr ""
 
-#: searchwp.php:3866
+#: searchwp.php:4222
 msgid ""
 "The content below will be indexed for this file. If you are experiencing "
 "unexpected search results, ensure accuracy here."
 msgstr ""
 
-#: searchwp.php:3887
+#: searchwp.php:4243
 #, php-format
 msgid ""
 "<strong>NOTE:</strong> This content is too long to display (%s). Here is a "
 "sample from the indexed content:"
 msgstr ""
 
-#: searchwp.php:3892
+#: searchwp.php:4248
 msgid ""
 "To override this limit you must add the following to your theme's "
 "<code>functions.php</code>:"
 msgstr ""
 
-#: searchwp.php:3906
+#: searchwp.php:4262
 msgid ""
 "Only plain text files, PDFs, and Office documents are supported at this time."
 msgstr ""
 
-#: searchwp.php:3920
+#: searchwp.php:4276
 msgid "Indexed PDF Metadata"
 msgstr ""
 
-#: searchwp.php:3924
+#: searchwp.php:4280
 msgid "Key"
 msgstr ""
 
-#: searchwp.php:3925
+#: searchwp.php:4281
 msgid "Value"
 msgstr ""
 
@@ -1473,24 +1487,24 @@ msgid ""
 "a result, Office document content will not be indexed."
 msgstr ""
 
-#: vendor/SWP_EDD_SL_Plugin_Updater.php:201
+#: vendor/SWP_EDD_SL_Plugin_Updater.php:203
 #, php-format
 msgid ""
 "There is a new version of %1$s available. %2$sView version %3$s details%4$s."
 msgstr ""
 
-#: vendor/SWP_EDD_SL_Plugin_Updater.php:209
+#: vendor/SWP_EDD_SL_Plugin_Updater.php:211
 #, php-format
 msgid ""
 "There is a new version of %1$s available. %2$sView version %3$s details%4$s "
 "or %5$supdate now%6$s."
 msgstr ""
 
-#: vendor/SWP_EDD_SL_Plugin_Updater.php:399
+#: vendor/SWP_EDD_SL_Plugin_Updater.php:401
 msgid "You do not have permission to install plugin updates"
 msgstr ""
 
-#: vendor/SWP_EDD_SL_Plugin_Updater.php:399
+#: vendor/SWP_EDD_SL_Plugin_Updater.php:401
 msgid "Error"
 msgstr ""
 

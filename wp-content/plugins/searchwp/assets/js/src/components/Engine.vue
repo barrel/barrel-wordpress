@@ -4,7 +4,9 @@
         <h3 class="hndle">
             <span v-if="!editingLabel"
                 @click="settings.hasOwnProperty('searchwp_engine_label') ? editingLabel = true : editingLabel = false"
-                :class="{ 'searchwp-hndle-default' : ! settings.hasOwnProperty('searchwp_engine_label') }">{{ label }}</span>
+                :class="{ 'searchwp-hndle-default' : ! settings.hasOwnProperty('searchwp_engine_label') }">{{ label }}
+                <span class="dashicons dashicons-edit" v-if="settings.hasOwnProperty('searchwp_engine_label')"></span>
+            </span>
             <input v-model="label"
                     @input="updateName()"
                     @keyup.enter="editingLabel = false"
@@ -190,7 +192,7 @@
                                 :postType="postTypeName"
                                 :buttonText="i18n.addAttribute"/>
 
-                            <div class="searchwp-document-notes" v-if="!$root.misc.ziparchive || !$root.misc.domdocument">
+                            <div class="searchwp-document-notes" v-if="'attachment' == postTypeName && (!$root.misc.ziparchive || !$root.misc.domdocument)">
                                 <p v-if="!$root.misc.ziparchive" class="description"><strong>{{ i18n.note }}</strong> <code>ZipArchive</code> {{ i18n.notAvailableNoIndex }}</p>
                                 <p v-if="!$root.misc.domdocument" class="description"><strong>{{ i18n.note }}</strong> <code>DOMDocument</code> {{ i18n.notAvailableNoIndex }}</p>
                             </div>
@@ -412,6 +414,12 @@ export default {
             // Taxonomies
             for (var taxonomyKey in this.attributes[ postTypeName ].taxonomies) {
                 let taxonomy = this.attributes[ postTypeName ].taxonomies[ taxonomyKey ].name;
+
+                // We need to check if this taxonomy was added since the last save...
+                if (!this.model.objects[ postTypeName ].weights.tax || Array.isArray(this.model.objects[ postTypeName ].weights.tax)) {
+                    Vue.set(this.model.objects[ postTypeName ].weights, 'tax', {});
+                }
+
                 if (model.weights.tax[ taxonomy ]) {
                     attributes.push( taxonomy );
                 }
@@ -750,6 +758,10 @@ export default {
                 &.searchwp-hndle-default {
                     cursor: default;
                 }
+
+                &:hover span {
+                    opacity: 0.8;
+                }
             }
 
             span,
@@ -757,6 +769,11 @@ export default {
             code {
                 display: inline-block;
                 margin-right: 1em;
+            }
+
+            span span {
+                margin-right: 0;
+                opacity: 0.35;
             }
 
             input,
@@ -940,6 +957,8 @@ export default {
         .searchwp-remove-engine {
             visibility: hidden;
             margin: 0.9em 2px 0.1em auto; // Match button margins, push to the right
+            line-height: 26px;
+            height: 28px;
         }
 
         .searchwp-dropdown {
@@ -949,9 +968,13 @@ export default {
         }
     }
 
-    .searchwp-engine .inside:hover {
-        .searchwp-remove-engine {
-            visibility: visible;
+    .searchwp-engine .inside {
+        padding-bottom: 2px;
+
+        &:hover {
+            .searchwp-remove-engine {
+                visibility: visible;
+            }
         }
     }
 

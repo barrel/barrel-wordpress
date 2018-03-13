@@ -529,8 +529,7 @@ class SearchWPDocumentParser {
 				$pdf = new pdf( get_attached_file( $this->post->ID ) );
 				$pages = $pdf->get_pages();
 				if ( ! empty( $pages ) ) {
-					/** @noinspection PhpUnusedLocalVariableInspection */
-					while ( list( $nr, $page ) = each( $pages ) ) {
+					foreach ( $pages as $page ) {
 						if ( method_exists( $page, 'get_text' ) ) {
 							$pdfContent .= $page->get_text();
 						}

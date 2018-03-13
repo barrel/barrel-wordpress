@@ -218,6 +218,11 @@ export default {
         addTaxonomy( taxonomy ) {
             this.visible = !this.visible;
 
+            // There's a chance that this is the first taxonomy, so we need to make sure the model is set up
+            if (!this.$parent.model.objects[ this.postType ].weights.tax || Array.isArray(this.$parent.model.objects[ this.postType ].weights.tax)) {
+                Vue.set(this.$parent.model.objects[ this.postType ].weights, 'tax', {});
+            }
+
             // There's a chance that the taxnomy doesn't exist in the model yet (e.g. when
             // a taxonomy has been added since the last engine save)
             if (!this.$parent.model.objects[ this.postType ].weights.tax.hasOwnProperty(taxonomy.name)) {

@@ -64,8 +64,14 @@ class SearchWP_Settings_Implementation_License {
 	 * @return string
 	 */
 	function get_time_until_expiration() {
-		// license expiration is stored as a timestamp
-		$license_expiration = absint( trim( get_option( SEARCHWP_PREFIX . 'license_expiration' ) ) );
+		// license expiration is stored as a timestamp or 'never'
+		$expiration = get_option( SEARCHWP_PREFIX . 'license_expiration' );
+
+		if ( 'never' === $expiration ) {
+			return 'never';
+		}
+
+		$license_expiration = absint( trim( $expiration ) );
 		$license_expiration_readable = $license_expiration ? human_time_diff( current_time( 'timestamp' ), $license_expiration ) : __( 'License not active', 'searchwp' );
 
 		return $license_expiration_readable;
@@ -76,7 +82,22 @@ class SearchWP_Settings_Implementation_License {
 	 */
 	function render_view_license() {
 		$searchwp = SWP();
-		$license = $searchwp->license;
+
+		$license = get_option( SEARCHWP_PREFIX . 'license_key' );
+		$license_coded = false;
+
+		// Only display the license if it is in fact stored in the database, allow constant or filter definition to obscure it
+		if ( defined( 'SEARCHWP_LICENSE_KEY' ) ) {
+			$license = '*************';
+			$license_coded = true;
+		}
+
+		$filtered_license = apply_filters( 'searchwp_license_key', '' );
+		if ( ! empty( $filtered_license ) ) {
+			$license = '*************';
+			$license_coded = true;
+		}
+
 		$status = $searchwp->status;
 		?>
 		<div class="searchwp-license-settings-wrapper swp-group">
@@ -93,20 +114,37 @@ class SearchWP_Settings_Implementation_License {
 					<?php endif; ?>
 					<form method="post" action="options.php">
 						<?php settings_fields( SEARCHWP_PREFIX . 'license' ); ?>
+						<?php if ( ! empty( $license_coded ) ) : ?>
+							<?php if ( defined( 'SEARCHWP_LICENSE_KEY' ) ) : ?>
+								<p><strong><?php echo esc_html_e( 'Note:', 'searchwp' ); ?></strong> <?php echo esc_html_e( 'Your license key is populated using this constant:', 'searchwp' ); ?> <code>SEARCHWP_LICENSE_KEY</code></p>
+							<?php else : ?>
+								<p><strong><?php echo esc_html_e( 'Note:', 'searchwp' ); ?></strong> <?php echo esc_html_e( 'Your license key is populated using this hook:', 'searchwp' ); ?> <code>searchwp_license_key</code></p>
+							<?php endif; ?>
+						<?php endif; ?>
 						<p>
 							<!--suppress HtmlFormInputWithoutLabel -->
-							<input id="<?php echo esc_attr( SEARCHWP_PREFIX ); ?>license_key" name="<?php echo esc_attr( SEARCHWP_PREFIX ); ?>license_key" type="text" class="regular-text" value="<?php echo esc_attr( $license ); ?>" />
+							<input id="<?php echo esc_attr( SEARCHWP_PREFIX ); ?>license_key" name="<?php echo esc_attr( SEARCHWP_PREFIX ); ?>license_key" type="text" class="regular-text" value="<?php echo esc_attr( $license ); ?>" <?php if ( ! empty( $license_coded ) ) : ?>disabled="disabled" <?php endif; ?>/>
+							<?php if ( ! empty( $license_coded ) ) : ?>
+								<input id="<?php echo esc_attr( SEARCHWP_PREFIX ); ?>license_key_coded" name="<?php echo esc_attr( SEARCHWP_PREFIX ); ?>license_key_coded" type="hidden" value="1"/>
+							<?php endif; ?>
 							<?php if ( false !== $status && 'valid' === $status ) { ?>
 								<?php wp_nonce_field( 'searchwp_edd_license_deactivate_nonce', 'searchwp_edd_license_deactivate_nonce' ); ?>
-								<input type="submit" class="button-secondary" name="swp_edd_license_deactivate" value="<?php esc_html_e( 'Deactivate', 'searchwp' ); ?>"/>
+								<input type="submit" class="button-secondary" name="swp_edd_license_deactivate" value="<?php esc_html_e( 'Deactivate', 'searchwp' ); ?>" />
 							<?php } else {
 								wp_nonce_field( 'searchwp_edd_license_activate_nonce', 'searchwp_edd_license_activate_nonce' ); ?>
-								<input type="submit" class="button-secondary" name="swp_edd_license_activate" value="<?php esc_html_e( 'Activate', 'searchwp' ); ?>"/>
+								<input type="submit" class="button-secondary" name="swp_edd_license_activate" value="<?php esc_html_e( 'Activate', 'searchwp' ); ?>" />
 							<?php } ?>
 						</p>
 					</form>
 					<?php if ( false !== $status && 'valid' === $status ) : ?>
-						<p class="description"><?php echo esc_html( sprintf( __( 'Active for another %s', 'searchwp' ), $this->get_time_until_expiration() ) ); ?></p>
+						<p class="description"><?php
+						$expiration = $this->get_time_until_expiration();
+						if ( 'never' === $expiration ) {
+							echo esc_html_e( 'Does not expire', 'searchwp' );
+						} else {
+							echo esc_html( sprintf( __( 'Active for another %s', 'searchwp' ), $expiration ) );
+						}
+						?></p>
 					<?php else : ?>
 						<p class="description"><?php echo wp_kses( sprintf( __( 'Your license key is available both on your payment receipt and in your <a href="%s">Account</a>', 'searchwp' ), 'https://searchwp.com/account/' ), array( 'a' => array( 'href' => array() ) ) ); ?></p>
 					<?php endif; ?>
@@ -190,14 +228,21 @@ class SearchWP_Settings_Implementation_License {
 			// decode the license data
 			$license_data = json_decode( wp_remote_retrieve_body( $response ) );
 
-			// $license_data->license will be either "active" or "inactive"
-			update_option( SEARCHWP_PREFIX . 'license_status', sanitize_text_field( $license_data->license ) );
+			// $license_data->license will be either "valid" or "invalid"
+			$status = sanitize_text_field( $license_data->license );
+			$result = update_option( SEARCHWP_PREFIX . 'license_status', $status );
 
 			// also record the expiration date
 			if ( isset( $license_data->expires ) ) {
-				$expiration = $license_data->expires;
-				$expiration = date( 'U', strtotime( $expiration ) );
-				$expiration = absint( $expiration );
+
+				if ( 'lifetime' !== $license_data->expires ) {
+					$expiration = $license_data->expires;
+					$expiration = date( 'U', strtotime( $expiration ) );
+					$expiration = absint( $expiration );
+				} else {
+					$expiration = 'never';
+				}
+
 				update_option( SEARCHWP_PREFIX . 'license_expiration', $expiration );
 			}
 
@@ -298,11 +343,15 @@ class SearchWP_Settings_Implementation_License {
 	 * @since 1.0
 	 */
 	function sanitize_license( $new ) {
+
 		$old = searchwp_get_license_key();
 
-		if ( $old && $old !== $new ) {
-			delete_option( SEARCHWP_PREFIX . 'license_status' ); // new license has been entered, so must reactivate
-			delete_option( SEARCHWP_PREFIX . 'license_expiration' );
+		// This only applies if license is NOT populated via constant/hook
+		if ( ! isset( $_REQUEST[ SEARCHWP_PREFIX . 'license_key_coded'] ) ){
+			if ( $old && $old !== $new ) {
+				delete_option( SEARCHWP_PREFIX . 'license_status' ); // new license has been entered, so must reactivate
+				delete_option( SEARCHWP_PREFIX . 'license_expiration' );
+			}
 		}
 
 		return $new;

@@ -587,12 +587,12 @@ class SearchWP_Admin_Ajax {
 
 				// Mimes are saved as a csv string
 				if ( isset( $engine_post_type_settings['options']['mimes'] ) ) {
-					$stored_mimes = $engine_post_type_settings['options']['mimes'];
+					$stored_mimes = (string) $engine_post_type_settings['options']['mimes'];
 
 					// The engine validator saves empty mimes as an empty string, but we need an array
 					$data['engines'][ $engine_name ][ $engine_post_type ]['options']['mimes'] = array();
 
-					if ( ! empty( $stored_mimes ) ) {
+					if ( ! empty( $stored_mimes ) || '0' === trim( $stored_mimes ) ) {
 						$mimes = explode( ',', $stored_mimes );
 						$mimes = array_map( 'absint', $mimes );
 
@@ -600,6 +600,47 @@ class SearchWP_Admin_Ajax {
 
 						foreach ( $mimes as $mime_key ) {
 							$data['engines'][ $engine_name ][ $engine_post_type ]['options']['mimes'][] = $normalized_mimes[ $mime_key ];
+						}
+					}
+				}
+
+				// Check for newly added taxonomies since last save
+				$current_object_taxonomies = array();
+				if ( isset( $data['objects'][ $engine_post_type ]['taxonomies'] ) ) {
+					$current_object_taxonomies = wp_list_pluck( $data['objects'][ $engine_post_type ]['taxonomies'], 'name' );
+				}
+
+				if ( ! empty( $current_object_taxonomies ) ) {
+
+					// Is this the first taxonomy ever?
+					if ( ! isset( $data['engines'][ $engine_name ][ $engine_post_type ]['weights']['tax'] ) ) {
+						$data['engines'][ $engine_name ][ $engine_post_type ]['weights']['tax'] = array();
+
+						foreach ( $current_object_taxonomies as $current_object_taxonomy ) {
+							$data['engines'][ $engine_name ][ $engine_post_type ]['weights']['tax'][ $current_object_taxonomy ] = 0;
+						}
+					}
+
+					foreach ( $current_object_taxonomies as $current_object_tax ) {
+						if (
+							isset( $data['engines'][ $engine_name ][ $engine_post_type ]['weights']['tax'] )
+							&& is_array( $data['engines'][ $engine_name ][ $engine_post_type ]['weights']['tax'] )
+							&& ! array_key_exists( $current_object_tax,  $data['engines'][ $engine_name ][ $engine_post_type ]['weights']['tax'] )
+						) {
+							$data['engines'][ $engine_name ][ $engine_post_type ]['weights']['tax'][ $current_object_tax ] = 0;
+						}
+					}
+				}
+
+				if ( isset( $engine_post_type_settings['weights']['tax'] ) && is_array( $engine_post_type_settings['weights']['tax'] ) ) {
+					// Also check for removed taxonomies
+					$saved_taxonomies_from_engine_config = array_keys( $engine_post_type_settings['weights']['tax'] );
+
+					if ( ! empty( $saved_taxonomies_from_engine_config ) ) {
+						foreach ( $saved_taxonomies_from_engine_config as $saved_tax ) {
+							if ( ! taxonomy_exists( $saved_tax ) ) {
+								unset( $data['engines'][ $engine_name ][ $engine_post_type ]['weights']['tax'][ $saved_tax ] );
+							}
 						}
 					}
 				}

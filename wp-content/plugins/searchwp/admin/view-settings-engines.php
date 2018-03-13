@@ -29,10 +29,17 @@ foreach ( SWP()->postTypes as $post_type ) {
 	$taxonomy_objects = get_object_taxonomies( $post_type, 'objects' );
 	$taxonomies = array();
 	foreach ( $taxonomy_objects as $taxonomy_key => $taxonomy ) {
+
+		$tax_label = $taxonomy->label;
+
+		if ( apply_filters( 'searchwp_engine_use_taxonomy_name', false ) ) {
+			$tax_label = $taxonomy->name;
+		}
+
 		$taxonomies[] = array(
 			'name' => $taxonomy->name,
 			'value' => $taxonomy->name,
-			'label' => $taxonomy->label,
+			'label' => $tax_label,
 		);
 
 		$nonces[] = 'tax_' . $taxonomy->name . '_' . $post_type;
@@ -101,9 +108,6 @@ $data['misc']['admin_search'] = ! empty( $advanced_settings['admin_search'] );
 // We need the configurations for all existing engines
 $data['engines'] = searchwp_get_setting( 'engines' );
 
-// Provide Vue with an accurate engine model to use when creating supplemental engines
-$data['engine_model'] = SWP()->ajax->generate_engine_model( $data );
-
 if ( empty( $data['engines'] ) ) {
 	$data['engines']['default'] = $data['engine_model'];
 	unset( $data['engines']['default']['searchwp_engine_label'] );
@@ -115,6 +119,9 @@ $data = SWP()->ajax->normalize_taxonomy_options( $data, 'limit_to_' );
 
 // Ensure that all expected attributes are in place and formatted
 $data = SWP()->ajax->normalize_post_types_to_objects( $data );
+
+// Provide Vue with an accurate engine model to use when creating supplemental engines
+$data['engine_model'] = SWP()->ajax->generate_engine_model( $data );
 
 SWP()->ajax->enqueue_script(
 	'settings',

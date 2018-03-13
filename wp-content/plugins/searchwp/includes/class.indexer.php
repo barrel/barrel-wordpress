@@ -138,6 +138,8 @@ class SearchWPIndexer {
 
 		$searchwp = SWP();
 
+		do_action( 'searchwp_indexer_pre' );
+
 		$this->init();
 
 		if ( empty( $this->postTypesToIndex ) && empty( $this->indexAttachments ) ) {
@@ -159,7 +161,6 @@ class SearchWPIndexer {
 				do_action( 'searchwp_log', 'External SearchWPIndexer instantiation' );
 			}
 		} else {
-			do_action( 'searchwp_indexer_pre' );
 
 			/**
 			 * Allow for some catch-up from the last request
@@ -535,6 +536,20 @@ class SearchWPIndexer {
 				$args['tax_query'] = SWP()->get_post_type_tax_query_for_rules( $post_type, 'limit_to' );
 			}
 
+			// allow devs to have more control over what is considered unindexed
+			if ( 'attachment' !== $post_type ) {
+				$args = apply_filters( 'searchwp_indexer_unindexed_args', $args );
+			} else {
+				// Apply mime type exclusions if applicable
+				$limited_mime_types = $this->get_global_mime_limit();
+
+				if ( ! empty( $limited_mime_types ) ) {
+					$args['post_mime_type'] = $limited_mime_types;
+				}
+
+				$args = apply_filters( 'searchwp_indexer_unindexed_media_args', $args );
+			}
+
 			$total_post_type_ref = new WP_Query( $args );
 			$total_post_type = absint( $total_post_type_ref->found_posts );
 
@@ -656,6 +671,13 @@ class SearchWPIndexer {
 			if ( 'attachment' !== $post_type ) {
 				$args = apply_filters( 'searchwp_indexer_unindexed_args', $args );
 			} else {
+				// Apply mime type exclusions if applicable
+				$limited_mime_types = $this->get_global_mime_limit();
+
+				if ( ! empty( $limited_mime_types ) ) {
+					$args['post_mime_type'] = $limited_mime_types;
+				}
+
 				$args = apply_filters( 'searchwp_indexer_unindexed_media_args', $args );
 			}
 
@@ -670,6 +692,74 @@ class SearchWPIndexer {
 		return $this->unindexedPosts;
 	}
 
+	function get_global_mime_limit() {
+		$limit = array();
+
+		$engines = isset( SWP()->settings['engines'] ) ? SWP()->settings['engines'] : array();
+
+		if ( empty( $engines ) ) {
+			return $limit;
+		}
+
+		$index_all_mimes = false;
+
+		foreach ( $engines as $engine => $engine_settings ) {
+			foreach ( $engine_settings as $post_type => $post_type_settings ) {
+				if ( ! isset( $post_type_settings['enabled'] ) || empty( $post_type_settings['enabled'] ) ) {
+					continue;
+				}
+
+				if ( 'attachment' !== $post_type ) {
+					continue;
+				}
+
+				$mimes_for_this_engine = isset( $post_type_settings['options']['mimes'] ) ? $post_type_settings['options']['mimes'] : '';
+				$mimes_for_this_engine_string = (string) $mimes_for_this_engine;
+
+				// This check is a bit strange because the All Documents mime group is represented by string '0'
+				if ( empty( $mimes_for_this_engine ) && '' === trim( $mimes_for_this_engine_string ) ) {
+					// If there are no limiters we have to index all mime types
+					$index_all_mimes = true;
+					break;
+				}
+
+				// Store these mime limits for this engine, because we need GLOBAL rules
+				// in other words if there are multiple engines but mime limits only on one engine,
+				// we cannot limit the mime type in the index because the other engine will be missing results
+				$limit[ $engine ] = $mimes_for_this_engine;
+			}
+
+			if ( ! empty( $index_all_mimes ) ) {
+				break;
+			}
+		}
+
+		// If at some point we determined that all mimes need to be index, bail out
+		if ( ! empty( $index_all_mimes ) ) {
+			return array();
+		}
+
+		// We need to find GLOBAL mime limits across all engines
+		// So we'll be mashing all of the engine mime limits together
+		$global_limit = array();
+		foreach ( $limit as $engine => $mime_ids ) {
+			if ( false !== strpos( $mime_ids, ',' ) ) {
+				$mime_ids = explode( ',', $mime_ids );
+			} else {
+				$mime_ids = array( $mime_ids );
+			}
+
+			$global_limit = array_merge( $global_limit, $mime_ids );
+		}
+
+		$global_limit = array_map( 'absint', $global_limit );
+		$global_limit = array_unique( $global_limit );
+
+		// This query arg needs the actual mime type(s), not the IDs SearchWP uses in its settings
+		$global_limit = SWP()->get_mimes_from_settings_ids( $global_limit );
+
+		return $global_limit;
+	}
 
 	/**
 	 * Checks the stored in-process post IDs and existing index to ensure a rogue parallel indexer is not running
