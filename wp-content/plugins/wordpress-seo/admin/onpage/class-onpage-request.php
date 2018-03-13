@@ -38,7 +38,7 @@ class WPSEO_OnPage_Request {
 
 		// When the request is successful, the response code will be 200.
 		if ( $response_code === 200 ) {
-			$response_body  = wp_remote_retrieve_body( $response );
+			$response_body = wp_remote_retrieve_body( $response );
 
 			return json_decode( $response_body, true );
 		}
@@ -61,19 +61,5 @@ class WPSEO_OnPage_Request {
 		}
 
 		return $json_body;
-	}
-
-	/**
-	 * Returns the fetched response
-	 *
-	 * @deprecated 3.1.2
-	 * @codeCoverageIgnore
-	 *
-	 * @return array
-	 */
-	public function get_response() {
-		_deprecated_function( __METHOD__, 'WPSEO 3.1.2', 'WPSEO_OnPage_Request::do_request' );
-
-		return array();
 	}
 }

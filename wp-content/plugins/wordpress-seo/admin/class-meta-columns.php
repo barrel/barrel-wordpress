@@ -26,7 +26,7 @@ class WPSEO_Meta_Columns {
 			add_action( 'admin_init', array( $this, 'setup_hooks' ) );
 		}
 
-		$this->analysis_seo = new WPSEO_Metabox_Analysis_SEO();
+		$this->analysis_seo         = new WPSEO_Metabox_Analysis_SEO();
 		$this->analysis_readability = new WPSEO_Metabox_Analysis_Readability();
 	}
 
@@ -48,14 +48,14 @@ class WPSEO_Meta_Columns {
 	}
 
 	/**
-	 * Adds the column headings for the SEO plugin for edit posts / pages overview
+	 * Adds the column headings for the SEO plugin for edit posts / pages overview.
 	 *
 	 * @param array $columns Already existing columns.
 	 *
 	 * @return array Array containing the column headings.
 	 */
 	public function column_heading( $columns ) {
-		if ( $this->is_metabox_hidden() === true ) {
+		if ( $this->display_metabox() === false ) {
 			return $columns;
 		}
 
@@ -73,7 +73,7 @@ class WPSEO_Meta_Columns {
 		$added_columns['wpseo-metadesc'] = __( 'Meta Desc.', 'wordpress-seo' );
 
 		if ( $this->analysis_seo->is_enabled() ) {
-			$added_columns['wpseo-focuskw']  = __( 'Focus KW', 'wordpress-seo' );
+			$added_columns['wpseo-focuskw'] = __( 'Focus KW', 'wordpress-seo' );
 		}
 
 		return array_merge( $columns, $added_columns );
@@ -86,42 +86,66 @@ class WPSEO_Meta_Columns {
 	 * @param int    $post_id     Post to display the column content for.
 	 */
 	public function column_content( $column_name, $post_id ) {
-		if ( $this->is_metabox_hidden() === true ) {
+		if ( $this->display_metabox() === false ) {
 			return;
 		}
 
 		switch ( $column_name ) {
 			case 'wpseo-score':
 				echo $this->parse_column_score( $post_id );
-				break;
+				return;
+
 			case 'wpseo-score-readability':
 				echo $this->parse_column_score_readability( $post_id );
-				break;
+				return;
+
 			case 'wpseo-title':
-				echo esc_html( apply_filters( 'wpseo_title', wpseo_replace_vars( $this->page_title( $post_id ), get_post( $post_id, ARRAY_A ) ) ) );
-				break;
+				$post  = get_post( $post_id, ARRAY_A );
+				$title = wpseo_replace_vars( $this->page_title( $post_id ), $post );
+				$title = apply_filters( 'wpseo_title', $title );
+
+				echo esc_html( $title );
+				return;
+
 			case 'wpseo-metadesc':
-				$metadesc_val = apply_filters( 'wpseo_metadesc', wpseo_replace_vars( WPSEO_Meta::get_value( 'metadesc', $post_id ), get_post( $post_id, ARRAY_A ) ) );
-				$metadesc = ( '' === $metadesc_val ) ? '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . __( 'Meta description not set.', 'wordpress-seo' ) . '</span>' : esc_html( $metadesc_val );
-				echo $metadesc;
-				break;
+				$post         = get_post( $post_id, ARRAY_A );
+				$metadesc_val = wpseo_replace_vars( WPSEO_Meta::get_value( 'metadesc', $post_id ), $post );
+				$metadesc_val = apply_filters( 'wpseo_metadesc', $metadesc_val );
+
+				if ( '' === $metadesc_val ) {
+					echo '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">',
+						esc_html__( 'Meta description not set.', 'wordpress-seo' ),
+						'</span>';
+					return;
+				}
+
+				echo esc_html( $metadesc_val );
+				return;
+
 			case 'wpseo-focuskw':
 				$focuskw_val = WPSEO_Meta::get_value( 'focuskw', $post_id );
-				$focuskw = ( '' === $focuskw_val ) ? '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">' . __( 'Focus keyword not set.', 'wordpress-seo' ) . '</span>' : esc_html( $focuskw_val );
-				echo $focuskw;
-				break;
+
+				if ( '' === $focuskw_val ) {
+					echo '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">',
+						esc_html__( 'Focus keyword not set.', 'wordpress-seo' ),
+						'</span>';
+					return;
+				}
+
+				echo esc_html( $focuskw_val );
+				return;
 		}
 	}
 
 	/**
 	 * Indicates which of the SEO columns are sortable.
 	 *
-	 * @param array $columns appended with their orderby variable.
+	 * @param array $columns Appended with their orderby variable.
 	 *
 	 * @return array Array containing the sortable columns.
 	 */
 	public function column_sort( $columns ) {
-		if ( $this->is_metabox_hidden() === true ) {
+		if ( $this->display_metabox() === false ) {
 			return $columns;
 		}
 
@@ -139,7 +163,7 @@ class WPSEO_Meta_Columns {
 	 *
 	 * @param array|false $result The hidden columns.
 	 * @param string      $option The option name used to set which columns should be hidden.
-	 * @param WP_User     $user The User.
+	 * @param WP_User     $user   The User.
 	 *
 	 * @return array      $result Array containing the columns to hide.
 	 */
@@ -173,10 +197,10 @@ class WPSEO_Meta_Columns {
 
 		$ranks = WPSEO_Rank::get_all_ranks();
 
-		echo '<label class="screen-reader-text" for="wpseo-filter">' . __( 'Filter by SEO Score', 'wordpress-seo' ) . '</label>';
+		echo '<label class="screen-reader-text" for="wpseo-filter">' . esc_html__( 'Filter by SEO Score', 'wordpress-seo' ) . '</label>';
 		echo '<select name="seo_filter" id="wpseo-filter">';
 
-		echo $this->generate_option( '',  __( 'All SEO Scores', 'wordpress-seo' ) );
+		echo $this->generate_option( '', __( 'All SEO Scores', 'wordpress-seo' ) );
 
 		foreach ( $ranks as $rank ) {
 			$selected = selected( $this->get_current_seo_filter(), $rank->get_rank(), false );
@@ -199,10 +223,10 @@ class WPSEO_Meta_Columns {
 
 		$ranks = WPSEO_Rank::get_all_readability_ranks();
 
-		echo '<label class="screen-reader-text" for="wpseo-readability-filter">' . __( 'Filter by Readability Score', 'wordpress-seo' ) . '</label>';
+		echo '<label class="screen-reader-text" for="wpseo-readability-filter">' . esc_html__( 'Filter by Readability Score', 'wordpress-seo' ) . '</label>';
 		echo '<select name="readability_filter" id="wpseo-readability-filter">';
 
-		echo $this->generate_option( '',  __( 'All Readability Scores', 'wordpress-seo' ) );
+		echo $this->generate_option( '', __( 'All Readability Scores', 'wordpress-seo' ) );
 
 		foreach ( $ranks as $rank ) {
 			$selected = selected( $this->get_current_readability_filter(), $rank->get_rank(), false );
@@ -218,12 +242,12 @@ class WPSEO_Meta_Columns {
 	 *
 	 * @param string $value       The option's value.
 	 * @param string $label       The option's label.
-	 * @param bool   $selected    Whether or not the option should be selected.
+	 * @param string $selected    HTML selected attribute for an option.
 	 *
 	 * @return string The generated <option> element.
 	 */
-	protected function generate_option( $value, $label, $selected = false ) {
-		return '<option ' . $selected . ' value="' . $value . '">' . $label . '</option>';
+	protected function generate_option( $value, $label, $selected = '' ) {
+		return '<option ' . $selected . ' value="' . esc_attr( $value ) . '">' . esc_html( $label ) . '</option>';
 	}
 
 	/**
@@ -294,8 +318,8 @@ class WPSEO_Meta_Columns {
 	protected function collect_filters() {
 		$active_filters = array();
 
-		$seo_filter = $this->get_current_seo_filter();
-		$readability_filter = $this->get_current_readability_filter();
+		$seo_filter             = $this->get_current_seo_filter();
+		$readability_filter     = $this->get_current_readability_filter();
 		$current_keyword_filter = $this->get_current_keyword_filter();
 
 		if ( $this->is_valid_filter( $seo_filter ) ) {
@@ -333,7 +357,7 @@ class WPSEO_Meta_Columns {
 		$collected_filters = $this->collect_filters();
 
 		if ( isset( $vars['orderby'] ) ) {
-			$vars = array_merge( $vars,  $this->filter_order_by( $vars['orderby'] ) );
+			$vars = array_merge( $vars, $this->filter_order_by( $vars['orderby'] ) );
 		}
 
 		return $this->build_filter_query( $vars, $collected_filters );
@@ -424,7 +448,7 @@ class WPSEO_Meta_Columns {
 			return $vars;
 		}
 
-		$result = array( 'meta_query' => array() );
+		$result               = array( 'meta_query' => array() );
 		$result['meta_query'] = array_merge( $result['meta_query'], array( $this->determine_score_filters( $filters ) ) );
 
 		$current_seo_filter = $this->get_current_seo_filter();
@@ -511,7 +535,40 @@ class WPSEO_Meta_Columns {
 	}
 
 	/**
-	 * Returns filters when $order_by is matched in the if-statement
+	 * Determines whether a particular post_id is of an indexable post type.
+	 *
+	 * @param string $post_id The post ID to check.
+	 *
+	 * @return bool Whether or not it is indexable.
+	 */
+	protected function is_indexable( $post_id ) {
+		if ( ! empty( $post_id ) && ! $this->uses_default_indexing( $post_id ) ) {
+			return WPSEO_Meta::get_value( 'meta-robots-noindex', $post_id ) === '2';
+		}
+
+		$post = get_post( $post_id );
+
+		if ( is_object( $post ) ) {
+			// If the option is false, this means we want to index it.
+			return WPSEO_Options::get( 'noindex-' . $post->post_type, false ) === false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines whether the given post ID uses the default indexing settings.
+	 *
+	 * @param integer $post_id The post ID to check.
+	 *
+	 * @return bool Whether or not the default indexing is being used for the post.
+	 */
+	protected function uses_default_indexing( $post_id ) {
+		return WPSEO_Meta::get_value( 'meta-robots-noindex', $post_id ) === '0';
+	}
+
+	/**
+	 * Returns filters when $order_by is matched in the if-statement.
 	 *
 	 * @param string $order_by The ID of the column by which to order the posts.
 	 *
@@ -520,17 +577,16 @@ class WPSEO_Meta_Columns {
 	private function filter_order_by( $order_by ) {
 		switch ( $order_by ) {
 			case 'wpseo-metadesc':
-				return  array(
+				return array(
 					'meta_key' => WPSEO_Meta::$meta_prefix . 'metadesc',
 					'orderby'  => 'meta_value',
 				);
-				break;
+
 			case 'wpseo-focuskw':
 				return array(
 					'meta_key' => WPSEO_Meta::$meta_prefix . 'focuskw',
 					'orderby'  => 'meta_value',
 				);
-				break;
 		}
 
 		return array();
@@ -544,7 +600,7 @@ class WPSEO_Meta_Columns {
 	 * @return string The HTML for the SEO score indicator.
 	 */
 	private function parse_column_score( $post_id ) {
-		if ( WPSEO_Meta::get_value( 'meta-robots-noindex', $post_id ) === '1' ) {
+		if ( ! $this->is_indexable( $post_id ) ) {
 			$rank  = new WPSEO_Rank( WPSEO_Rank::NO_INDEX );
 			$title = __( 'Post is set to noindex.', 'wordpress-seo' );
 
@@ -576,7 +632,7 @@ class WPSEO_Meta_Columns {
 	 */
 	private function parse_column_score_readability( $post_id ) {
 		$score = (int) WPSEO_Meta::get_value( 'content_score', $post_id );
-		$rank = WPSEO_Rank::from_numeric_score( $score );
+		$rank  = WPSEO_Rank::from_numeric_score( $score );
 
 		return $this->render_score_indicator( $rank );
 	}
@@ -585,66 +641,52 @@ class WPSEO_Meta_Columns {
 	 * Sets up the hooks for the post_types.
 	 */
 	private function set_post_type_hooks() {
-		$post_types = get_post_types( array( 'public' => true ), 'names' );
+		$post_types = WPSEO_Post_Type::get_accessible_post_types();
 
-		if ( is_array( $post_types ) && $post_types !== array() ) {
-			foreach ( $post_types as $post_type ) {
-				if ( $this->is_metabox_hidden( $post_type ) === false ) {
-					add_filter( 'manage_' . $post_type . '_posts_columns', array( $this, 'column_heading' ), 10, 1 );
-					add_action( 'manage_' . $post_type . '_posts_custom_column', array(
-						$this,
-						'column_content',
-					), 10, 2 );
-
-					add_action( 'manage_edit-' . $post_type . '_sortable_columns', array(
-						$this,
-						'column_sort',
-					), 10, 2 );
-
-					/*
-					 * Use the `get_user_option_{$option}` filter to change the output of the get_user_option
-					 * function for the `manage{$screen}columnshidden` option, which is based on the current
-					 * admin screen. The admin screen we want to target is the `edit-{$post_type}` screen.
-					 */
-					$filter = sprintf(
-						'get_user_option_%s',
-						sprintf(
-							'manage%scolumnshidden',
-							'edit-' . $post_type
-						)
-					);
-
-					add_filter( $filter, array( $this, 'column_hidden' ), 10, 3 );
-				}
-			}
-			unset( $post_type );
+		if ( ! is_array( $post_types ) || $post_types === array() ) {
+			return;
 		}
+
+		foreach ( $post_types as $post_type ) {
+			if ( $this->display_metabox( $post_type ) === false ) {
+				continue;
+			}
+
+			add_filter( 'manage_' . $post_type . '_posts_columns', array( $this, 'column_heading' ), 10, 1 );
+			add_action( 'manage_' . $post_type . '_posts_custom_column', array( $this, 'column_content' ), 10, 2 );
+			add_action( 'manage_edit-' . $post_type . '_sortable_columns', array( $this, 'column_sort' ), 10, 2 );
+
+			/*
+			 * Use the `get_user_option_{$option}` filter to change the output of the get_user_option
+			 * function for the `manage{$screen}columnshidden` option, which is based on the current
+			 * admin screen. The admin screen we want to target is the `edit-{$post_type}` screen.
+			 */
+			$filter = sprintf( 'get_user_option_%s', sprintf( 'manage%scolumnshidden', 'edit-' . $post_type ) );
+
+			add_filter( $filter, array( $this, 'column_hidden' ), 10, 3 );
+		}
+
+		unset( $post_type );
 	}
 
 	/**
-	 * Test whether the metabox should be hidden either by choice of the admin or because
-	 * the post type is not a public post type
+	 * Wraps the WPSEO_Metabox check to determine whether the metabox should be displayed either by
+	 * choice of the admin or because the post type is not a public post type.
 	 *
-	 * @since 1.5.0
+	 * @since 7.0
 	 *
-	 * @param  string $post_type (optional) The post type to test, defaults to the current post post_type.
+	 * @param string $post_type Optional. The post type to test, defaults to the current post post_type.
 	 *
-	 * @return  bool        Whether or not the meta box (and associated columns etc) should be hidden
+	 * @return bool Whether or not the meta box (and associated columns etc) should be hidden.
 	 */
-	private function is_metabox_hidden( $post_type = null ) {
-		if ( ! isset( $post_type ) && $current_post_type = $this->get_current_post_type() ) {
-			$post_type = sanitize_text_field( $current_post_type );
+	private function display_metabox( $post_type = null ) {
+		$current_post_type = sanitize_text_field( $this->get_current_post_type() );
+
+		if ( ! isset( $post_type ) && ! empty( $current_post_type ) ) {
+			$post_type = $current_post_type;
 		}
 
-		if ( isset( $post_type ) ) {
-			// Don't make static as post_types may still be added during the run.
-			$cpts    = get_post_types( array( 'public' => true ), 'names' );
-			$options = get_option( 'wpseo_titles' );
-
-			return ( ( isset( $options[ 'hideeditbox-' . $post_type ] ) && $options[ 'hideeditbox-' . $post_type ] === true ) || in_array( $post_type, $cpts ) === false );
-		}
-
-		return false;
+		return WPSEO_Utils::is_metabox_active( $post_type, 'post_type' );
 	}
 
 	/**
@@ -660,11 +702,10 @@ class WPSEO_Meta_Columns {
 			return $fixed_title;
 		}
 
-		$post    = get_post( $post_id );
-		$options = WPSEO_Options::get_option( 'wpseo_titles' );
+		$post = get_post( $post_id );
 
-		if ( is_object( $post ) && ( isset( $options[ 'title-' . $post->post_type ] ) && $options[ 'title-' . $post->post_type ] !== '' ) ) {
-			$title_template = $options[ 'title-' . $post->post_type ];
+		if ( is_object( $post ) && WPSEO_Options::get( 'title-' . $post->post_type, '' ) !== '' ) {
+			$title_template = WPSEO_Options::get( 'title-' . $post->post_type );
 			$title_template = str_replace( ' %%page%% ', ' ', $title_template );
 
 			return wpseo_replace_vars( $title_template, $post );
@@ -674,7 +715,7 @@ class WPSEO_Meta_Columns {
 	}
 
 	/**
-	 * @param WPSEO_Rank $rank The rank this indicator should have.
+	 * @param WPSEO_Rank $rank  The rank this indicator should have.
 	 * @param string     $title Optional. The title for this rank, defaults to the title of the rank.
 	 *
 	 * @return string The HTML for a score indicator.
@@ -688,41 +729,24 @@ class WPSEO_Meta_Columns {
 	}
 
 	/**
-	 * Hacky way to get round the limitation that you can only have AND *or* OR relationship between
-	 * meta key clauses and not a combination - which is what we need.
-	 *
-	 * @deprecated 3.5 Unnecessary with nested meta queries in core.
-	 * @codeCoverageIgnore
-	 *
-	 * @param    string $where Where clause.
-	 *
-	 * @return    string
-	 */
-	public function seo_score_posts_where( $where ) {
-
-		_deprecated_function( __METHOD__, '3.5' );
-
-		global $wpdb;
-
-		/* Find the two mutually exclusive noindex clauses which should be changed from AND to OR relation */
-		$find = '`([\s]+AND[\s]+)((?:' . $wpdb->prefix . 'postmeta|mt[0-9]|mt1)\.post_id IS NULL[\s]+)AND([\s]+\([\s]*(?:' . $wpdb->prefix . 'postmeta|mt[0-9])\.meta_key = \'' . WPSEO_Meta::$meta_prefix . 'meta-robots-noindex\' AND CAST\([^\)]+\)[^\)]+\))`';
-
-		$replace = '$1( $2OR$3 )';
-
-		$new_where = preg_replace( $find, $replace, $where );
-
-		if ( $new_where ) {
-			return $new_where;
-		}
-		return $where;
-	}
-
-	/**
 	 * Determines whether or not filter dropdowns should be displayed.
 	 *
 	 * @return bool Whether or the current page can display the filter drop downs.
 	 */
 	public function can_display_filter() {
-		return $GLOBALS['pagenow'] !== 'upload.php' && $this->is_metabox_hidden() === false;
+		if ( $GLOBALS['pagenow'] === 'upload.php' ) {
+			return false;
+		}
+
+		if ( $this->display_metabox() === false ) {
+			return false;
+		}
+
+		$screen = get_current_screen();
+		if ( null === $screen ) {
+			return false;
+		}
+
+		return WPSEO_Post_Type::is_post_type_accessible( $screen->post_type );
 	}
 }
