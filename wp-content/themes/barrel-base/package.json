@@ -1,6 +1,6 @@
 {
   "name": "barrel-base",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "scripts": {
     "start": "brrl -w",
     "build": "brrl -b -e production"
