@@ -214,10 +214,6 @@ class acf_form_user {
 		$show_title = true;
 		
 		
-		// show title
-		//if( $user_form === 'register' ) $show_title = false;
-		
-		
 		// args
 		$args = array(
 			'user_id'	=> 'new',
@@ -236,9 +232,9 @@ class acf_form_user {
 		
 		
 		// form data
-		acf_form_data(array( 
-			'post_id'	=> $post_id, 
-			'nonce'		=> 'user' 
+		acf_form_data(array(
+			'screen'	=> 'user',
+			'post_id'	=> $post_id,
 		));
 		
 		
@@ -251,22 +247,28 @@ class acf_form_user {
 			
 			// title
 			if( $show_title && $field_group['style'] === 'default' ) {
-				
 				echo '<h2>' . $field_group['title'] . '</h2>';
-					
 			}
 			
 			
 			// table start
-			if( $el == 'tr' ) echo '<table class="form-table"><tbody>';
+			if( $el == 'tr' ) {
+				echo '<table class="form-table"><tbody>';
+			} else {
+				echo '<div class="acf-user-register-fields acf-fields -clear">';
+			}
 			
 			
 			// render fields
-			acf_render_fields( $post_id, $fields, $el, $field_group['instruction_placement'] );
+			acf_render_fields( $fields, $post_id, $el, $field_group['instruction_placement'] );
 			
 			
 			// table end
-			if( $el == 'tr' ) echo '</tbody></table>';
+			if( $el == 'tr' ) {
+				echo '</tbody></table>';
+			} else {
+				echo '</div>';
+			}
 			
 		}
 		
