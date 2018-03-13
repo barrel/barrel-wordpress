@@ -24,8 +24,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return array Amended array of links.
  */
 function cptui_edit_plugin_list_links( $links ) {
-	// We shouldn't encourage editing our plugin directly.
-	unset( $links['edit'] );
+
+	if ( is_array( $links ) && isset( $links['edit'] ) ) {
+		// We shouldn't encourage editing our plugin directly.
+		unset( $links['edit'] );
+	}
 
 	// Add our custom links to the returned array value.
 	return array_merge( array(
@@ -591,7 +594,8 @@ function cptui_import_success_admin_notice() {
  */
 function cptui_import_fail_admin_notice() {
 	echo cptui_admin_notices_helper(
-		esc_html__( 'Invalid data provided', 'custom-post-type-ui' )
+		esc_html__( 'Invalid data provided', 'custom-post-type-ui' ),
+		false
 	);
 }
 
