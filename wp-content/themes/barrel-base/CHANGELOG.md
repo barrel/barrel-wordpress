@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 1.4.0 - 2018-03-13
+### CHANGED:
+- Update all plugins
+- Add barrel-cli, including webpack, postcss, and config
+- Stub improvements to CI on GitLab
+
 ## 1.3.0 - 2018-02-11
 ### CHANGED:
 - Update Core and platform
