@@ -39,7 +39,7 @@ class SearchWP_Settings_Implementation_License {
 			$classes = ( false === $status || 'valid' !== $status ) ? 'searchwp-tab-license-inactive' : '';
 			searchwp_get_nav_tab( array(
 				'tab'       => 'license',
-				'label'     => __( 'License', 'searchwp' ),
+				'label'     => ( false === $status || 'valid' !== $status ) ? __( 'Activate License', 'searchwp' ) : __( 'License', 'searchwp' ),
 				'classes'   => $classes,
 			) );
 		}
@@ -98,10 +98,10 @@ class SearchWP_Settings_Implementation_License {
 							<input id="<?php echo esc_attr( SEARCHWP_PREFIX ); ?>license_key" name="<?php echo esc_attr( SEARCHWP_PREFIX ); ?>license_key" type="text" class="regular-text" value="<?php echo esc_attr( $license ); ?>" />
 							<?php if ( false !== $status && 'valid' === $status ) { ?>
 								<?php wp_nonce_field( 'searchwp_edd_license_deactivate_nonce', 'searchwp_edd_license_deactivate_nonce' ); ?>
-								<input type="submit" class="button-secondary" name="edd_license_deactivate" value="<?php esc_html_e( 'Deactivate', 'searchwp' ); ?>"/>
+								<input type="submit" class="button-secondary" name="swp_edd_license_deactivate" value="<?php esc_html_e( 'Deactivate', 'searchwp' ); ?>"/>
 							<?php } else {
 								wp_nonce_field( 'searchwp_edd_license_activate_nonce', 'searchwp_edd_license_activate_nonce' ); ?>
-								<input type="submit" class="button-secondary" name="edd_license_activate" value="<?php esc_html_e( 'Activate', 'searchwp' ); ?>"/>
+								<input type="submit" class="button-secondary" name="swp_edd_license_activate" value="<?php esc_html_e( 'Activate', 'searchwp' ); ?>"/>
 							<?php } ?>
 						</p>
 					</form>
@@ -147,7 +147,7 @@ class SearchWP_Settings_Implementation_License {
 	 */
 	function activate_license() {
 		// listen for our activate button to be clicked
-		if ( isset( $_POST['edd_license_activate'] ) ) {
+		if ( isset( $_POST['swp_edd_license_activate'] ) ) {
 
 			do_action( 'searchwp_log', 'activate_license()' );
 
@@ -215,7 +215,7 @@ class SearchWP_Settings_Implementation_License {
 	 */
 	function deactivate_license_check() {
 		// listen for our activate button to be clicked
-		if ( isset( $_POST['edd_license_deactivate'] ) ) {
+		if ( isset( $_POST['swp_edd_license_deactivate'] ) ) {
 
 			do_action( 'searchwp_log', 'deactivate_license_check()' );
 

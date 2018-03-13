@@ -7,15 +7,15 @@ module.exports = {
   },
   output: {
     path: path.join(__dirname, 'assets'),
-    filename: '[name].js'
+    filename: '[name].min.js'
   },
   module: {
     rules: [
       {
-        enforce: "pre",
+        enforce: 'pre',
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: "eslint-loader",
+        loader: 'eslint-loader'
       },
       {
         test: /\.js$/,
@@ -31,13 +31,13 @@ module.exports = {
           'css-loader?importLoaders=1',
           'postcss-loader'
         ]
-      },
+      }
     ]
   },
   resolve: {
     alias: {
       'modules-root': path.resolve(__dirname, 'modules')
-    },
+    }
   },
-  plugins: [],
+  plugins: []
 }

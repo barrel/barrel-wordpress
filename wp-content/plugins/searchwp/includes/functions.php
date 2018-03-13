@@ -425,9 +425,9 @@ if ( ! function_exists( 'searchwp_get_license_key' ) ) {
 
 /**
  * Check whether an engine is valid
- * 
+ *
  * @since 2.8
- * 
+ *
  * @param $engine
  *
  * @return bool
@@ -449,4 +449,163 @@ function searchwp_is_valid_engine( $engine ) {
 	}
 
 	return true;
+}
+
+function searchwp_get_meta_keys_for_post_type( $post_type = 'post' ) {
+	global $wpdb;
+
+	if ( ! post_type_exists( $post_type ) ) {
+		return array();
+	}
+
+	$all_meta_keys_for_post_type = $wpdb->get_col(
+		$wpdb->prepare(
+			"
+				SELECT DISTINCT($wpdb->postmeta.meta_key)
+				FROM $wpdb->posts
+				LEFT JOIN $wpdb->postmeta
+				ON $wpdb->posts.ID = $wpdb->postmeta.post_id
+				WHERE $wpdb->posts.post_type = '%s'
+				AND $wpdb->postmeta.meta_key != ''
+				AND $wpdb->postmeta.meta_key NOT LIKE '_oembed_%'
+			",
+			$post_type
+		)
+	);
+
+	$all_meta_keys_for_post_type = array_unique( apply_filters( 'searchwp_custom_field_keys', $all_meta_keys_for_post_type ) );
+
+	$meta_keys = array(
+		'searchwpcfdefault', // This is the 'any' custom field flag
+	);
+
+	if ( 'attachment' == $post_type ) {
+		$meta_keys[] = 'searchwp_content'; // Placeholder for PDF content
+		$meta_keys[] = 'searchwp_pdf_metadata'; // Placeholder for PDF metadata
+	}
+
+	$excluded_meta_keys = searchwp_get_excluded_meta_keys();
+
+	foreach ( $all_meta_keys_for_post_type as $meta_key ) {
+		if ( ! in_array( $meta_key, $excluded_meta_keys, true ) ) {
+			$meta_keys[] = $meta_key;
+		}
+	}
+
+	return $meta_keys;
+}
+
+function searchwp_get_excluded_meta_keys() {
+	$omit_wp_metadata = apply_filters( 'searchwp_omit_wp_metadata', array(
+		'_edit_lock',
+		'_wp_page_template',
+		'_edit_last',
+		'_wp_old_slug',
+	) );
+
+	$excluded_custom_field_keys = apply_filters( 'searchwp_excluded_custom_fields', array(
+		'_' . SEARCHWP_PREFIX . 'indexed',      // deprecated as of 2.3
+		'_' . SEARCHWP_PREFIX . 'last_index',
+		'_' . SEARCHWP_PREFIX . 'attempts',
+		'_' . SEARCHWP_PREFIX . 'terms',
+		'_' . SEARCHWP_PREFIX . 'skip',
+		'_' . SEARCHWP_PREFIX . 'skip_doc_processing',
+		'_' . SEARCHWP_PREFIX . 'review',
+	) );
+
+	if ( is_array( $omit_wp_metadata ) && is_array( $excluded_custom_field_keys ) ) {
+		$excluded_meta_keys = array_merge( $omit_wp_metadata, $excluded_custom_field_keys );
+	} elseif ( is_array( $omit_wp_metadata ) ) {
+		$excluded_meta_keys = $omit_wp_metadata;
+	} else {
+		$excluded_meta_keys = $excluded_custom_field_keys;
+	}
+	$excluded_meta_keys = ( is_array( $excluded_meta_keys ) ) ? array_unique( $excluded_meta_keys ) : array();
+
+	return $excluded_meta_keys;
+}
+
+function searchwp_get_supports_for_post_type( $post_type = 'post' ) {
+	if ( ! is_object( $post_type ) ) {
+		$post_type = get_post_type_object( $post_type );
+	}
+
+	if ( is_null( $post_type ) ) {
+		return array();
+	}
+
+	$supports = array();
+
+	$applicable_supports = array(
+		'title' => __( 'Title', 'searchwp' ),
+		'editor' => __( 'Content', 'searchwp' ),
+		'excerpt' => __( 'Excerpt', 'searchwp' ),
+		'comments' => __( 'Comments', 'searchwp' ),
+	);
+
+	if ( ! apply_filters( 'searchwp_index_comments', true ) ) {
+		unset( $applicable_supports['comments'] );
+	}
+
+	foreach ( $applicable_supports as $applicable_support => $label ) {
+		$applicable = false;
+		$current_supports = post_type_supports( $post_type->name, $applicable_support );
+		if ( $current_supports || 'attachment' === $post_type->name ) {
+
+			// Comments are a special use case
+			if ( 'comments' == $applicable_support && 'attachment' == $post_type->name ) {
+				continue;
+			}
+
+			// Different post types use content types differently
+			if ( 'attachment' === $post_type->name ) {
+				switch ( $applicable_support ) {
+					case 'editor':
+						$label = __( 'Description', 'searchwp' );
+						break;
+					case 'excerpt':
+						$label = __( 'Caption', 'searchwp' );
+						break;
+				}
+			}
+
+			$applicable = true;
+		}
+
+		$applicable = apply_filters( 'searchwp_engine_content_type_applicable', $applicable, array(
+			'post_type' => $post_type,
+			'supports' => $applicable_support,
+		) );
+
+		// If applicable, add to our log of what's supported with our potentialy filtered label
+		if ( $applicable ) {
+
+			$label = apply_filters( 'searchwp_engine_content_type_label', $label, array(
+				'post_type' => $post_type,
+				'supports' => $applicable_support,
+			) );
+
+			// Our settings storage differs from the 'supports' flag, so we might need to convert
+			if ( 'editor' === $applicable_support ) {
+				$applicable_support = 'content';
+			}
+			if ( 'comment' === $applicable_support ) {
+				$applicable_support = 'comments';
+			}
+
+			$supports[ $applicable_support ] = $label;
+		}
+	}
+
+	// Slug support?
+	if ( 'page' == $post_type->name || $post_type->publicly_queryable ) {
+		$supports['slug'] = __( 'Slug', 'searchwp' );
+	}
+
+	// Allow for customization of labels
+	foreach ( $supports as $key => $label ) {
+		$supports[ $key ] = apply_filters( "searchwp_supports_label_{$post_type->name}_{$key}", $label );
+	}
+
+	return $supports;
 }

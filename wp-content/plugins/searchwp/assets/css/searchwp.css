@@ -62,20 +62,9 @@
 }
 
 .swp-progress-bar {
-	-webkit-transition:width 1s ease-in-out;
-	-moz-transition:width 1s ease-in-out;
-	-o-transition:width 1s ease-in-out;
 	transition:width 1s ease-in-out;
-	-moz-box-sizing:border-box;
-	-webkit-box-sizing:border-box;
-	box-sizing:border-box;
-	border-radius:1px;
 	background-color:#2A9CCB;
-	height:100%;
-	width:0;
 
-	-webkit-background-size:30px 30px;
-	-moz-background-size:30px 30px;
 	background-size:30px 30px;
 	background-image:-webkit-gradient(linear, left top, right bottom,
 	color-stop(.25, rgba(255, 255, 255, .15)), color-stop(.25, transparent),

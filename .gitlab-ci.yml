@@ -1,13 +1,18 @@
 stages:
-  - test
   - build
+  - test
+  - multidev
+  - stage
+  - production
 php_syntax_check:
   before_script:
     - apt-get update && apt-get -y install git
+    - php -v
   image: php:7
   stage: test
   script: 
-    - git diff --diff-filter=ACMR --name-only origin/master -- '*.php' | xargs -L1 php -l
+    - php -v
+    - git diff --diff-filter=ACMR --name-only origin/master -- '*.php' | xargs -L1 php -d short_open_tag=Off -l
 js_lint:
   before_script:
     - npm config set loglevel warn && npm set progress=false
@@ -20,19 +25,35 @@ build:
   before_script:
     - apt-get update && apt-get -y install fontforge findutils
     - npm config set loglevel warn && npm set progress=false
-    - npm install -g gulp --loglevel=warn
     - npm install --loglevel=warn
     - cd ./wp-content/themes/$THEME_NAME
   stage: build
   only:
     - master
-  script: "gulp build"
-feature:
+  script: "npm run build"
+multidev_create:
   only: 
     - /^feature\/.*$/
-  image: savaslabs/terminus-docker
-  stage: build
+  image: barrelny/pantheon-ci:0.0.5
+  stage: multidev
   before_script:
     - terminus auth:login --machine-token=$TERMINUS_TOKEN
   script:
-    - terminus multidev:create $PANTHEON_SITE_ID $CI_COMMIT_REF_NAME
+    - PREFIX=feature/
+    - PANTHEON_MULTIDEV=${CI_COMMIT_REF_NAME:${#PREFIX}:11}
+    - echo "Checking if ENV $PANTHEON_MULTIDEV exists..."
+    - MATCH=$(terminus multidev:list --format=list --fields=id barrel-base-theme | grep ci)
+    - if [ "$MATCH" != "$PANTHEON_MULTIDEV" ]; then echo "Creating multidev, $PANTHEON_MULTIDEV"; terminus multidev:create $PANTHEON_SITE_ID $PANTHEON_MULTIDEV; fi
+multidev_deploy:
+  only: 
+    - develop
+  image: barrelny/pantheon-ci:0.0.5
+  stage: production
+  before_script:
+    - terminus auth:login --machine-token=$TERMINUS_TOKEN
+  script:
+    - terminus connection:set barrel-base-theme.dev git
+    - REMOTE=$(terminus connection:info --format=list --fields=git_url barrel-base-theme.dev)
+    - HASH=$(git rev-parse HEAD)
+    - git remote add pantheon $REMOTE
+    - git push -f pantheon $HASH

@@ -1,28 +1,27 @@
 [
     {
         "name": "tecnickcom/tcpdf",
-        "version": "6.2.12",
-        "version_normalized": "6.2.12.0",
+        "version": "6.2.13",
+        "version_normalized": "6.2.13.0",
         "source": {
             "type": "git",
             "url": "https://github.com/tecnickcom/TCPDF.git",
-            "reference": "2f732eaa91b5665274689b1d40b285a7bacdc37f"
+            "reference": "95c5938aafe4b20df1454dbddb3e5005c0b26f64"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/tecnickcom/TCPDF/zipball/2f732eaa91b5665274689b1d40b285a7bacdc37f",
-            "reference": "2f732eaa91b5665274689b1d40b285a7bacdc37f",
+            "url": "https://api.github.com/repos/tecnickcom/TCPDF/zipball/95c5938aafe4b20df1454dbddb3e5005c0b26f64",
+            "reference": "95c5938aafe4b20df1454dbddb3e5005c0b26f64",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2015-09-12 10:08:34",
+        "time": "2017-04-26T08:14:48+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
             "classmap": [
-                "fonts",
                 "config",
                 "include",
                 "tcpdf.php",
@@ -66,27 +65,28 @@
     },
     {
         "name": "smalot/pdfparser",
-        "version": "v0.9.25",
-        "version_normalized": "0.9.25.0",
+        "version": "v0.11",
+        "version_normalized": "0.11.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/smalot/pdfparser.git",
-            "reference": "31590f7938a22f1c7fc4fb292611e3742a62ebaa"
+            "reference": "40462c1a662d5fbc8f48d30626695a06f047e0cf"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/smalot/pdfparser/zipball/31590f7938a22f1c7fc4fb292611e3742a62ebaa",
-            "reference": "31590f7938a22f1c7fc4fb292611e3742a62ebaa",
+            "url": "https://api.github.com/repos/smalot/pdfparser/zipball/40462c1a662d5fbc8f48d30626695a06f047e0cf",
+            "reference": "40462c1a662d5fbc8f48d30626695a06f047e0cf",
             "shasum": ""
         },
         "require": {
+            "ext-iconv": "*",
             "php": ">=5.3.0",
-            "tecnickcom/tcpdf": ">=6.0.050"
+            "tecnickcom/tcpdf": "~6.0"
         },
         "require-dev": {
-            "atoum/atoum": "dev-master"
+            "atoum/atoum": "^2.8 | ^3.0"
         },
-        "time": "2015-09-18 08:29:33",
+        "time": "2017-09-14T12:26:16+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -96,17 +96,22 @@
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
-            "GPL-3.0"
+            "LGPLv3"
         ],
         "authors": [
             {
-                "name": "Sebastien MALOT",
-                "email": "sebastien@malot.fr",
-                "homepage": "http://www.malot.fr",
-                "role": "Developer"
+                "name": "Sébastien MALOT",
+                "email": "sebastien@malot.fr"
             }
         ],
         "description": "Pdf parser library. Can read and extract information from pdf file.",
-        "homepage": "http://www.pdfparser.org"
+        "homepage": "http://www.pdfparser.org",
+        "keywords": [
+            "extract",
+            "parse",
+            "parser",
+            "pdf",
+            "text"
+        ]
     }
 ]
