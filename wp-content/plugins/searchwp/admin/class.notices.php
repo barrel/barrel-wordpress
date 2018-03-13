@@ -32,6 +32,12 @@ class SearchWPAdminNotices extends SearchWP {
 	 */
 	function http_basic_auth(){
 
+		// As of 2.9.0 this only applies for the legacy UI
+		$show_legacy_ui = apply_filters( 'searchwp_legacy_settings_ui', false );
+		if ( empty( $show_legacy_ui ) ) {
+			return;
+		}
+
 		$basic_auth = searchwp_get_setting( 'basic_auth' );
 
 		// determine if the environment has already been verified; don't want redundant HTTP requests on every page load
@@ -61,7 +67,6 @@ class SearchWPAdminNotices extends SearchWP {
 			}
 		}
 	}
-
 
 	/**
 	 * If the debug log is over 2MB

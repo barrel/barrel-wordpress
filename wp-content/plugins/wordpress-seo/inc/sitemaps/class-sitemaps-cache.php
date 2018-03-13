@@ -177,10 +177,10 @@ class WPSEO_Sitemaps_Cache {
 	 */
 	public static function invalidate_helper( $unused, $type ) {
 
-		$sitemap_options = WPSEO_Options::get_option( 'wpseo_xml' );
-
-		$taxonomy_not_in_sitemap = 'taxonomies-' . $type . '-not_in_sitemap';
-		if ( isset( $sitemap_options[ $taxonomy_not_in_sitemap ] ) && $sitemap_options[ $taxonomy_not_in_sitemap ] === false ) {
+		if (
+			WPSEO_Options::get( 'noindex-' . $type ) === false ||
+			WPSEO_Options::get( 'noindex-tax-' . $type ) === false
+		) {
 			self::invalidate( $type );
 		}
 	}
@@ -198,7 +198,7 @@ class WPSEO_Sitemaps_Cache {
 			update_user_meta( $user_id, '_yoast_wpseo_profile_updated', time() );
 		}
 
-		if ( ! in_array( 'subscriber', $user->roles ) ) {
+		if ( ! in_array( 'subscriber', $user->roles, true ) ) {
 			self::invalidate( 'author' );
 		}
 	}

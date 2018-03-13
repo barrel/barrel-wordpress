@@ -88,7 +88,6 @@ class SearchWPIndexer {
 	 */
 	private $excludeFromIndex = array();
 
-
 	/**
 	 * @var array|string post type(s) to include when indexing
 	 */
@@ -139,8 +138,19 @@ class SearchWPIndexer {
 
 		$searchwp = SWP();
 
-		// by default let's only grab 'enabled' post types across the board (so as to keep the index size at a minimum)
-		$this->postTypesToIndex = $searchwp->get_enabled_post_types_across_all_engines();
+		do_action( 'searchwp_indexer_pre' );
+
+		$this->init();
+
+		if ( empty( $this->postTypesToIndex ) && empty( $this->indexAttachments ) ) {
+			return;
+		}
+
+		// If there are no initial settings, there's nothing to do
+		$initial_settings = searchwp_get_setting( 'initial_settings' );
+		if ( empty( $initial_settings ) ) {
+			return;
+		}
 
 		// make sure we've got a valid request to index
 		wp_cache_delete( 'searchwp_transient', 'options' );
@@ -151,56 +161,6 @@ class SearchWPIndexer {
 				do_action( 'searchwp_log', 'External SearchWPIndexer instantiation' );
 			}
 		} else {
-			do_action( 'searchwp_indexer_pre' );
-
-			// init
-			$this->common = $searchwp->common;
-
-			$this->big_data_trigger = absint( apply_filters( 'searchwp_term_count_limit', $this->big_data_trigger ) );
-
-			$this->lenient_accents = apply_filters( 'searchwp_leinant_accents', $this->lenient_accents ); // deprecated
-			$this->lenient_accents = apply_filters( 'searchwp_lenient_accents', $this->lenient_accents );
-
-			// dynamically decide whether we're going to index Attachments based on whether Media is enabled for any search engine
-			$index_attachments_from_settings = false;
-			if ( in_array( 'attachment', $this->postTypesToIndex, true ) ) {
-				$index_attachments_from_settings = true;
-			}
-
-			// allow dev to completely disable indexing of Attachments to save indexing time
-			$this->indexAttachments = apply_filters( 'searchwp_index_attachments', $index_attachments_from_settings );
-			if ( ! is_bool( $this->indexAttachments ) ) {
-				$this->indexAttachments = false;
-			}
-
-			// allow dev to customize post statuses are included
-			$this->post_statuses = (array) apply_filters( 'searchwp_post_statuses', $this->post_statuses, null );
-			foreach ( $this->post_statuses as $post_status_key => $post_status_value ) {
-				$this->post_statuses[ $post_status_key ] = sanitize_key( $post_status_value );
-			}
-
-			// allow dev to forcefully omit posts from being indexed
-			$this->excludeFromIndex = apply_filters( 'searchwp_prevent_indexing', array() );
-			if ( ! is_array( $this->excludeFromIndex ) ) {
-				$this->excludeFromIndex = array();
-			}
-			$this->excludeFromIndex = array_map( 'absint', $this->excludeFromIndex );
-
-			// allow dev to forcefully omit post types that would normally be indexed
-			$this->postTypesToIndex = apply_filters( 'searchwp_indexed_post_types', $this->postTypesToIndex );
-
-			// attachments cannot be included here, to omit attachments use the searchwp_index_attachments filter
-			// so we have to check to make sure attachments were not included
-			if ( is_array( $this->postTypesToIndex ) ) {
-				foreach ( $this->postTypesToIndex as $key => $postType ) {
-					$post_type_lower = function_exists( 'mb_strtolower' ) ? mb_strtolower( $postType, 'UTF-8' ) : strtolower( $postType );
-					if ( 'attachment' === $post_type_lower ) {
-						unset( $this->postTypesToIndex[ $key ] );
-					}
-				}
-			} elseif ( 'attachment' === strtolower( $this->postTypesToIndex ) ) {
-				$this->postTypesToIndex = 'any';
-			}
 
 			/**
 			 * Allow for some catch-up from the last request
@@ -271,6 +231,7 @@ class SearchWPIndexer {
 				$this->update_running_counts();
 
 				if ( false !== $this->find_unindexed_posts() ) {
+
 					do_action( 'searchwp_indexer_posts' );
 
 					$start_time = time();
@@ -351,6 +312,75 @@ class SearchWPIndexer {
 			} else {
 				do_action( 'searchwp_log', 'SHORT CIRCUIT: Indexer already running' );
 			}
+		}
+	}
+
+	function init() {
+		// init
+		$this->common = SWP()->common;
+
+		// by default let's only grab 'enabled' post types across the board (so as to keep the index size at a minimum)
+		$this->postTypesToIndex = SWP()->get_enabled_post_types_across_all_engines();
+
+		$this->big_data_trigger = absint( apply_filters( 'searchwp_term_count_limit', $this->big_data_trigger ) );
+
+		$this->lenient_accents = apply_filters( 'searchwp_leinant_accents', $this->lenient_accents ); // deprecated
+		$this->lenient_accents = apply_filters( 'searchwp_lenient_accents', $this->lenient_accents );
+
+		// dynamically decide whether we're going to index Attachments based on whether Media is enabled for any search engine
+		$index_attachments_from_settings = false;
+		if ( in_array( 'attachment', $this->postTypesToIndex, true ) ) {
+			$index_attachments_from_settings = true;
+		}
+
+		// allow dev to completely disable indexing of Attachments to save indexing time
+		$this->indexAttachments = apply_filters( 'searchwp_index_attachments', $index_attachments_from_settings );
+		if ( ! is_bool( $this->indexAttachments ) ) {
+			$this->indexAttachments = false;
+		}
+
+		// allow dev to customize post statuses are included
+		$this->post_statuses = (array) apply_filters( 'searchwp_post_statuses', $this->post_statuses, null );
+		foreach ( $this->post_statuses as $post_status_key => $post_status_value ) {
+			$this->post_statuses[ $post_status_key ] = sanitize_key( $post_status_value );
+		}
+
+		// allow dev to forcefully omit posts from being indexed
+		$this->excludeFromIndex = apply_filters( 'searchwp_prevent_indexing', array() );
+		if ( ! is_array( $this->excludeFromIndex ) ) {
+			$this->excludeFromIndex = array();
+		}
+
+		// UPDATE @since 2.9.0 the indexer is even more restricted in that there are
+		// taxonomy limiters in place that can either exclude or limit to taxonomy
+		// terms. There's no reason to index posts that are excluded, and we can reduce
+		// the size of the index when limiters are in play, so we'll do that
+		if ( apply_filters( 'searchwp_indexer_apply_engines_rules', true ) ) {
+			$post__not_in = SWP()->get_post__not_in_across_all_engines( $this->excludeFromIndex );
+			if ( ! empty( $post__not_in ) ) {
+				$this->excludeFromIndex = array_merge( $this->excludeFromIndex, $post__not_in );
+			}
+
+			$this->excludeFromIndex = apply_filters( 'searchwp_indexer_excluded_by_rules', $this->excludeFromIndex );
+		}
+
+		$this->excludeFromIndex = array_map( 'absint', $this->excludeFromIndex );
+		$this->excludeFromIndex = array_unique( $this->excludeFromIndex );
+
+		// allow dev to forcefully omit post types that would normally be indexed
+		$this->postTypesToIndex = apply_filters( 'searchwp_indexed_post_types', $this->postTypesToIndex );
+
+		// attachments cannot be included here, to omit attachments use the searchwp_index_attachments filter
+		// so we have to check to make sure attachments were not included
+		if ( is_array( $this->postTypesToIndex ) ) {
+			foreach ( $this->postTypesToIndex as $key => $postType ) {
+				$post_type_lower = function_exists( 'mb_strtolower' ) ? mb_strtolower( $postType, 'UTF-8' ) : strtolower( $postType );
+				if ( 'attachment' === $post_type_lower ) {
+					unset( $this->postTypesToIndex[ $key ] );
+				}
+			}
+		} elseif ( 'attachment' === strtolower( $this->postTypesToIndex ) ) {
+			$this->postTypesToIndex = 'any';
 		}
 	}
 
@@ -473,12 +503,21 @@ class SearchWPIndexer {
 	 */
 	function count_total_posts() {
 
-		$totalPosts = 0;  // in case only Media is enabled
-		if ( ! empty( $this->postTypesToIndex ) ) {
+		$total_posts = 0;
+
+		if ( ! empty( $this->indexAttachments ) && ! in_array( 'attachment', $this->postTypesToIndex ) ) {
+			$this->postTypesToIndex[] = 'attachment';
+		}
+
+		if ( empty( $this->postTypesToIndex ) ) {
+			return $total_posts;
+		}
+
+		foreach ( $this->postTypesToIndex as $post_type ) {
 			$args = array(
 				'posts_per_page'    => 1,
-				'post_type'         => $this->postTypesToIndex,
-				'post_status'       => $this->post_statuses,
+				'post_type'         => $post_type,
+				'post_status'       => $post_type === 'attachment' ? 'inherit' : $this->post_statuses,
 				'post__not_in'      => $this->excludeFromIndex,
 				'suppress_filters'  => true,
 				'cache_results'     => false,
@@ -489,37 +528,35 @@ class SearchWPIndexer {
 						'compare'       => 'NOT EXISTS',
 						'type'          => 'BINARY',
 					),
-				)
-			);
-			$totalPostsRef = new WP_Query( $args );
-			$totalPosts = absint( $totalPostsRef->found_posts );
-		}
-
-		$totalMedia = 0;  // in case Attachment indexing is disabled
-		if ( ! empty( $this->indexAttachments ) ) {
-			// also check for media
-			$args = array(
-				'posts_per_page'    => 1,
-				'post_type'         => 'attachment',
-				'post_status'       => 'inherit',
-				'post__not_in'      => $this->excludeFromIndex,
-				'suppress_filters'  => true,
-				'cache_results'     => false,
-				'meta_query'        => array(
-					array(
-						'key'           => '_' . SEARCHWP_PREFIX . 'skip',
-						'value'         => '',	// only want media that hasn't failed indexing multiple times
-						'compare'       => 'NOT EXISTS',
-						'type'          => 'BINARY',
-					),
-				)
+				),
 			);
 
-			$totalMediaRef = new WP_Query( $args );
-			$totalMedia = absint( $totalMediaRef->found_posts );
+			// See note in find_unindexed_posts about 2.9.0
+			if ( apply_filters( 'searchwp_indexer_apply_engines_rules', true ) ) {
+				$args['tax_query'] = SWP()->get_post_type_tax_query_for_rules( $post_type, 'limit_to' );
+			}
+
+			// allow devs to have more control over what is considered unindexed
+			if ( 'attachment' !== $post_type ) {
+				$args = apply_filters( 'searchwp_indexer_unindexed_args', $args );
+			} else {
+				// Apply mime type exclusions if applicable
+				$limited_mime_types = $this->get_global_mime_limit();
+
+				if ( ! empty( $limited_mime_types ) ) {
+					$args['post_mime_type'] = $limited_mime_types;
+				}
+
+				$args = apply_filters( 'searchwp_indexer_unindexed_media_args', $args );
+			}
+
+			$total_post_type_ref = new WP_Query( $args );
+			$total_post_type = absint( $total_post_type_ref->found_posts );
+
+			$total_posts += $total_post_type;
 		}
 
-		return absint( $totalPosts ) + absint( $totalMedia );
+		return $total_posts;
 	}
 
 
@@ -533,7 +570,7 @@ class SearchWPIndexer {
 
 		$postTypesToCount = $this->postTypesToIndex;
 
-		if ( $this->indexAttachments ) {
+		if ( $this->indexAttachments && ! in_array( 'attachment', $this->postTypesToIndex ) ) {
 			$postTypesToCount[] = 'attachment';
 		}
 
@@ -577,56 +614,24 @@ class SearchWPIndexer {
 	 * @since 1.0
 	 */
 	function find_unindexed_posts() {
-		// everything that's been indexed has a postmeta flag
-		// so we'll use that to determine what's left
-
-		// we're going to index everything regardless of 'exclude_from_search' because
-		// no event fires if that changes over time, so we're going to offload that
-		// to be taken into consideration at query time
 
 		$indexChunk = apply_filters( 'searchwp_index_chunk_size', 10 );
 
-		$args = array(
-			'posts_per_page'    => intval( $indexChunk ),
-			'post_type'         => $this->postTypesToIndex,
-			'post_status'       => $this->post_statuses,
-			'post__not_in'      => $this->excludeFromIndex,
-			'suppress_filters'  => true,
-			'cache_results'     => false,
-			'no_found_rows'     => true,
-			'meta_query'        => array(
-				'relation'      => 'AND',
-				array(
-					'key'         => '_' . SEARCHWP_PREFIX . 'last_index',
-					'value'       => '',	// http://core.trac.wordpress.org/ticket/23268
-					'compare'     => 'NOT EXISTS',
-					'type'        => 'NUMERIC',
-				),
-				array( // only want media that hasn't failed indexing multiple times
-					'key'         => '_' . SEARCHWP_PREFIX . 'skip',
-					'compare'     => 'NOT EXISTS',
-					'type'        => 'BINARY',
-				),
-				array( // if a PDF was flagged during indexing, we don't want to keep trying
-					'key'         => '_' . SEARCHWP_PREFIX . 'review',
-					'compare'     => 'NOT EXISTS',
-					'type'        => 'BINARY',
-				)
-			)
-		);
+		// Media will be done last
+		if ( ! empty( $this->indexAttachments ) && ! in_array( 'attachment', $this->postTypesToIndex ) ) {
+			$this->postTypesToIndex[] = 'attachment';
+		}
 
-		// allow devs to have more control over what is considered unindexed
-		$args = apply_filters( 'searchwp_indexer_unindexed_args', $args );
+		if ( empty( $this->postTypesToIndex ) ) {
+			return false;
+		}
 
-		$unindexedPosts = get_posts( $args );
+		foreach ( $this->postTypesToIndex as $post_type ) {
 
-		// also check for media
-		if ( ! empty( $this->indexAttachments ) ) {
-			$indexChunk = apply_filters( 'searchwp_index_chunk_size', 10 );
-			$mediaArgs = array(
+			$args = array(
 				'posts_per_page'    => intval( $indexChunk ),
-				'post_type'         => 'attachment',
-				'post_status'       => 'inherit',
+				'post_type'         => $post_type,
+				'post_status'       => $post_type === 'attachment' ? 'inherit' : $this->post_statuses,
 				'post__not_in'      => $this->excludeFromIndex,
 				'suppress_filters'  => true,
 				'cache_results'     => false,
@@ -634,33 +639,127 @@ class SearchWPIndexer {
 				'meta_query'        => array(
 					'relation'      => 'AND',
 					array(
-						'key'       => '_' . SEARCHWP_PREFIX . 'last_index',
-						'value'     => '', // http://core.trac.wordpress.org/ticket/23268
-						'compare'   => 'NOT EXISTS',
-						'type'      => 'NUMERIC',
+						'key'         => '_' . SEARCHWP_PREFIX . 'last_index',
+						'value'       => '',	// http://core.trac.wordpress.org/ticket/23268
+						'compare'     => 'NOT EXISTS',
+						'type'        => 'NUMERIC',
 					),
 					array( // only want media that hasn't failed indexing multiple times
-						'key'       => '_' . SEARCHWP_PREFIX . 'skip',
-						'compare'   => 'NOT EXISTS',
-						'type'      => 'BINARY',
-					)
-				)
+						'key'         => '_' . SEARCHWP_PREFIX . 'skip',
+						'compare'     => 'NOT EXISTS',
+						'type'        => 'BINARY',
+					),
+					array( // if a PDF was flagged during indexing, we don't want to keep trying
+						'key'         => '_' . SEARCHWP_PREFIX . 'review',
+						'compare'     => 'NOT EXISTS',
+						'type'        => 'BINARY',
+					),
+				),
 			);
 
+			// TODO if searching in the admin is enabled, should we exclude anything? what if
+			// site owner wants unrestricted search in the admin, but restricted on the front end?
+
+			// @since 2.9.0 the index can be limited to certain taxonomy terms which could
+			// greatly reduce the overall index size in certain circumstances but this requires that we
+			// iterate through each post type to deterine what should be indexed
+			if ( apply_filters( 'searchwp_indexer_apply_engines_rules', true ) ) {
+				$args['tax_query'] = SWP()->get_post_type_tax_query_for_rules( $post_type, 'limit_to' );
+			}
+
 			// allow devs to have more control over what is considered unindexed
-			// e.g. allows for WP_Query param of `post_mime_type`
-			$mediaArgs = apply_filters( 'searchwp_indexer_unindexed_media_args', $mediaArgs );
+			if ( 'attachment' !== $post_type ) {
+				$args = apply_filters( 'searchwp_indexer_unindexed_args', $args );
+			} else {
+				// Apply mime type exclusions if applicable
+				$limited_mime_types = $this->get_global_mime_limit();
 
-			$unindexedMedia = get_posts( $mediaArgs );
+				if ( ! empty( $limited_mime_types ) ) {
+					$args['post_mime_type'] = $limited_mime_types;
+				}
 
-			$this->unindexedPosts = ! empty( $unindexedPosts ) || ! empty( $unindexedMedia ) ? array_merge( $unindexedPosts, $unindexedMedia ) : false;
-		} else {
-			$this->unindexedPosts = ! empty( $unindexedPosts ) ? $unindexedPosts : false;
+				$args = apply_filters( 'searchwp_indexer_unindexed_media_args', $args );
+			}
+
+			$unindexedPosts = get_posts( $args );
+
+			if ( ! empty( $unindexedPosts ) ) {
+				$this->unindexedPosts = $unindexedPosts;
+				break;
+			}
 		}
 
 		return $this->unindexedPosts;
 	}
 
+	function get_global_mime_limit() {
+		$limit = array();
+
+		$engines = isset( SWP()->settings['engines'] ) ? SWP()->settings['engines'] : array();
+
+		if ( empty( $engines ) ) {
+			return $limit;
+		}
+
+		$index_all_mimes = false;
+
+		foreach ( $engines as $engine => $engine_settings ) {
+			foreach ( $engine_settings as $post_type => $post_type_settings ) {
+				if ( ! isset( $post_type_settings['enabled'] ) || empty( $post_type_settings['enabled'] ) ) {
+					continue;
+				}
+
+				if ( 'attachment' !== $post_type ) {
+					continue;
+				}
+
+				$mimes_for_this_engine = isset( $post_type_settings['options']['mimes'] ) ? $post_type_settings['options']['mimes'] : '';
+				$mimes_for_this_engine_string = (string) $mimes_for_this_engine;
+
+				// This check is a bit strange because the All Documents mime group is represented by string '0'
+				if ( empty( $mimes_for_this_engine ) && '' === trim( $mimes_for_this_engine_string ) ) {
+					// If there are no limiters we have to index all mime types
+					$index_all_mimes = true;
+					break;
+				}
+
+				// Store these mime limits for this engine, because we need GLOBAL rules
+				// in other words if there are multiple engines but mime limits only on one engine,
+				// we cannot limit the mime type in the index because the other engine will be missing results
+				$limit[ $engine ] = $mimes_for_this_engine;
+			}
+
+			if ( ! empty( $index_all_mimes ) ) {
+				break;
+			}
+		}
+
+		// If at some point we determined that all mimes need to be index, bail out
+		if ( ! empty( $index_all_mimes ) ) {
+			return array();
+		}
+
+		// We need to find GLOBAL mime limits across all engines
+		// So we'll be mashing all of the engine mime limits together
+		$global_limit = array();
+		foreach ( $limit as $engine => $mime_ids ) {
+			if ( false !== strpos( $mime_ids, ',' ) ) {
+				$mime_ids = explode( ',', $mime_ids );
+			} else {
+				$mime_ids = array( $mime_ids );
+			}
+
+			$global_limit = array_merge( $global_limit, $mime_ids );
+		}
+
+		$global_limit = array_map( 'absint', $global_limit );
+		$global_limit = array_unique( $global_limit );
+
+		// This query arg needs the actual mime type(s), not the IDs SearchWP uses in its settings
+		$global_limit = SWP()->get_mimes_from_settings_ids( $global_limit );
+
+		return $global_limit;
+	}
 
 	/**
 	 * Checks the stored in-process post IDs and existing index to ensure a rogue parallel indexer is not running
@@ -886,11 +985,17 @@ class SearchWPIndexer {
 
 						if ( ! empty( $taxonomies ) ) {
 							while ( ( $taxonomy = current( $taxonomies ) ) !== false ) {
-								$terms = get_the_terms( $this->post->ID, $taxonomy );
-								$terms = apply_filters( 'searchwp_indexer_taxonomy_terms', $terms, $taxonomy, $this->post );
-								if ( ! empty( $terms ) ) {
-									$postTerms['taxonomy'][ $taxonomy ] = $this->index_taxonomy_terms( $taxonomy, $terms );
+
+								// if there's no weight, it's meaningless
+								$used_taxonomy = SWP()->is_used_taxonomy( $taxonomy );
+								if ( $used_taxonomy ) {
+									$terms = get_the_terms( $this->post->ID, $taxonomy );
+									$terms = apply_filters( 'searchwp_indexer_taxonomy_terms', $terms, $taxonomy, $this->post );
+									if ( ! empty( $terms ) ) {
+										$postTerms['taxonomy'][ $taxonomy ] = $this->index_taxonomy_terms( $taxonomy, $terms );
+									}
 								}
+
 								next( $taxonomies );
 							}
 							reset( $taxonomies );
@@ -917,36 +1022,17 @@ class SearchWPIndexer {
 							while ( ( $customFieldValue = current( $customFields ) ) !== false ) {
 								$customFieldName = key( $customFields );
 
-								// there are a few useless (when it comes to search) WordPress core custom fields, so let's exclude them by default
-								$omitWpMetadata = apply_filters( 'searchwp_omit_wp_metadata', array(
-									'_edit_lock',
-									'_wp_page_template',
-									'_edit_last',
-									'_wp_old_slug',
-								) );
-
-								$excludedCustomFieldKeys = apply_filters( 'searchwp_excluded_custom_fields', array(
-									'_' . SEARCHWP_PREFIX . 'indexed',      // deprecated as of 2.3
-									'_' . SEARCHWP_PREFIX . 'last_index',
-									'_' . SEARCHWP_PREFIX . 'attempts',
-									'_' . SEARCHWP_PREFIX . 'terms',
-									'_' . SEARCHWP_PREFIX . 'skip',
-									'_' . SEARCHWP_PREFIX . 'skip_doc_processing',
-									'_' . SEARCHWP_PREFIX . 'review',
-								) );
-
-								// merge the two arrays of keys if possible
-								if ( is_array( $omitWpMetadata ) && is_array( $excludedCustomFieldKeys ) ) {
-									$excluded_meta_keys = array_merge( $omitWpMetadata, $excludedCustomFieldKeys );
-								} elseif ( is_array( $omitWpMetadata ) ) {
-									$excluded_meta_keys = $omitWpMetadata;
-								} else {
-									$excluded_meta_keys = $excludedCustomFieldKeys;
-								}
-								$excluded_meta_keys = ( is_array( $excluded_meta_keys ) ) ? array_unique( $excluded_meta_keys ) : array();
+								$excluded_meta_keys = searchwp_get_excluded_meta_keys();
 
 								// allow developers to conditionally omit specific custom fields
-								$omit_this_custom_field = apply_filters( 'searchwp_omit_meta_key', false, $customFieldName, $this->post );
+								$excluded_by_engine = ! SWP()->is_used_meta_key( $customFieldName, $this->post );
+
+								// Additional processing (e.g. oembeds have their own hashed meta key)
+								if ( empty( $excluded_by_engine ) && apply_filters( 'searchwp_indexer_additional_meta_exclusions', true ) ) {
+									$excluded_by_engine = 0 === strpos( $customFieldName, '_oembed_' );
+								}
+
+								$omit_this_custom_field = apply_filters( 'searchwp_omit_meta_key', $excluded_by_engine, $customFieldName, $this->post );
 								$omit_this_custom_field = apply_filters( "searchwp_omit_meta_key_{$customFieldName}", $omit_this_custom_field, $this->post );
 
 								if ( ! in_array( $customFieldName, $excluded_meta_keys, true ) && ! $omit_this_custom_field ) {
@@ -2052,8 +2138,8 @@ class SearchWPIndexer {
 				$output .= ' ' . $array_output;
 			}
 		} elseif ( ! is_bool( $input ) ) {
-			// it's a number
-			$output = $input;
+			// Make it a string
+			$output = (string) $input;
 		}
 
 		return $output;

@@ -69,13 +69,22 @@ class SearchWPDebug {
 		$existing = $wp_filesystem->get_contents( $this->logfile );
 
 		// format our entry
-		$entry = '[' . date( 'Y-d-m G:i:s', current_time( 'timestamp' ) ) . '][' . sanitize_text_field( $type ) . ']';
+		$entry = '[' . date( 'Y-d-m G:i:s', current_time( 'timestamp' ) ) . ']';
+
+		if ( apply_filters( 'searchwp_debug_include_type', false ) ) {
+			$entry .= '[' . sanitize_text_field( $type ) . ']';
+		}
 
 		// flag it with the process ID
-		$entry .= '[' . SearchWP::instance()->get_pid() . ']';
+		$pid = SearchWP::instance()->get_pid();
+		if ( apply_filters( 'searchwp_debug_include_pid', false ) ) {
+			$entry .= '[' . $pid . ']';
+		} else {
+			$entry .= '[' . substr( $pid, strlen( $pid ) - 5, strlen( $pid ) ) . ']';
+		}
 
 		// sanitize the message
-		$message = sanitize_text_field( esc_html( $message ) );
+		$message = sanitize_textarea_field( esc_html( $message ) );
 		$message = str_replace( '=&gt;', '=>', $message ); // put back array identifiers
 		$message = str_replace( '-&gt;', '->', $message ); // put back property identifiers
 		$message = str_replace( '&#039;', "'", $message ); // put back apostrophe's
@@ -90,6 +99,29 @@ class SearchWPDebug {
 		$wp_filesystem->put_contents( $this->logfile, $log );
 
 		return true;
+	}
+
+	/*
+	 * Generates a readable, chronological call trace at this point in time
+	 *
+	 * @since 2.9.8
+	 */
+	function get_call_trace() {
+		$e = new Exception();
+		$trace = explode( "\n", $e->getTraceAsString() );
+
+		// Reverse array to make steps line up chronologically
+		$trace = array_reverse( $trace );
+		array_shift( $trace ); // remove {main}
+		array_pop( $trace ); // remove call to this method
+		$length = count( $trace );
+		$result = array();
+
+		for ( $i = 0; $i < $length; $i++ ) {
+			$result[] = substr( $trace[ $i ], strpos( $trace[ $i ], ' ' ) );
+		}
+
+		return $result;
 	}
 
 }

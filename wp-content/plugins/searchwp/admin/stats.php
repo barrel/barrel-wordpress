@@ -41,7 +41,7 @@ $stats->generate_nonce( 'ignore' );
  * Callback to preface all queries with a link to ignore the query from the stats page
  *
  * @since 2.7.1
- * 
+ *
  * @param $query
  * @param $args
  */
@@ -219,7 +219,7 @@ add_action( 'searchwp_stats_before_query', 'searchwp_print_query_ignore_link', 1
 			jQuery(window).resize(function(){
 				searchwp_resize_columns();
 			});
-			
+
 			$('.swp-stats').each(function () {
 				var tallest = 0;
 				$(this).find('.swp-stat').each(function () {

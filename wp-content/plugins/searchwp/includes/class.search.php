@@ -174,6 +174,9 @@ class SearchWPSearch {
 	 */
 	public $results_weights = array();
 
+	private $tax_count = 0;
+	private $meta_count = 0;
+
 
 
 	/**
@@ -294,7 +297,7 @@ class SearchWPSearch {
 			// pull out our engine-specific settings
 			$all_settings = SWP()->validate_settings( $this->settings );
 			if ( ! isset( $all_settings['engines'] ) || ! isset( $all_settings['engines'][ $this->engine ] ) ) {
-				wp_die( __( 'Engine settings not found', 'searchwp' ) );
+				wp_die( esc_html__( 'Engine settings not found', 'searchwp' ) );
 			}
 			$this->engineSettings = $all_settings['engines'][ $this->engine ];
 
@@ -333,7 +336,11 @@ class SearchWPSearch {
 				$this->posts = $this->query();
 
 				// log this
-				$log_default = ! $this->doing_admin_column();
+				$paged = get_query_var( 'paged' );
+				$paged = absint( $paged ) > 1;
+
+				// Default is to log if we're not doing an admin column nor are we paging
+				$log_default = ! $this->doing_admin_column() && ! $paged;
 
 				if ( ! empty( $pre_search_original_terms ) && apply_filters( 'searchwp_log_search', $log_default, $engine, $pre_search_original_terms, absint( $this->foundPosts ) ) ) {
 
@@ -385,7 +392,7 @@ class SearchWPSearch {
 
 		$post_types = get_post_types();
 
-		foreach( $post_types as $post_type ) {
+		foreach ( $post_types as $post_type ) {
 			if ( did_action( 'manage_' . $post_type . '_posts_custom_column' )
 				|| doing_action( 'manage_' . $post_type . '_posts_custom_column' ) ) {
 				$doing_admin_column = true;
@@ -436,19 +443,27 @@ class SearchWPSearch {
 		// set default inclusions (based on $wp_query (other plugins likely do their magic by setting this))
 		$wp_query_post__in = get_query_var( 'post__in' );
 		if ( ! empty( $wp_query_post__in ) ) {
+
 			if ( ! is_array( $wp_query_post__in ) ) {
 				$wp_query_post__in = explode( ',', $wp_query_post__in );
 			}
+
 			$this->included = array_map( 'absint', (array) $wp_query_post__in );
+
+			do_action( 'searchwp_log', 'Setting default post__in: ' . implode( ', ', $this->included ) );
 		}
 
 		// set default exclusions in the same fashion
 		$wp_query_post__not_in = get_query_var( 'post__not_in' );
 		if ( ! empty( $wp_query_post__not_in ) ) {
+
 			if ( ! is_array( $wp_query_post__not_in ) ) {
 				$wp_query_post__not_in = explode( ',', $wp_query_post__not_in );
 			}
+
 			$this->excluded = array_map( 'absint', (array) $wp_query_post__not_in );
+
+			do_action( 'searchwp_log', 'Setting default post__not_in: ' . implode( ', ', $this->excluded ) );
 		}
 	}
 
@@ -505,7 +520,7 @@ class SearchWPSearch {
 		if ( $this->load_posts && true === apply_filters( 'searchwp_load_posts', true, $swpargs ) ) {
 
 			// we don't want anything interfering with us getting our posts
-			if ( apply_filters( 'searchwp_remove_pre_get_posts', true ) ) {
+			if ( apply_filters( 'searchwp_remove_pre_get_posts_during_search', false ) ) {
 				remove_all_actions( 'pre_get_posts' );
 				remove_all_filters( 'pre_get_posts' );
 			}
@@ -571,6 +586,11 @@ class SearchWPSearch {
 	function set_excluded_ids_from_settings() {
 		$excludeIDs = apply_filters( 'searchwp_prevent_indexing', $this->excluded ); // catch anything that shouldn't have been indexed anyway
 		foreach ( $this->engineSettings as $postType => $postTypeWeights ) {
+
+			if ( empty( $postTypeWeights['enabled'] ) ) {
+				continue;
+			}
+
 			// store our exclude clause
 			if ( isset( $postTypeWeights['options']['exclude'] ) && ! empty( $postTypeWeights['options']['exclude'] ) ) {
 
@@ -619,6 +639,11 @@ class SearchWPSearch {
 	function set_excluded_ids_from_taxonomies() {
 		add_filter( 'searchwp_force_wp_query', '__return_true' ); // we're going to be firing a WP_Query and want it to finish
 		foreach ( $this->engineSettings as $postType => $postTypeWeights ) {
+
+			if ( empty( $postTypeWeights['enabled'] ) ) {
+				continue;
+			}
+
 			$taxonomies = get_object_taxonomies( $postType );
 			if ( is_array( $taxonomies ) && count( $taxonomies ) ) {
 				foreach ( $taxonomies as $taxonomy ) {
@@ -654,6 +679,7 @@ class SearchWPSearch {
 							)
 						);
 
+
 						// Media won't be published
 						if ( 'attachment' == $postType ) {
 							$args['post_status'] = 'inherit';
@@ -673,13 +699,166 @@ class SearchWPSearch {
 		do_action( 'searchwp_log', 'After taxonomy exclusion $excludeIDs = ' . var_export( $this->excluded, true ) );
 	}
 
+	/**
+	 * Get an array of IDs for posts that have been limited using engine rules
+	 *
+	 * @since 2.9.8
+	 */
+	function get_included_ids_from_taxonomies_for_post_type( $post_type = 'post' ) {
+		if ( ! post_type_exists( $post_type ) ) {
+			return false;
+		}
+
+		add_filter( 'searchwp_force_wp_query', '__return_true' ); // we're going to be firing a WP_Query and want it to finish
+
+		$limited_ids = false;
+		foreach ( $this->engineSettings as $postType => $postTypeWeights ) {
+
+			if ( $postType !== $post_type || empty( $postTypeWeights['enabled'] ) ) {
+				continue;
+			}
+
+			$taxonomies = get_object_taxonomies( $postType );
+			if ( is_array( $taxonomies ) && count( $taxonomies ) ) {
+				foreach ( $taxonomies as $taxonomy ) {
+
+					$taxonomy = get_taxonomy( $taxonomy );
+
+					if ( isset( $postTypeWeights['options'][ 'limit_to_' . $taxonomy->name ] ) ) {
+
+						$includedTerms = explode( ',', $postTypeWeights['options'][ 'limit_to_' . $taxonomy->name ] );
+
+						if ( ! is_array( $includedTerms ) ) {
+							$includedTerms = array( intval( $includedTerms ) );
+						}
+
+						if ( ! empty( $includedTerms ) ) {
+							foreach ( $includedTerms as $includedKey => $includedValue ) {
+								$includedTerms[ $includedKey ] = intval( $includedValue );
+							}
+						}
+
+						// determine which post(s) have this term
+						$args = array(
+							'posts_per_page'    => -1,
+							'fields'            => 'ids',
+							'post_type'         => $postType,
+							'suppress_filters'  => true,
+							'tax_query'         => array(
+								array(
+									'taxonomy'  => $taxonomy->name,
+									'field'     => 'id',
+									'terms'     => $includedTerms,
+								),
+							)
+						);
+
+						// Media won't be published
+						if ( 'attachment' == $postType ) {
+							$args['post_status'] = 'inherit';
+						}
+
+						$includedByTerm = new WP_Query( $args );
+
+						$limited_ids = $includedByTerm->posts;
+						break;
+					}
+				}
+			}
+
+			break;
+		}
+		remove_filter( 'searchwp_force_wp_query', '__return_true' );
+
+		do_action( 'searchwp_log', 'After taxonomy limiter $includeIDS = ' . var_export( $limited_ids, true ) );
+
+		return $limited_ids;
+	}
+
+	/**
+	 * Set included IDs based on taxonomy terms in the settings
+	 * NOTE: This will return IDs regardless of post type, use with caution
+	 *
+	 * @since 2.9
+	 */
+	function set_included_ids_from_taxonomies() {
+		add_filter( 'searchwp_force_wp_query', '__return_true' ); // we're going to be firing a WP_Query and want it to finish
+
+		foreach ( $this->engineSettings as $postType => $postTypeWeights ) {
+
+			if ( empty( $postTypeWeights['enabled'] ) ) {
+				continue;
+			}
+
+			$taxonomies = get_object_taxonomies( $postType );
+			if ( is_array( $taxonomies ) && count( $taxonomies ) ) {
+				foreach ( $taxonomies as $taxonomy ) {
+
+					$taxonomy = get_taxonomy( $taxonomy );
+
+					if ( isset( $postTypeWeights['options'][ 'limit_to_' . $taxonomy->name ] ) ) {
+
+						$includedTerms = explode( ',', $postTypeWeights['options'][ 'limit_to_' . $taxonomy->name ] );
+
+						if ( ! is_array( $includedTerms ) ) {
+							$includedTerms = array( intval( $includedTerms ) );
+						}
+
+						if ( ! empty( $includedTerms ) ) {
+							foreach ( $includedTerms as $includedKey => $includedValue ) {
+								$includedTerms[ $includedKey ] = intval( $includedValue );
+							}
+						}
+
+						// determine which post(s) have this term
+						$args = array(
+							'posts_per_page'    => -1,
+							'fields'            => 'ids',
+							'post_type'         => $postType,
+							'suppress_filters'  => true,
+							'tax_query'         => array(
+								array(
+									'taxonomy'  => $taxonomy->name,
+									'field'     => 'id',
+									'terms'     => $includedTerms,
+								),
+							)
+						);
+
+						// Media won't be published
+						if ( 'attachment' == $postType ) {
+							$args['post_status'] = 'inherit';
+						}
+
+						$includedByTerm = new WP_Query( $args );
+
+						if ( ! empty( $includedByTerm->posts ) ) {
+							$this->included = array_merge( $this->included, $includedByTerm->posts );
+						} else {
+							$this->included = array_merge( $this->included, array( 0 ) );
+						}
+					}
+				}
+			}
+		}
+		remove_filter( 'searchwp_force_wp_query', '__return_true' );
+
+		do_action( 'searchwp_log', 'After taxonomy limiter $includeIDS = ' . var_export( $this->included, true ) );
+	}
+
 
 	/**
 	 * Determine which field types should be considered for AND logic
 	 *
 	 * @since 1.8
 	 */
-	private function get_and_fields() {
+	private function get_and_fields( $post_type = '' ) {
+
+		// If an invalid post type is submitted, revert to global AND fields across all engine post types
+		if ( ! empty( $post_type ) && ! post_type_exists( $post_type ) ) {
+			$post_type = '';
+		}
+
 		// allow devs to filter which fields should be included for AND checks
 		$andFieldsDefaults = array( 'title', 'content', 'slug', 'excerpt', 'comment', 'tax', 'meta' );
 
@@ -694,6 +873,11 @@ class SearchWPSearch {
 					continue;
 				}
 
+				// Allow restriction to single post type
+				if ( ! empty( $post_type ) && $post_type !== $engine_post_type ) {
+					continue;
+				}
+
 				if ( isset( $post_type_settings['weights'] ) && is_array( $post_type_settings['weights'] ) ) {
 					foreach ( $post_type_settings['weights'] as $field_type => $weight ) {
 
@@ -704,21 +888,21 @@ class SearchWPSearch {
 
 						if ( in_array( $field_type, $andFieldsDefaults, true ) ) {
 
-						    if ( is_numeric( $weight ) && ! empty( $weight ) ) {
-							    $theseAndFields[] = $field_type;
-                            } elseif ( is_array( $weight) && ! empty( $weight ) ) {
-						        foreach ( $weight as $kweight ) {
-							        if ( is_numeric( $kweight ) && ! empty( $kweight ) ) {
-								        $theseAndFields[] = $field_type;
-								        break;
-                                    } elseif ( is_array( $kweight) && isset( $kweight['weight'] ) ) { // overly complex data model
-								        if ( is_numeric( $kweight['weight'] ) && ! empty( $kweight['weight'] ) ) {
-									        $theseAndFields[] = $field_type;
-									        break;
-								        }
-							        }
-                                }
-                            }
+							if ( is_numeric( $weight ) && ! empty( $weight ) ) {
+								$theseAndFields[] = $field_type;
+							} elseif ( is_array( $weight) && ! empty( $weight ) ) {
+								foreach ( $weight as $kweight ) {
+									if ( is_numeric( $kweight ) && ! empty( $kweight ) ) {
+										$theseAndFields[] = $field_type;
+										break;
+									} elseif ( is_array( $kweight) && isset( $kweight['weight'] ) ) { // overly complex data model
+										if ( is_numeric( $kweight['weight'] ) && ! empty( $kweight['weight'] ) ) {
+											$theseAndFields[] = $field_type;
+											break;
+										}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -727,7 +911,11 @@ class SearchWPSearch {
 			$theseAndFields = array_unique( $theseAndFields );
 		}
 
-		$andFields = apply_filters( 'searchwp_and_fields', $theseAndFields );
+		$andFields = $theseAndFields;
+		if ( ! empty( $post_type ) ) {
+			$andFields = apply_filters( "searchwp_and_fields_{$post_type}", $andFields, $this->engine );
+		}
+		$andFields = apply_filters( 'searchwp_and_fields', $andFields );
 
 		// validate AND fields
 		if ( is_array( $andFields ) && ! empty( $andFields ) ) {
@@ -744,7 +932,7 @@ class SearchWPSearch {
 			$andFields = array();
 		}
 
-		do_action( 'searchwp_log', '$andFields = ' . var_export( $andFields, true ) );
+		do_action( 'searchwp_log', '$andFields = ' . implode( ', ', $andFields ) );
 
 		return $andFields;
 	}
@@ -759,9 +947,14 @@ class SearchWPSearch {
 	 * @return array The applicable Post IDs
 	 * @since 1.8
 	 */
-	private function get_post_ids_via_and( $andFields, $andTerm ) {
+	private function get_post_ids_via_and( $andFields, $andTerm, $postType = '' ) {
 
 		global $wpdb;
+
+		// If an invalid post type is submitted, revert to global AND for all post types (not ideal)
+		if ( ! empty( $postType ) && ! post_type_exists( $postType ) ) {
+			$postType = '';
+		}
 
 		// we're going to utilize $andFields to build our query based on what the dev wants to count for AND queries
 		$andFieldsCoalesce = $this->get_and_field_coalesce( $andFields );
@@ -791,10 +984,18 @@ class SearchWPSearch {
 		$andTermSQL = '';
 
 		$active_post_types_for_this_engine = array();
-		foreach ( $this->settings['engines'][ $this->engine ] as $post_type => $settings ) {
-			if ( ! empty( $settings['enabled'] ) ) {
-				$active_post_types_for_this_engine[] = $post_type;
+
+		if ( empty( $postType ) ) {
+			foreach ( $this->settings['engines'][ $this->engine ] as $post_type => $settings ) {
+				if ( ! empty( $settings['enabled'] ) ) {
+					$active_post_types_for_this_engine[] = $post_type;
+				}
 			}
+		} else {
+			// Limiting to a single post type was added as a bugfix in 2.9.9 so we're essentially hacking
+			// the way this function works by limiting to a single post type as though it was the only
+			// enabled post type for the engine
+			$active_post_types_for_this_engine = array( $postType );
 		}
 
 		if ( empty( $active_post_types_for_this_engine ) ) {
@@ -811,14 +1012,14 @@ class SearchWPSearch {
 			// we do in fact want to run query 1
 			$andTermSQL .= "
                 SELECT {$this->db_prefix}index.post_id, {$wpdb->prefix}posts.post_parent,
-                       {$andFieldsCoalesce} as termcount
+                       SUM({$andFieldsCoalesce}) as termcount
                 FROM {$this->db_prefix}index FORCE INDEX (termindex)
                 LEFT JOIN {$this->db_prefix}terms
                     ON {$this->db_prefix}index.term = {$this->db_prefix}terms.id
                 LEFT JOIN {$wpdb->prefix}posts
                 	ON {$wpdb->prefix}posts.ID = {$this->db_prefix}index.post_id
                 WHERE {$relevantTermWhere}
-                	AND {$wpdb->prefix}posts.post_type IN ( " . implode( ', ', array_fill( 0, count( $active_post_types_for_this_engine ), '%s' ) ) . " )";
+                	AND {$wpdb->prefix}posts.post_type IN ( " . implode( ', ', array_fill( 0, count( $active_post_types_for_this_engine ), '%s' ) ) . " ) GROUP BY post_id HAVING termcount > 0 ";
 		}
 
 		// next SQL segment is against the cf table
@@ -831,14 +1032,14 @@ class SearchWPSearch {
 
 			// we want to apply AND logic to the cf table
 			$andTermSQL .= "
-                SELECT {$this->db_prefix}cf.post_id, {$wpdb->prefix}posts.post_parent, count as termcount
+                SELECT {$this->db_prefix}cf.post_id, {$wpdb->prefix}posts.post_parent, SUM(`count`) as termcount
                 FROM {$this->db_prefix}cf FORCE INDEX (term)
                 LEFT JOIN {$this->db_prefix}terms
                     ON {$this->db_prefix}cf.term = {$this->db_prefix}terms.id
                 LEFT JOIN {$wpdb->prefix}posts
                 	ON {$wpdb->prefix}posts.ID = {$this->db_prefix}cf.post_id
                 WHERE {$relevantTermWhere}
-                	AND {$wpdb->prefix}posts.post_type IN ( " . implode( ', ', array_fill( 0, count( $active_post_types_for_this_engine ), '%s' ) ) . " )";
+                	AND {$wpdb->prefix}posts.post_type IN ( " . implode( ', ', array_fill( 0, count( $active_post_types_for_this_engine ), '%s' ) ) . " ) GROUP BY post_id HAVING termcount > 0 ";
 		}
 
 		// last SQL segment is against the tax table
@@ -851,17 +1052,15 @@ class SearchWPSearch {
 
 			// we want to apply AND logic to the cf table
 			$andTermSQL .= "
-                SELECT {$this->db_prefix}tax.post_id, {$wpdb->prefix}posts.post_parent, count as termcount
+                SELECT {$this->db_prefix}tax.post_id, {$wpdb->prefix}posts.post_parent, SUM(`count`) as termcount
                 FROM {$this->db_prefix}tax FORCE INDEX (term)
                 LEFT JOIN {$this->db_prefix}terms
                     ON {$this->db_prefix}tax.term = {$this->db_prefix}terms.id
                 LEFT JOIN {$wpdb->prefix}posts
                 	ON {$wpdb->prefix}posts.ID = {$this->db_prefix}tax.post_id
                 WHERE {$relevantTermWhere}
-                	AND {$wpdb->prefix}posts.post_type IN ( " . implode( ', ', array_fill( 0, count( $active_post_types_for_this_engine ), '%s' ) ) . " )";
+                	AND {$wpdb->prefix}posts.post_type IN ( " . implode( ', ', array_fill( 0, count( $active_post_types_for_this_engine ), '%s' ) ) . " ) GROUP BY post_id HAVING termcount > 0";
 		}
-
-		$andTermSQL .= " GROUP BY post_id HAVING termcount > 0";
 
 		$postsWithTermPresent = array();
 
@@ -923,7 +1122,11 @@ class SearchWPSearch {
 		}
 
 		// Make sure to take into account excluded IDs
-        $postsWithTermPresent = array_diff( $postsWithTermPresent, $this->excluded );
+		$postsWithTermPresent = array_diff( $postsWithTermPresent, $this->excluded );
+
+		if ( ! empty( $postsWithTermPresent ) ) {
+			do_action( 'searchwp_log', 'Algorithm AND logic pass: ' . implode( ', ', $postsWithTermPresent ) );
+		}
 
 		return $postsWithTermPresent;
 	}
@@ -966,48 +1169,69 @@ class SearchWPSearch {
 		return $andFieldsCoalesce;
 	}
 
-
 	/**
 	 * If applicable, limit posts using AND logic
 	 *
 	 * @since 1.8
 	 */
 	private function maybe_do_and_logic() {
-		$relevantPostIds = array();
-
 		// AND logic only applies if there's more than one term (and the dev doesn't disable it)
 		$doAnd = ( count( $this->terms ) > 1 && apply_filters( 'searchwp_and_logic', true ) ) ? true : false;
 		do_action( 'searchwp_log', '$doAnd = ' . var_export( $doAnd, true ) );
 
-		$andFields = $this->get_and_fields();
+		$andTerms = array();
 
-		if ( $doAnd && is_array( $andFields ) && ! empty( $andFields ) ) {
-			$andTerms = array();
-			$applicableAndResults = true;
+		// AND logic is going to be different per post type, so we need to determine relevant IDs across the entire engine
+		foreach ( $this->engineSettings as $postType => $postTypeWeights ) {
+			if ( isset( $postTypeWeights['enabled'] ) && true == $postTypeWeights['enabled'] ) {
+				// AND fields need to be defined per post type as well
+				$and_fields_for_post_type = $this->get_and_fields( $postType );
 
-			// grab posts with each term in all applicable AND fields
-			foreach ( $this->terms as $andTerm ) {
+				$andTerms[ $postType ] = array();
 
-				$postsWithTermPresent = $this->get_post_ids_via_and( $andFields, $andTerm );
+				if ( $doAnd && is_array( $and_fields_for_post_type ) && ! empty( $and_fields_for_post_type ) ) {
+					// Assume AND logic is going to happen
+					$applicableAndResults = true;
 
-				do_action( 'searchwp_log', '$postsWithTermPresent = ' . var_export( $postsWithTermPresent, true ) );
+					// We need to find posts that have all search terms for this post type
+					foreach ( $this->terms as $andTerm ) {
 
-				if ( ! empty( $postsWithTermPresent ) ) {
-					$andTerms[] = $postsWithTermPresent;
-				} else {
-					// since no posts were found with this term in the title, our AND logic fails
-					$applicableAndResults = false;
-					break;
+						$postsWithTermPresent = $this->get_post_ids_via_and( $and_fields_for_post_type, $andTerm, $postType );
+
+						do_action( 'searchwp_log', '$postsWithTermPresent (' . $postType . ') = ' . implode( ', ', $postsWithTermPresent ) );
+
+						$andTerms[ $postType ][] = $postsWithTermPresent;
+					}
+
+					// Current status: Each element of $andTerms[ $postType ] is an array of
+					// post IDs that contains that term, we need to intersect all of them to ensure AND logic
+					if ( isset( $andTerms[ $postType ] ) && is_array( $andTerms[ $postType ] ) && count( $andTerms[ $postType ] ) > 1 ) {
+						$andTerms[ $postType ] = call_user_func_array( 'array_intersect', $andTerms[ $postType ] );
+					} else {
+						$andTerms[ $postType ] = array();
+					}
 				}
-			}
-
-			// find the common post IDs across the board
-			if ( $applicableAndResults ) {
-				$relevantPostIds = call_user_func_array( 'array_intersect', $andTerms );
 			}
 		}
 
-		// we want ints, always
+		// $andTerms contains a breakdown of AND results per post type
+		// If there are are post types with no AND logic matches we can strip those out now
+		foreach ( $andTerms as $post_type => $potential_and_logic_ids ) {
+			if ( empty( $potential_and_logic_ids ) ) {
+				unset( $andTerms[ $post_type ] );
+			}
+		}
+
+		// We now have a reduced array of potential AND logic IDs per post type,
+		// but in order to find the IDs that satisfy AND logic, we need to intersect
+		$relevantPostIds = array();
+		foreach ( $andTerms as $post_type => $potential_and_logic_ids ) {
+			if ( ! empty( $potential_and_logic_ids ) ) {
+				$relevantPostIds = array_merge( $relevantPostIds, $potential_and_logic_ids );
+			}
+		}
+		$relevantPostIds = array_unique( $relevantPostIds );
+
 		$this->relevant_post_ids = array_map( 'absint', $relevantPostIds );
 	}
 
@@ -1220,6 +1444,7 @@ class SearchWPSearch {
 		// find the common post IDs across the board
 		if ( $applicableAndResults ) {
 			$relevantPostIds = call_user_func_array( 'array_intersect', $andTerms );
+			do_action( 'searchwp_log', 'Algorithm AND refinement pass: ' . implode( ', ', $relevantPostIds ) );
 		}
 
 		return $relevantPostIds;
@@ -1248,6 +1473,7 @@ class SearchWPSearch {
 		foreach ( $this->engineSettings as $postType => $postTypeWeights ) {
 			if ( isset( $postTypeWeights['enabled'] ) && true == $postTypeWeights['enabled'] ) {
 				$termCounter = 1;
+				$this->sql .= 'SUM( ';
 				if ( empty( $postTypeWeights['options']['attribute_to'] ) ) {
 					/** @noinspection PhpUnusedLocalVariableInspection */
 					foreach ( $this->terms as $term ) {
@@ -1262,7 +1488,7 @@ class SearchWPSearch {
 					}
 				}
 				$this->sql = substr( $this->sql, 0, strlen( $this->sql ) - 2 ); // trim off the extra +
-				$this->sql .= " AS `final{$postType}weight`, ";
+				$this->sql .= " ) AS `final{$postType}weight`, ";
 			}
 		}
 	}
@@ -1276,6 +1502,7 @@ class SearchWPSearch {
 	private function query_sum_final_weight() {
 		global $wpdb;
 		// build our final, overall weight
+		$this->sql .= ' SUM( ';
 		foreach ( $this->engineSettings as $postType => $postTypeWeights ) {
 			if ( isset( $postTypeWeights['enabled'] ) && true == $postTypeWeights['enabled'] ) {
 				$termCounter = 1;
@@ -1296,7 +1523,7 @@ class SearchWPSearch {
 		}
 
 		$this->sql = substr( $this->sql, 0, strlen( $this->sql ) - 2 ); // trim off the extra +
-		$this->sql .= " AS finalweight FROM {$wpdb->prefix}posts ";
+		$this->sql .= " ) AS finalweight FROM {$wpdb->prefix}posts ";
 	}
 
 
@@ -1461,158 +1688,11 @@ class SearchWPSearch {
 	 */
 	private function query_limit_by_mimes( $mimes ) {
 		global $wpdb;
-		$targetedMimes  = array();
 
-		// TODO: Better system for this
-		$mimeref = array(
-			'image' => array(
-				'image/jpeg',
-				'image/gif',
-				'image/png',
-				'image/bmp',
-				'image/tiff',
-				'image/x-icon',
-			),
-			'video' => array(
-				'video/x-ms-asf',
-				'video/x-ms-wmv',
-				'video/x-ms-wmx',
-				'video/x-ms-wm',
-				'video/avi',
-				'video/divx',
-				'video/x-flv',
-				'video/quicktime',
-				'video/mpeg',
-				'video/mp4',
-				'video/ogg',
-				'video/webm',
-				'video/x-matroska',
-			),
-			'text' => array(
-				'text/plain',
-				'text/csv',
-				'text/tab-separated-values',
-				'text/calendar',
-				'text/richtext',
-				'text/css',
-				'text/html',
-			),
-			'audio' => array(
-				'audio/mpeg',
-				'audio/x-realaudio',
-				'audio/wav',
-				'audio/ogg',
-				'audio/midi',
-				'audio/x-ms-wma',
-				'audio/x-ms-wax',
-				'audio/x-matroska',
-			),
-			'application' => array(
-				'application/rtf',
-				'application/javascript',
-				'application/pdf',
-				'application/x-shockwave-flash',
-				'application/java',
-				'application/x-tar',
-				'application/zip',
-				'application/x-gzip',
-				'application/rar',
-				'application/x-7z-compressed',
-				'application/x-msdownload',
-			),
-			'msoffice' => array(
-				'application/msword',
-				'application/vnd.ms-powerpoint',
-				'application/vnd.ms-write',
-				'application/vnd.ms-excel',
-				'application/vnd.ms-access',
-				'application/vnd.ms-project',
-				'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-				'application/vnd.ms-word.document.macroEnabled.12',
-				'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
-				'application/vnd.ms-word.template.macroEnabled.12',
-				'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-				'application/vnd.ms-excel.sheet.macroEnabled.12',
-				'application/vnd.ms-excel.sheet.binary.macroEnabled.12',
-				'application/vnd.openxmlformats-officedocument.spreadsheetml.template',
-				'application/vnd.ms-excel.template.macroEnabled.12',
-				'application/vnd.ms-excel.addin.macroEnabled.12',
-				'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-				'application/vnd.ms-powerpoint.presentation.macroEnabled.12',
-				'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
-				'application/vnd.ms-powerpoint.slideshow.macroEnabled.12',
-				'application/vnd.openxmlformats-officedocument.presentationml.template',
-				'application/vnd.ms-powerpoint.template.macroEnabled.12',
-				'application/vnd.ms-powerpoint.addin.macroEnabled.12',
-				'application/vnd.openxmlformats-officedocument.presentationml.slide',
-				'application/vnd.ms-powerpoint.slide.macroEnabled.12',
-				'application/onenote',
-			),
-			'openoffice' => array(
-				'application/vnd.oasis.opendocument.text',
-				'application/vnd.oasis.opendocument.presentation',
-				'application/vnd.oasis.opendocument.spreadsheet',
-				'application/vnd.oasis.opendocument.graphics',
-				'application/vnd.oasis.opendocument.chart',
-				'application/vnd.oasis.opendocument.database',
-				'application/vnd.oasis.opendocument.formula',
-			),
-			'wordperfect' => array(
-				'application/wordperfect',
-			),
-			'iwork' => array(
-				'application/vnd.apple.keynote',
-				'application/vnd.apple.numbers',
-				'application/vnd.apple.pages',
-			),
-		);
+		$targetedMimes = SWP()->get_mimes_from_settings_ids( $mimes );
 
-		foreach ( $mimes as $mimeKey )  {
-			switch ( intval( $mimeKey ) ) {
-				case 1: // PDFs
-					$targetedMimes = array_merge( $targetedMimes, array( 'application/pdf' ) );
-					break;
-				case 2: // Plain Text
-					$targetedMimes = array_merge( $targetedMimes, $mimeref['text'] );
-					break;
-				case 3: // Images
-					$targetedMimes = array_merge( $targetedMimes, $mimeref['image'] );
-					break;
-				case 4: // Video
-					$targetedMimes = array_merge( $targetedMimes, $mimeref['video'] );
-					break;
-				case 5: // Audio
-					$targetedMimes = array_merge( $targetedMimes, $mimeref['audio'] );
-					break;
-				case 6: // Office Documents
-					$targetedMimes = array_merge( $targetedMimes,
-						$mimeref['msoffice']
-					);
-					break;
-				case 7: // OpenOffice Documents
-					$targetedMimes = array_merge( $targetedMimes,
-						$mimeref['openoffice']
-					);
-					break;
-				case 8: // iWork Documents
-					$targetedMimes = array_merge( $targetedMimes,
-						$mimeref['iwork']
-					);
-					break;
-				default: // All Documents
-					$targetedMimes = array_merge( $targetedMimes,
-						$mimeref['text'],
-						$mimeref['application'],
-						$mimeref['msoffice'],
-						$mimeref['openoffice'],
-						$mimeref['wordperfect'],
-						$mimeref['iwork']
-					);
-					break;
-			}
-
-			// remove dupes
-			$targetedMimes = array_unique( $targetedMimes );
+		if ( empty( $targetedMimes ) ) {
+			return;
 		}
 
 		if ( is_array( $targetedMimes ) ) {
@@ -1636,6 +1716,7 @@ class SearchWPSearch {
 	 */
 	private function query_coalesce_custom_fields( $weights) {
 		$coalesceCustomFields = '0 +';
+		$this->meta_count = 0;
 		if ( isset( $weights ) && is_array( $weights ) && ! empty( $weights ) ) {
 
 			// first we'll try to merge any matching weight meta_keys so as to save as many JOINs as possible
@@ -1659,8 +1740,10 @@ class SearchWPSearch {
 			$totalCustomFields = count( $optimized_weights ) + count( $like_weights );
 
 			for ( $i = 0; $i < $totalCustomFields; $i++ ) {
-				$coalesceCustomFields .= ' COALESCE(cfweight' . $i . ',0) + ';
+				$coalesceCustomFields .= ' COALESCE(cfweights' . $i . '.cfweight' . $i . ',0) + ';
 			}
+
+			$this->meta_count = $totalCustomFields;
 		}
 		$coalesceCustomFields = substr( $coalesceCustomFields, 0, strlen( $coalesceCustomFields ) - 2 );
 
@@ -1678,6 +1761,7 @@ class SearchWPSearch {
 	 */
 	private function query_coalesce_taxonomies( $weights ) {
 		$coalesceTaxonomies = '0 +';
+		$this->tax_count = 0;
 		if ( isset( $weights ) && is_array( $weights ) && ! empty( $weights ) ) {
 
 			// first we'll try to merge any matching weight taxonomies so as to save as many JOINs as possible
@@ -1690,8 +1774,10 @@ class SearchWPSearch {
 			$totalTaxonomies = count( $optimized_weights );
 
 			for ( $i = 0; $i < $totalTaxonomies; $i++ ) {
-				$coalesceTaxonomies .= ' COALESCE(taxweight' . $i . ',0) + ';
+				$coalesceTaxonomies .= ' COALESCE(taxweights' . $i . '.taxweight' . $i . ',0) + ';
 			}
+
+			$this->tax_count = $totalTaxonomies;
 		}
 
 		$coalesceTaxonomies = substr( $coalesceTaxonomies, 0, strlen( $coalesceTaxonomies ) - 2 );
@@ -1753,7 +1839,9 @@ class SearchWPSearch {
                     {$args['custom_fields']} + {$args['taxonomies']}";
 
 		// allow developers to inject their own weight modifications
-		$this->sql .= apply_filters( 'searchwp_weight_mods', '' );
+		$this->sql .= apply_filters( 'searchwp_weight_mods', '', array(
+			'engine' => $this->engine,
+		) );
 
 		// the identifier is different if we're attributing
 		$this->sql .= ! empty( $args['attributed_to'] ) ? " AS `{$post_type}attr` " : " AS `{$post_type}weight` " ;
@@ -1783,8 +1871,15 @@ class SearchWPSearch {
 		$optimized_weights = array();
 		$like_weights = array();
 		foreach ( $weights as $post_type_meta_guid => $post_type_custom_field ) {
-			$custom_field_weight = absint( $post_type_custom_field['weight'] );
+
+			$custom_field_weight = $post_type_custom_field['weight'];
 			$post_type_custom_field_key = $post_type_custom_field['metakey'];
+
+			if ( false !== strpos( $custom_field_weight, '.' ) ) {
+				$custom_field_weight = (string) abs( floatval( $custom_field_weight ) );
+			} else {
+				$custom_field_weight = (string) absint( $custom_field_weight );
+			}
 
 			// allow developers to implement LIKE matching on custom field keys
 			if ( false == strpos( $post_type_custom_field_key, '%' ) ) {
@@ -1816,7 +1911,7 @@ class SearchWPSearch {
 			$weight_key = floatval( $weight_key );
 			$this->sql .= "
                 LEFT JOIN (
-                    SELECT {$wpdb->prefix}posts.{$column} as post_id, ( SUM( {$this->db_prefix}cf.count ) * {$weight_key} ) AS cfweight{$i}
+                    SELECT {$wpdb->prefix}posts.{$column} as post_id, ( SUM( COALESCE(`{$this->db_prefix}cf`.`count`, 0) ) * {$weight_key} ) AS cfweight{$i}
                     FROM {$this->db_prefix}terms
                     LEFT JOIN {$this->db_prefix}cf ON {$this->db_prefix}terms.id = {$this->db_prefix}cf.term
                     LEFT JOIN {$wpdb->prefix}posts ON {$this->db_prefix}cf.post_id = {$wpdb->prefix}posts.ID
@@ -1841,7 +1936,7 @@ class SearchWPSearch {
 				$post_meta_clause = ' AND ' . $this->db_prefix . 'cf.metakey LIKE ' . $like_weight['metakey'];
 				$this->sql .= "
                 LEFT JOIN (
-                    SELECT {$wpdb->prefix}posts.{$column} as post_id, ( SUM( {$this->db_prefix}cf.count ) * {$like_weight['weight']} ) AS cfweight{$i}
+                    SELECT {$wpdb->prefix}posts.{$column} as post_id, ( SUM( COALESCE(`{$this->db_prefix}cf`.`count`, 0) ) * {$like_weight['weight']} ) AS cfweight{$i}
                     FROM {$this->db_prefix}terms
                     LEFT JOIN {$this->db_prefix}cf ON {$this->db_prefix}terms.id = {$this->db_prefix}cf.term
                     LEFT JOIN {$wpdb->prefix}posts ON {$this->db_prefix}cf.post_id = {$wpdb->prefix}posts.ID
@@ -1927,6 +2022,10 @@ class SearchWPSearch {
 			wp_die( 'Invalid request', 'searchwp' );
 		}
 
+		$post_type_group_by = apply_filters( 'searchwp_post_type_group_by_clause', array( "{$wpdb->prefix}posts.ID" ) );
+		$post_type_group_by = array_map( 'esc_sql', $post_type_group_by );
+		$post_type_group_by = implode( ', ', $post_type_group_by );
+
 		// cap off each enabled post type subquery
 		$this->sql .= "
             WHERE {$this->sql_term_where}
@@ -1935,7 +2034,10 @@ class SearchWPSearch {
             {$this->sql_exclude}
             {$this->sql_include}
             {$this->sql_conditions}
-            GROUP BY {$wpdb->prefix}posts.ID";
+			GROUP BY {$post_type_group_by}";
+
+		// @since 2.9.0
+		$this->sql .= $this->only_full_group_by_fix_for_post_type();
 
 		if ( isset( $attribute_to ) && ! empty( $attribute_to ) ) {
 			// $attributedTo was defined in the initial conditional
@@ -1944,6 +2046,32 @@ class SearchWPSearch {
 		} else {
 			$this->sql .= ") AS `{$postType}weights` ON `{$postType}weights`.post_id = {$wpdb->prefix}posts.ID";
 		}
+	}
+
+	/**
+	 * MySQL 5.7 has sql_mode=only_full_group_by on by default so we need to accommodate
+	 * our various COALESCE columns by adding to the GROUP BY clause to satisfy the mode
+	 *
+	 * This is run for each post type within each term
+	 */
+	private function only_full_group_by_fix_for_post_type() {
+		if ( empty( $this->tax_count  ) && empty( $this->meta_count ) ) {
+			return '';
+		}
+
+		$taxonomies = array();
+		$custom_fields = array();
+
+		for ( $i = 0; $i < $this->tax_count; $i++ ) {
+			$taxonomies[] = 'taxweights' . $i . '.taxweight' . $i;
+		}
+
+		$meta = array();
+		for ( $i = 0; $i < $this->meta_count; $i++ ) {
+			$custom_fields[] = 'cfweights' . $i . '.cfweight' . $i;
+		}
+
+		return ',' . implode( ',', array_merge( $taxonomies, $custom_fields ) );
 	}
 
 
@@ -2031,6 +2159,9 @@ class SearchWPSearch {
 			$this->foundPosts = 0;
 			$this->maxNumPages = 0;
 			$this->postIDs = array();
+
+			do_action( 'searchwp_log', 'No terms, short circuit' );
+
 			return false;
 		}
 
@@ -2040,6 +2171,8 @@ class SearchWPSearch {
 
 		// we might need to short circuit for a number of reasons
 		if ( ! $this->any_enabled_post_types() ) {
+			do_action( 'searchwp_log', 'No enabled post types, short circuit' );
+
 			return false;
 		}
 
@@ -2071,6 +2204,9 @@ class SearchWPSearch {
 					// further because the post IDs we find when refining by title will not apply
 					// in the main search query since those title hits are worth nothing
 					$able_to_refine_results = false;
+
+					do_action( 'searchwp_log', 'Unable to further refine results' );
+
 					break;
 				}
 			}
@@ -2084,8 +2220,11 @@ class SearchWPSearch {
 				$parity > 1
 				&& $able_to_refine_results
 				&& apply_filters( 'searchwp_refine_and_results', true )
-				&& count( $this->relevant_post_ids ) > $maxNumAndResults ) {
+				&& count( $this->relevant_post_ids ) > $maxNumAndResults
+			) {
 				$this->relevant_post_ids = $this->get_post_ids_via_and_in_title();
+
+				do_action( 'searchwp_log', 'Refining AND results based on Title' );
 			}
 
 			// make sure we've got an array of unique integers
@@ -2173,13 +2312,22 @@ class SearchWPSearch {
 					$this->sql_status = "AND {$wpdb->prefix}posts.post_status IN ( " . implode( ',', $post_statuses ) . ' ) ';
 
 					// determine whether we need to limit to a mime type
-					if ( isset( $postTypeWeights['options']['mimes'] ) ) {
+					if ( isset( $postTypeWeights['options']['mimes'] ) && '' !== $postTypeWeights['options']['mimes'] ) {
 
 						// stored as an array of integers that correlate to mime type groups
 						$mimes = explode( ',', $postTypeWeights['options']['mimes'] );
 						$mimes = array_map( 'absint', $mimes );
 
 						$this->query_limit_by_mimes( $mimes );
+					}
+
+					// Take into consideration the engine limiter rules FOR THIS POST TYPE
+					$limited_ids = $this->get_included_ids_from_taxonomies_for_post_type( $postType );
+					// Function returns false if not applicable
+					if ( is_array( $limited_ids ) && ! empty( $limited_ids ) ) {
+						$limited_ids = array_map( 'absint', $limited_ids );
+						$limited_ids = array_unique( $limited_ids );
+						$this->sql_status .= " AND {$wpdb->prefix}posts.post_type = '{$postType}' AND {$wpdb->prefix}posts.ID IN ( " . implode( ',', $limited_ids ) . ' ) ';
 					}
 
 					// reset back to our original term
@@ -2228,7 +2376,7 @@ class SearchWPSearch {
 						}
 					} else {
 						// if it's an attachment and we want to attribute to the parent, we need to set that here
-						$postColumn = isset( $postTypeWeights['options']['parent'] ) ? 'post_parent' : 'ID';
+						$postColumn = ! empty( $postTypeWeights['options']['parent'] ) ? 'post_parent' : 'ID';
 					}
 
 					// open up the post type subquery if not excluded by attribution
@@ -2275,6 +2423,8 @@ class SearchWPSearch {
 			$this->sql .= $this->post_status_limiter_sql( $this->engineSettings );
 
 			$this->sql .= ' GROUP BY post_id';
+
+			$this->sql .= $this->only_full_group_by_fix_for_term();
 
 			$this->sql .= " ) AS term{$termCounter} ON term{$termCounter}.post_id = {$wpdb->prefix}posts.ID ";
 
@@ -2341,13 +2491,12 @@ class SearchWPSearch {
 		$this->sql .= $this->sql_exclude;
 
 		// group the results
-		$this->sql .= "
-            GROUP BY {$wpdb->prefix}posts.ID
-            {$finalOrderBySQL}
-        ";
+		$this->sql .= " GROUP BY post_id ";
+		// $this->sql .= $this->only_full_group_by_fix_for_query();
+		$this->sql .= $finalOrderBySQL . ' ';
 
 		if ( $this->postsPer > 0 ) {
-			$this->sql .= "LIMIT {$start}, {$total}";
+			$this->sql .= " LIMIT {$start}, {$total}";
 		}
 
 		$this->sql = str_replace( "\n", ' ', $this->sql );
@@ -2408,7 +2557,7 @@ class SearchWPSearch {
 			}
 		}
 
-		do_action( 'searchwp_log', 'Search results: ' . var_export( $postIDs, true ) );
+		do_action( 'searchwp_log', 'Search results: ' . implode( ', ', $postIDs ) );
 
 		// retrieve how many total posts were found without the limit
 		$this->foundPosts = (int) $wpdb->get_var(
@@ -2425,6 +2574,29 @@ class SearchWPSearch {
 		$this->postIDs = $postIDs;
 
 		return true;
+	}
+
+	/**
+	 * Related to only_full_group_by_fix_for_post_type() but runs for the whole query
+	 */
+	function only_full_group_by_fix_for_query() {
+		$return = array();
+
+		$total_terms = count( $this->terms );
+
+		for ( $i = 1; $i <= $total_terms; $i++ ) {
+			foreach ( $this->engineSettings as $postType => $postTypeWeights ) {
+				if ( isset( $postTypeWeights['enabled'] ) && true == $postTypeWeights['enabled'] ) {
+					if ( empty( $postTypeWeights['options']['attribute_to'] ) ) {
+						$return[] = 'term' . $i . '.`' . $postType . 'weight`';
+					} else {
+						$return[] = 'term' . $i . '.`' . $postType . 'attr`';
+					}
+				}
+			}
+		}
+
+		return ' ,' . implode( ',', $return ) . ' ';
 	}
 
 	/**
@@ -2569,6 +2741,29 @@ class SearchWPSearch {
 		return array( 'term' => $term, 'term_or_stem' => $term_or_stem, 'original_prepped_term' => $original_prepped_term );
 	}
 
+	/**
+	 * Related to only_full_group_by_fix_for_post_type() but runs for each term in the query
+	 * and includes the COALESCED columns for
+	 */
+	private function only_full_group_by_fix_for_term() {
+		$post_types = array();
+
+		foreach ( $this->engineSettings as $postType => $postTypeWeights ) {
+			if ( isset( $postTypeWeights['enabled'] ) && true == $postTypeWeights['enabled'] ) {
+				if ( empty( $postTypeWeights['options']['attribute_to'] ) ) {
+					$post_types[] = '`' . $postType . 'weights`.`' . $postType . 'weight`';
+				} else {
+					$post_types[] = '`attributed' . $postType . '`.`' . $postType . 'attr`';
+				}
+			}
+		}
+
+		if ( empty( $post_types ) ) {
+			return '';
+		}
+
+		return ' ,' . implode( ',', $post_types ) . ' ';
+	}
 
 	/**
 	 * Apply a limiter based on the term stem(s)

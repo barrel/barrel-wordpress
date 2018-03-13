@@ -2,7 +2,7 @@
 Contributors: elliotcondon
 Tags: acf, advanced, custom, field, fields, form, repeater, content
 Requires at least: 3.6.0
-Tested up to: 4.9.0
+Tested up to: 4.9.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,51 @@ From your WordPress dashboard
 
 
 == Changelog ==
+
+= 5.6.9 =
+* User field: Added new 'Return Format' setting (Array, Object, ID)
+* Core: Added basic compatibility with Gutenberg - values now save
+* Core: Fixed bug affecting the loading of fields on new Menu Items
+* Core: Removed private ('show_ui' => false) post types from the 'Post Type' location rule choices
+* Core: Minor fixes and improvements
+* Language: Updated French translation - thanks to Maxime Bernard-Jacquet
+
+= 5.6.8 =
+* API: Fixed bug causing have_rows() to fail with PHP 7.2
+* Core: Fixed bug causing "Add new term" form to hide after submit
+* Core: Minor fixes and improvements
+* Language: Updated German translation - thanks to Ralf Koller
+* Language: Updated Portuguese translation - thanks to Pedro Mendonça
+* Language: Updated Arabic translation - thanks to Karim Ramadan
+* Language: Updated Spanish translation - thanks to Luis Rull Muñoz
+* Language: Updated Persian translation - thanks to Majix
+
+= 5.6.7 =
+* Fixed an assortment of bugs found in 5.6.6
+
+= 5.6.6 =
+* Accordion field: Added new field type
+* Tab field: Added logic to remember active tabs
+* WYSIWYG field: Fixed JS error in quicktags initialization
+* Core: Fixed issue preventing conditional logic for menu item fields
+* Core: Fixed issue preventing JS initialization for newly added menu items.
+* Core: Allow whitespace in input value (previously trimmed)
+* Core: Minor fixes and improvements
+* Language: Updated Italian translation - thanks to Davide Pantè
+* Language: Updated Brazilian Portuguese translation - thanks to Rafael Ribeiro
+* Language: Updated Dutch translation - thanks to Derk Oosterveld
+* Language: Updated Portuguese translation - thanks to Pedro Mendonça
+* Language: Updated Persian translation - thanks to Kamel Kimiaei
+* Language: Updated Swiss German translation - thanks to Raphael Hüni
+* Language: Updated Arabic translation - thanks to Karim Ramadan
+
+= 5.6.5 =
+* API: Added new 'kses' setting to the `acf_form()` function
+* Core: Added new 'Admin Tools' framework (includes design refresh)
+* Core: Minor fixes and improvements
+* Language: Update Ukrainian translation - thanks to Jurko Chervony
+* Language: Update Russian translation - thanks to Andriy Toniyevych
+* Language: Update Hebrew translation - thanks to Itamar Megged
 
 = 5.6.4 =
 * Google Map field: Fixed bug causing invalid url to JavaScript library

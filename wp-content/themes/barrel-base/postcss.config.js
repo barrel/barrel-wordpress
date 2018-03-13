@@ -9,10 +9,11 @@ const config = {
         'last 3 versions',
         'iOS >= 8',
         'Safari >= 8',
-        'ie 11',
+        'ie 11'
       ]
     }),
     require('precss'),
+    require('postcss-hexrgba'),
     require('postcss-automath')
   ]
 }

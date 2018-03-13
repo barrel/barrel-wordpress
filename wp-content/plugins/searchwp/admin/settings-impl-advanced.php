@@ -486,7 +486,7 @@ class SearchWP_Settings_Implementation_Advanced {
 					</div>
 				</div>
 			</div>
-			<div class="searchwp-advanced-settings-stats">
+			<div class="searchwp-advanced-settings-stats" style="visibility: hidden;">
 				<div class="postbox swp-meta-box metabox-holder searchwp-settings-stats">
 					<h3 class="hndle">
 						<span><?php esc_html_e( 'Index Statistics', 'searchwp' ); ?></span>
@@ -589,6 +589,9 @@ class SearchWP_Settings_Implementation_Advanced {
 		if ( ! $this->is_valid_action_request( 'index_reset' ) ) {
 			return;
 		}
+
+		// Reset the dirty index flag used by Vue
+		searchwp_set_setting( 'index_dirty', false );
 
 		do_action( 'searchwp_log', 'Resetting the index' );
 		SWP()->purge_index();

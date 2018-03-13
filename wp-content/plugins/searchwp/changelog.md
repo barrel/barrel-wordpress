@@ -1,3 +1,79 @@
+### 2.9.12
+- **[Improvement]** Index better optimized when limiting to Media mime type
+- **[Improvement]** AND logic is more restrictive when applicable
+- **[Improvement]** Better handling of license key when provided via constant or filter
+- **[Update]** Updates translation source
+- **[Fix]** Fixes inaccurate indexer progress in some cases
+- **[Fix]** Fixes handling of All Documents mime type Media limiter
+- **[Fix]** Fixes PHP Warning
+
+### 2.9.11
+- **[Improvement]** Additional index optimization when delta updates are applied via new filter `searchwp_aggressive_delta_update`
+- **[Improvement]** Debug output cleanup
+- **[Fix]** Implements omitted filter argument
+
+### 2.9.10
+- **[Fix]** Resolves an issue where AND logic wasn't strict enough in some cases
+- **[Fix]** Relocated `searchwp_indexer_pre` action trigger to restore expected behavior
+- **[Improvement]** Additional refinements to delta update queue processing to prevent excessive server resource usage in some cases
+- **[Improvement]** Adds edit icon to supplemental engine name to communicate it is editable
+- **[Change]** License key is no longer displayed in license key field if populated via constant or hook
+- **[New]** New filter `searchwp_engine_use_taxonomy_name` that controls displaying name or label of Taxonomies in enging settings
+- **[New]** New filter `searchwp_and_fields_{$post_type}` allowing for AND field customization per post type
+
+### 2.9.8
+- **[Fix]** Fixes an issue where post type Limit rules were too aggressive in some cases
+- **[Improvement]** Refined index delta update routine to reduce potentially unnecessary triggers
+
+### 2.9.7
+- **[Fix]** Resolves issue of inaccurate results count when parent attribution is in effect
+- **[Fix]** Fixed PHP Warning introduced in 2.9.5
+- **[Improvement]** Better processing of engine Rules
+
+### 2.9.6.1
+- **[Fix]** Fixed PHP Warning introduced in 2.9.5
+- **[Fix]** Fixed link in admin notice
+
+### 2.9.6
+- **[Fix]** Fixed an issue causing newly regiestered taxonomies to be unavailable in settings UI
+- **[Fix]** Messaging for index being out of date is now more accurate
+- **[Fix]** Paged searches are no longer redundantly logged
+- **[Improvement]** Improved default regex patterns by making them more strict
+- **[Update]** Updated PDF parsing libraries
+
+### 2.9.5
+- **[Fix]** Fixed an issue where 'Any Custom Field' did not work as expected in some cases
+- **[Fix]** Fixed an issue where taxonomies added since the last engine save may not be available
+- **[Improvement]** Actual weight multiplier is displayed in tooltip
+
+### 2.9.4
+- **[Fix]** Fixed a CSS bug causing multiselect overlapping when configuring multiple post types
+- **[Fix]** Fixed an issue preventing searches of hierarchical post types in the admin
+
+### 2.9.3
+- **[Fix]** Fixed a `searchwp_and_logic_only` regression introduced in 2.9
+- **[Improvement]** Better handling of initial default engine model
+
+### 2.9.2
+- **[Fix]** Fixed an issue with some custom `ORDER BY` statements
+
+### 2.9.1
+- **[Fix]** Fixed a potential issue with `sql_mode=only_full_group_by` support (added in 2.9)
+- **[Fix]** Avoid error when parsing PDFs without `mbstring`
+
+### 2.9
+- **[New]** Redesigned engine configuration interface!
+- **[New]** Index is now further optimized as per engine settings
+- **[New]** New filter `searchwp_weight_max` to customize a maximum weight
+- **[New]** New filter `searchwp_legacy_settings_ui` to use legacy settings UI
+- **[New]** New filter `searchwp_indexer_apply_engines_rules` to control whether engine rules are considered during indexing
+- **[New]** New filter `searchwp_indexer_additional_meta_exclusions` to control whether default additional Custom Fields are excluded from indexing
+- **[New]** New filter `searchwp_supports_label_{post_type}_{support}` to customize the label used for a post type native attribute
+- **[Improvement]** Additional debug statements output when enabled
+- **[Improvement]** Better formatting of HTML comment debug output
+- **[Fix]** Less aggressive handling of `pre_get_posts` during searching
+- **[Fix]** Fix an issue with `sql_mode=only_full_group_by` (default in MySQL 5.7)
+
 ### 2.8.17
 - **[Update]** Updated updater
 - **[Fix]** Fixed an issue with database table creation

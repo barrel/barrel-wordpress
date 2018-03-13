@@ -12,10 +12,13 @@ class WPSEO_Import_WooThemes_SEO extends WPSEO_Import_External {
 
 	/**
 	 * Class constructor
+	 *
+	 * @param boolean $replace Boolean replace switch.
 	 */
-	public function __construct() {
-		parent::__construct();
+	public function __construct( $replace = false ) {
+		parent::__construct( $replace );
 
+		$this->success = true;
 		$this->import_home();
 		$this->import_option( 'seo_woo_single_layout', 'post' );
 		$this->import_option( 'seo_woo_page_layout', 'page' );
@@ -92,7 +95,7 @@ class WPSEO_Import_WooThemes_SEO extends WPSEO_Import_External {
 	 */
 	private function import_custom_values( $option, $key ) {
 		// Import the custom homepage description.
-		if ( 'c' == get_option( $option ) ) {
+		if ( 'c' === get_option( $option ) ) {
 			$this->options[ $key ] = get_option( $option . '_custom' );
 		}
 		$this->perhaps_delete( $option );
@@ -130,12 +133,12 @@ class WPSEO_Import_WooThemes_SEO extends WPSEO_Import_External {
 		}
 
 		// If WooSEO is set to use the Woo meta descriptions, import those.
-		if ( 'b' == get_option( 'seo_woo_meta_single_desc' ) ) {
+		if ( 'b' === get_option( 'seo_woo_meta_single_desc' ) ) {
 			WPSEO_Meta::replace_meta( 'seo_description', WPSEO_Meta::$meta_prefix . 'metadesc', $this->replace );
 		}
 
 		// If WooSEO is set to use the Woo meta keywords, import those.
-		if ( 'b' == get_option( 'seo_woo_meta_single_key' ) ) {
+		if ( 'b' === get_option( 'seo_woo_meta_single_key' ) ) {
 			WPSEO_Meta::replace_meta( 'seo_keywords', WPSEO_Meta::$meta_prefix . 'metakeywords', $this->replace );
 		}
 

@@ -39,13 +39,29 @@
 	background:transparent;
 }
 
+#swp-header-nav .nav-tab.nav-tab-license {
+	padding-right: 0;
+}
+
+#swp-header-nav .nav-tab.nav-tab-license.nav-tab-active {
+	padding-right: 1em;
+}
+
+#swp-header-nav .nav-tab.nav-tab-license.searchwp-tab-license-inactive {
+	padding-right: 1em;
+}
+
 #swp-header-nav .nav-tab-active {
-	background:#f1f1f1;
-	position:relative;
+	background: #f1f1f1;
+	position: relative;
 }
 
 #swp-header-nav a.nav-tab-license {
-	float:right;
+	float: right;
+}
+
+#swp-header-nav a.nav-tab-license.searchwp-tab-license-inactive {
+	float: none;
 }
 
 #swp-header-nav .nav-tab-active:before,

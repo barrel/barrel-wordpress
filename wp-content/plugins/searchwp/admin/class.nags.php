@@ -134,7 +134,7 @@ class SearchWP_Nags {
 			&& apply_filters( 'searchwp_initial_license_nag', true ) // and let devs hide it anyway
 		) : ?>
 			<div id="setting-error-settings_updated" class="updated settings-error swp-license-nag">
-				<p><?php esc_html_e( 'In order to receive updates and support, you must have an active license.', 'searchwp' ); ?> <a href="<?php echo esc_url( add_query_arg( array( 'page' => 'searchwp', 'tab' => 'license' ), admin_url( 'options.php' ) ) ); ?>"><?php esc_html_e( 'Manage License', 'searchwp' ); ?></a> <a href="<?php echo esc_url( SEARCHWP_EDD_STORE_URL ); ?>"><?php esc_html_e( 'Purchase License', 'searchwp' ); ?></a> <a href="<?php echo esc_url( $nag['dismissal_link'] ); ?>"><?php esc_html_e( 'Dismiss', 'searchwp' ); ?></a></p>
+				<p><?php esc_html_e( 'In order to receive updates and support, you must have an active license.', 'searchwp' ); ?> <a href="<?php echo esc_url( add_query_arg( array( 'page' => 'searchwp', 'tab' => 'license' ), admin_url( 'options-general.php' ) ) ); ?>"><?php esc_html_e( 'Manage License', 'searchwp' ); ?></a> <a href="<?php echo esc_url( SEARCHWP_EDD_STORE_URL ); ?>"><?php esc_html_e( 'Purchase License', 'searchwp' ); ?></a> <a href="<?php echo esc_url( $nag['dismissal_link'] ); ?>"><?php esc_html_e( 'Dismiss', 'searchwp' ); ?></a></p>
 			</div>
 		<?php endif;
 	}

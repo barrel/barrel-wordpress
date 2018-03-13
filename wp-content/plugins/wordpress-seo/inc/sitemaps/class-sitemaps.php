@@ -22,9 +22,6 @@ class WPSEO_Sitemaps {
 	/** @var bool $transient Whether or not the XML sitemap was served from a transient or not. */
 	private $transient = false;
 
-	/** @var int $max_entries The maximum number of entries per sitemap page. */
-	private $max_entries;
-
 	/**
 	 * @var string $http_protocol HTTP protocol to use in headers.
 	 * @since 3.2
@@ -72,8 +69,6 @@ class WPSEO_Sitemaps {
 		add_action( 'wpseo_hit_sitemap_index', array( $this, 'hit_sitemap_index' ) );
 		add_action( 'wpseo_ping_search_engines', array( __CLASS__, 'ping_search_engines' ) );
 
-		$options           = WPSEO_Options::get_all();
-		$this->max_entries = $options['entries-per-page'];
 		$this->timezone    = new WPSEO_Sitemap_Timezone();
 		$this->router      = new WPSEO_Sitemaps_Router();
 		$this->renderer    = new WPSEO_Sitemaps_Renderer();
@@ -91,7 +86,7 @@ class WPSEO_Sitemaps {
 	 */
 	public function init_sitemaps_providers() {
 
-		$this->providers   = array(
+		$this->providers = array(
 			new WPSEO_Post_Type_Sitemap_Provider(),
 			new WPSEO_Taxonomy_Sitemap_Provider(),
 			new WPSEO_Author_Sitemap_Provider(),
@@ -118,7 +113,7 @@ class WPSEO_Sitemaps {
 		$request_uri = $_SERVER['REQUEST_URI'];
 		$extension   = substr( $request_uri, -4 );
 
-		if ( false !== stripos( $request_uri, 'sitemap' ) && in_array( $extension, array( '.xml', '.xsl' ) ) ) {
+		if ( false !== stripos( $request_uri, 'sitemap' ) && in_array( $extension, array( '.xml', '.xsl' ), true ) ) {
 			remove_all_actions( 'widgets_init' );
 		}
 	}
@@ -207,6 +202,13 @@ class WPSEO_Sitemaps {
 		$xsl = get_query_var( 'xsl' );
 
 		if ( ! empty( $xsl ) ) {
+			/*
+			 * This is a method to provide the XSL via the home_url.
+			 * Needed when the site_url and home_url are not the same.
+			 * Loading the XSL needs to come from the same domain, protocol and port as the XML.
+			 *
+			 * Whenever home_url and site_url are the same, the file can be loaded directly.
+			 */
 			$this->xsl_output( $xsl );
 			$this->sitemap_close();
 
@@ -312,12 +314,14 @@ class WPSEO_Sitemaps {
 			return;
 		}
 
+		$entries_per_page = $this->get_entries_per_page();
+
 		foreach ( $this->providers as $provider ) {
 			if ( ! $provider->handles_type( $type ) ) {
 				continue;
 			}
 
-			$links = $provider->get_sitemap_links( $type, $this->max_entries, $this->current_page );
+			$links = $provider->get_sitemap_links( $type, $entries_per_page, $this->current_page );
 
 			if ( empty( $links ) ) {
 				$this->bad_sitemap = true;
@@ -348,9 +352,10 @@ class WPSEO_Sitemaps {
 	public function build_root_map() {
 
 		$links = array();
+		$entries_per_page = $this->get_entries_per_page();
 
 		foreach ( $this->providers as $provider ) {
-			$links = array_merge( $links, $provider->get_index_links( $this->max_entries ) );
+			$links = array_merge( $links, $provider->get_index_links( $entries_per_page ) );
 		}
 
 		if ( empty( $links ) ) {
@@ -393,7 +398,7 @@ class WPSEO_Sitemaps {
 		header( 'Cache-Control: maxage=' . $expires );
 		header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', ( time() + $expires ) ) . ' GMT' );
 
-		require_once WPSEO_PATH . 'css/xml-sitemap-xsl.php';
+		readfile( WPSEO_PATH . 'css/main-sitemap.xsl' );
 	}
 
 	/**
@@ -447,26 +452,30 @@ class WPSEO_Sitemaps {
 
 		if ( is_null( $post_type_dates ) ) {
 
-			$sql = "
+			$post_type_dates = array();
+
+			// Consider using WPSEO_Post_Type::get_accessible_post_types() to filter out any `no-index` post-types.
+			$post_type_names = get_post_types( array( 'public' => true ) );
+
+			if ( ! empty( $post_type_names ) ) {
+				$sql = "
 				SELECT post_type, MAX(post_modified_gmt) AS date
 				FROM $wpdb->posts
 				WHERE post_status IN ('publish','inherit')
-					AND post_type IN ('" . implode( "','", get_post_types( array( 'public' => true ) ) ) . "')
+					AND post_type IN ('" . implode( "','", $post_type_names ) . "')
 				GROUP BY post_type
 				ORDER BY post_modified_gmt DESC
 			";
 
-			$post_type_dates = array();
-
-			foreach ( $wpdb->get_results( $sql ) as $obj ) {
-				$post_type_dates[ $obj->post_type ] = $obj->date;
+				foreach ( $wpdb->get_results( $sql ) as $obj ) {
+					$post_type_dates[ $obj->post_type ] = $obj->date;
+				}
 			}
 		}
 
 		$dates = array_intersect_key( $post_type_dates, array_flip( $post_types ) );
 
 		if ( count( $dates ) > 0 ) {
-
 			if ( $return_all ) {
 				return $dates;
 			}
@@ -519,69 +528,21 @@ class WPSEO_Sitemaps {
 	}
 
 	/**
-	 * Build the `<url>` tag for a given URL.
+	 * Get the maximum number of entries per XML sitemap.
 	 *
-	 * @deprecated 3.2
-	 * @see WPSEO_Sitemaps_Renderer::sitemap_url()
-	 *
-	 * @param array $url Array of parts that make up this entry.
-	 *
-	 * @return string
+	 * @return int The maximum number of entries.
 	 */
-	public function sitemap_url( $url ) {
-		_deprecated_function( __METHOD__, 'WPSEO 3.2', 'WPSEO_Sitemaps_Renderer::sitemap_url()' );
-		return $this->renderer->sitemap_url( $url );
-	}
-
-	/**
-	 * Set a custom stylesheet for this sitemap. Set to empty to just remove the default stylesheet.
-	 *
-	 * @deprecated 3.2
-	 * @see WPSEO_Sitemaps_Renderer::set_stylesheet()
-	 *
-	 * @param string $stylesheet Full xml-stylesheet declaration.
-	 */
-	public function set_stylesheet( $stylesheet ) {
-		_deprecated_function( __METHOD__, 'WPSEO 3.2', 'WPSEO_Sitemaps_Renderer::set_stylesheet()' );
-		$this->renderer->set_stylesheet( $stylesheet );
-	}
-
-	/**
-	 * Function to dynamically filter the change frequency.
-	 *
-	 * @deprecated 3.5 Change frequency data dropped from sitemaps.
-	 *
-	 * @param string $filter  Expands to wpseo_sitemap_$filter_change_freq, allowing for a change of the frequency for
-	 *                        numerous specific URLs.
-	 * @param string $default The default value for the frequency.
-	 * @param string $url     The URL of the current entry.
-	 *
-	 * @return mixed|void
-	 */
-	public static function filter_frequency( $filter, $default, $url ) {
-		_deprecated_function( __METHOD__, 'WPSEO 3.5' );
-
+	protected function get_entries_per_page() {
 		/**
-		 * Filter the specific change frequency
+		 * Filter the maximum number of entries per XML sitemap.
 		 *
-		 * @param string $default The default change frequency.
-		 * @param string $url     URL to filter frequency for.
+		 * After changing the output of the filter, make sure that you disable and enable the
+		 * sitemaps to make sure the value is picked up for the sitemap cache.
+		 *
+		 * @param int $entries The maximum number of entries per XML sitemap.
 		 */
-		$change_freq = apply_filters( 'wpseo_sitemap_' . $filter . '_change_freq', $default, $url );
+		$entries = (int) apply_filters( 'wpseo_sitemap_entries_per_page', 1000 );
 
-		if ( ! in_array( $change_freq, array(
-			'always',
-			'hourly',
-			'daily',
-			'weekly',
-			'monthly',
-			'yearly',
-			'never',
-		) )
-		) {
-			$change_freq = $default;
-		}
-
-		return $change_freq;
+		return $entries;
 	}
 }

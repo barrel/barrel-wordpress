@@ -9,3 +9,5 @@ node_modules
 /vendor/smalot
 /vendor/tecnickcom
 /vendor/wamania
+/assets/js/dist/settings.bndl.js
+/hooks.sh

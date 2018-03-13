@@ -159,6 +159,7 @@ class GFSettings {
 			delete_option( 'gform_enable_toolbar_menu' );
 			delete_option( 'gform_enable_logging' );
 			delete_option( 'gform_pending_installation' );
+			delete_option( 'gform_version_info' );
 
 			// Removing gravity forms upload folder
 			GFCommon::delete_directory( RGFormsModel::get_upload_root() );
@@ -252,8 +253,6 @@ class GFSettings {
 		if ( ! GFCommon::ensure_wp_version() ) {
 			return;
 		}
-
-		require_once( 'currency.php' );
 
 		if ( isset( $_POST['submit'] ) ) {
 			check_admin_referer( 'gforms_update_settings', 'gforms_update_settings' );
@@ -502,7 +501,7 @@ class GFSettings {
 			<p style="text-align: left;">
 				<?php esc_html_e( 'Gravity Forms integrates with reCAPTCHA, a free CAPTCHA service that helps to digitize books while protecting your forms from spam bots. ', 'gravityforms' ); ?>
 				<?php printf( esc_html__( '%sPlease note%s, these settings are required only if you decide to use the reCAPTCHA field.', 'gravityforms' ), '<strong>', '</strong>' ); ?>
-				<a href="http://www.google.com/recaptcha/" target="_blank"><?php esc_html_e( 'Read more about reCAPTCHA', 'gravityforms' ); ?></a>.
+				<a href="http://www.google.com/recaptcha/" target="_blank"><?php esc_html_e( 'Read more about reCAPTCHA.', 'gravityforms' ); ?></a>
 			</p>
 
 			<table class="form-table">

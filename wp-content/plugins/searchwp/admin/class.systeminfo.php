@@ -194,6 +194,15 @@ if ( isset( $this->searchwp->settings['stats'] ) ) {
 	echo "\n";
 }
 
+echo 'Index up to date: ';
+$index_dirty = searchwp_get_setting( 'index_dirty' );
+if ( $index_dirty ) {
+	echo 'No';
+} else {
+	echo 'Yes';
+}
+echo "\n";
+
 $indexer = new SearchWPIndexer();
 $row_count = $indexer->get_main_table_row_count();
 echo 'Main table row count: ';

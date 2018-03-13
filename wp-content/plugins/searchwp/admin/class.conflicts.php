@@ -41,8 +41,10 @@ class SearchWP_Conflicts {
 		$potential_conflicts = array( 'new WP_Query', 'query_posts' );
 		if ( method_exists( $wp_filesystem, 'get_contents_array' ) ) {
 			$search_template_content = ! empty( $this->search_template ) ? $wp_filesystem->get_contents_array( $this->search_template ) : '';
+
 			if ( ! empty( $search_template_content ) ) {
-				while ( list( $key, $line ) = each( $search_template_content ) ) {
+
+				foreach ( $search_template_content as $key => $line ) {
 					$line = trim( $line );
 					foreach ( $potential_conflicts as $potential_conflict ) {
 						if ( false !== strpos( $line, $potential_conflict ) ) {
@@ -53,7 +55,9 @@ class SearchWP_Conflicts {
 						}
 					}
 				}
+
 			}
+
 		}
 	}
 

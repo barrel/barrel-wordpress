@@ -323,32 +323,38 @@ function acf_the_field_label( $field ) {
 *  @return	n/a
 */
 
-function acf_render_fields( $post_id = 0, $fields, $el = 'div', $instruction = 'label' ) {
+function acf_render_fields( $fields, $post_id = 0, $el = 'div', $instruction = 'label' ) {
+	
+	// parameter order changed in ACF 5.6.9
+	if( is_array($post_id) ) {
+		$args = func_get_args();
+		$fields = $args[1];
+		$post_id = $args[0];
+	}
+	
+	// filter
+	$fields = apply_filters('acf/pre_render_fields', $fields, $post_id);
 	
 	// bail early if no fields
-	if( empty($fields) ) return false;
+	if( empty($fields) ) return;
 	
-		
-	// remove corrupt fields
-	$fields = array_filter($fields);
-	
-	
-	// loop through fields
+	// loop
 	foreach( $fields as $field ) {
 		
+		// bail ealry if no field
+		if( !$field ) continue;
+	
 		// load value
 		if( $field['value'] === null ) {
-			
 			$field['value'] = acf_get_value( $post_id, $field );
-			
 		} 
-		
 		
 		// render
 		acf_render_field_wrap( $field, $el, $instruction );
-		
 	}
 	
+	// action
+	do_action( 'acf/render_fields', $fields, $post_id );
 }
 
 
@@ -510,14 +516,17 @@ function acf_render_field_wrap( $field, $el = 'div', $instruction = 'label' ) {
 	?>
 <<?php echo $el; ?> <?php acf_esc_attr_e($wrapper); ?>>
 	<?php if( $show_label ): ?>
-	<<?php echo $el2; ?> class="acf-label">
-		<?php acf_the_field_wrap_label( $field ); ?>
-		<?php if( $instruction == 'label' ) acf_the_field_wrap_instructions( $field ); ?>
-	</<?php echo $el2; ?>>
+	<<?php echo $el2; ?> class="acf-label"><?php
+		
+		acf_render_field_label( $field );
+		
+		if( $instruction == 'label' ) acf_render_field_instructions( $field );
+	
+	?></<?php echo $el2; ?>>
 	<?php endif; ?>
 	<<?php echo $el2; ?> class="acf-input">
 		<?php acf_render_field( $field ); ?>
-		<?php if( $instruction == 'field' ) acf_the_field_wrap_instructions( $field ); ?>
+		<?php if( $instruction == 'field' ) acf_render_field_instructions( $field ); ?>
 		<?php if( !empty($field['conditional_logic']) ): ?>
 		<script type="text/javascript">
 			if( typeof acf !== 'undefined' ) { 
@@ -533,7 +542,7 @@ function acf_render_field_wrap( $field, $el = 'div', $instruction = 'label' ) {
 
 
 /**
-*  acf_render_field_wrap_label
+*  acf_render_field_label
 *
 *  This function will maybe output the field's label
 *
@@ -544,7 +553,7 @@ function acf_render_field_wrap( $field, $el = 'div', $instruction = 'label' ) {
 *  @return	n/a
 */
 
-function acf_the_field_wrap_label( $field ) {
+function acf_render_field_label( $field ) {
 	
 	// vars
 	$label = acf_get_field_label( $field );
@@ -552,16 +561,20 @@ function acf_the_field_wrap_label( $field ) {
 	
 	// check
 	if( $label ) {
-		
 		echo '<label' . ($field['id'] ? ' for="' . esc_attr($field['id']) . '"' : '' ) . '>' . acf_esc_html($label) . '</label>';
-		
 	}
 	
 }
 
 
+/* depreciated since 5.6.5 */
+function acf_render_field_wrap_label( $field ) {
+	acf_render_field_label( $field );
+}
+
+
 /**
-*  acf_render_field_wrap_description
+*  acf_render_field_instructions
 *
 *  This function will maybe output the field's instructions
 *
@@ -572,7 +585,7 @@ function acf_the_field_wrap_label( $field ) {
 *  @return	n/a
 */
 
-function acf_the_field_wrap_instructions( $field ) {
+function acf_render_field_instructions( $field ) {
 	
 	// vars
 	$instructions = $field['instructions'];
@@ -580,11 +593,15 @@ function acf_the_field_wrap_instructions( $field ) {
 	
 	// check
 	if( $instructions ) {
-		
 		echo '<p class="description">' . acf_esc_html($instructions) . '</p>';
-		
 	}
 	
+}
+
+
+/* depreciated since 5.6.5 */
+function acf_render_field_wrap_description( $field ) {
+	acf_render_field_instructions( $field );
 }
 
 
@@ -700,6 +717,7 @@ function acf_get_fields( $parent = false ) {
 	
 	
 	// filter
+	$fields = apply_filters('acf/load_fields', $fields, $parent);
 	$fields = apply_filters('acf/get_fields', $fields, $parent);
 	
 	
@@ -1086,7 +1104,7 @@ function acf_maybe_get_field( $selector, $post_id = false, $strict = true ) {
 	
 	
 	// get reference
-	$field_key = acf_get_field_reference( $selector, $post_id );
+	$field_key = acf_get_reference( $selector, $post_id );
 	
 	
 	// update selector
@@ -2009,7 +2027,5 @@ function acf_prefix_fields( &$fields, $prefix = 'acf' ) {
 	return $fields;
 	
 }
-
-
 
 ?>

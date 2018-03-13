@@ -94,7 +94,7 @@ class Yoast_Notification_Center {
 		$user_id       = ( ! is_null( $user_id ) ? $user_id : get_current_user_id() );
 		$dismissal_key = $notification->get_dismissal_key();
 
-		$current_value = get_user_meta( $user_id, $dismissal_key, $single = true );
+		$current_value = get_user_meta( $user_id, $dismissal_key, true );
 
 		return ! empty( $current_value );
 	}
@@ -169,7 +169,7 @@ class Yoast_Notification_Center {
 		}
 
 		// Remove notification dismissal for all users.
-		$deleted = delete_metadata( 'user', $user_id = 0, $dismissal_key, $meta_value = '', $delete_all = true );
+		$deleted = delete_metadata( 'user', 0, $dismissal_key, '', true );
 
 		return $deleted;
 	}
@@ -239,7 +239,7 @@ class Yoast_Notification_Center {
 		}
 
 		$sorted_notifications = $this->get_sorted_notifications();
-		$notifications = array_filter( $sorted_notifications, array( $this, 'is_notification_persistent' ) );
+		$notifications        = array_filter( $sorted_notifications, array( $this, 'is_notification_persistent' ) );
 
 		if ( empty( $notifications ) ) {
 			return;
@@ -253,7 +253,7 @@ class Yoast_Notification_Center {
 				$notification_json[] = $notification->render();
 			}
 
-			echo json_encode( $notification_json, ( JSON_HEX_QUOT | JSON_HEX_TAG ) );
+			echo json_encode( $notification_json );
 
 			return;
 		}
@@ -594,17 +594,5 @@ class Yoast_Notification_Center {
 	 */
 	private function is_notification_persistent( Yoast_Notification $notification ) {
 		return ! $notification->is_persistent();
-	}
-
-	/**
-	 * Write the notifications to a cookie (hooked on shutdown)
-	 *
-	 * Function renamed to 'update_storage'.
-	 *
-	 * @deprecated 3.2 remove in 3.5
-	 * @codeCoverageIgnore
-	 */
-	public function set_transient() {
-		_deprecated_function( __METHOD__, 'WPSEO 3.2' );
 	}
 }

@@ -97,7 +97,7 @@ class ACF_Walker_Nav_Menu_Edit extends Walker_Nav_Menu_Edit {
 		// render
 		if( !empty($field_groups) ) {
 			
-			echo '<div class="field-acf description description-wide">';
+			echo '<div class="acf-menu-item-fields acf-fields -clear">';
 			
 			// loop
 			foreach( $field_groups as $field_group ) {
@@ -115,11 +115,21 @@ class ACF_Walker_Nav_Menu_Edit extends Walker_Nav_Menu_Edit {
 				
 				
 				// render
-				acf_render_fields( $post_id, $fields, 'div', $field_group['instruction_placement'] );
+				acf_render_fields( $fields, $post_id, 'div', $field_group['instruction_placement'] );
 				
 			}
 			
 			echo '</div>';
+			
+			
+			// Trigger append for newly created menu item (via AJAX)
+			if( acf_is_ajax('add-menu-item') ): ?>
+			<script type="text/javascript">
+			(function($) {
+				acf.do_action('append', jQuery('#menu-item-settings-<?php echo $post_id; ?>') );
+			})(jQuery);
+			</script>
+			<?php endif;
 			
 		}
 		

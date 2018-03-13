@@ -218,7 +218,7 @@ class WPSEO_Bulk_List_Table extends WP_List_Table {
 
 			<?php if ( 'top' === $which ) { ?>
 			<form id="posts-filter" action="" method="get">
-				<input type="hidden" name="nonce" value="<?php echo $this->nonce; ?>"/>
+				<input type="hidden" name="nonce" value="<?php echo esc_attr( $this->nonce ); ?>"/>
 				<input type="hidden" name="page" value="wpseo_tools"/>
 				<input type="hidden" name="tool" value="bulk-editor"/>
 				<input type="hidden" name="type" value="<?php echo esc_attr( $this->page_type ); ?>"/>
@@ -285,10 +285,9 @@ class WPSEO_Bulk_List_Table extends WP_List_Table {
 
 		$status_links = array();
 
-		$states          = get_post_stati( array( 'show_in_admin_all_list' => true ) );
-		$states['trash'] = 'trash';
-		$states          = esc_sql( $states );
-		$all_states      = "'" . implode( "', '", $states ) . "'";
+		$states     = get_post_stati( array( 'show_in_admin_all_list' => true ) );
+		$states     = esc_sql( $states );
+		$all_states = "'" . implode( "', '", $states ) . "'";
 
 		$subquery = $this->get_base_subquery();
 
@@ -405,21 +404,31 @@ class WPSEO_Bulk_List_Table extends WP_List_Table {
 				$post_type_filter = filter_input( INPUT_GET, 'post_type_filter' );
 				$selected         = ( ! empty( $post_type_filter ) ) ? sanitize_text_field( $post_type_filter ) : '-1';
 
-				$options = '<option value="-1">' . __( 'Show All Post Types', 'wordpress-seo' ) . '</option>';
+				$options = '<option value="-1">' . esc_html__( 'Show All Post Types', 'wordpress-seo' ) . '</option>';
 
 				if ( is_array( $post_types ) && $post_types !== array() ) {
 					foreach ( $post_types as $post_type ) {
-						$obj = get_post_type_object( $post_type->post_type );
-						$options .= sprintf( '<option value="%2$s" %3$s>%1$s</option>', $obj->labels->name, $post_type->post_type, selected( $selected, $post_type->post_type, false ) );
+						$obj      = get_post_type_object( $post_type->post_type );
+						$options .= sprintf(
+							'<option value="%2$s" %3$s>%1$s</option>',
+							esc_html( $obj->labels->name ),
+							esc_attr( $post_type->post_type ),
+							selected( $selected, $post_type->post_type, false )
+						);
 					}
 				}
 
 				printf(
 					'<label for="%1$s" class="screen-reader-text">%2$s</label>',
-					'post-type-filter-' . $instance_type,
-					__( 'Filter by post type', 'wordpress-seo' )
+					esc_attr( 'post-type-filter-' . $instance_type ),
+					esc_html__( 'Filter by post type', 'wordpress-seo' )
 				);
-				echo sprintf( '<select name="post_type_filter" id="post-type-filter-%2$s">%1$s</select>', $options, $instance_type );
+				printf(
+					'<select name="post_type_filter" id="%2$s">%1$s</select>',
+					$options,
+					esc_attr( 'post-type-filter-' . $instance_type )
+				);
+
 				submit_button( __( 'Filter', 'wordpress-seo' ), 'button', false, false, array( 'id' => 'post-query-submit' ) );
 				echo '</div>';
 			}
@@ -451,7 +460,7 @@ class WPSEO_Bulk_List_Table extends WP_List_Table {
 		$current_order  = $this->current_order;
 
 		// If current type doesn't compare with objects page_type, than we have to unset some vars in the requested url (which will be use for internal table urls).
-		if ( $_GET['type'] != $this->page_type ) {
+		if ( $_GET['type'] !== $this->page_type ) {
 			$request_url = remove_query_arg( 'paged', $request_url ); // Page will be set with value 1 below.
 			$request_url = remove_query_arg( 'post_type_filter', $request_url );
 			$request_url = remove_query_arg( 'post_status', $request_url );
@@ -647,7 +656,7 @@ class WPSEO_Bulk_List_Table extends WP_List_Table {
 			'post_date',
 		);
 
-		if ( in_array( $orderby, $valid_column_names ) ) {
+		if ( in_array( $orderby, $valid_column_names, true ) ) {
 			return $orderby;
 		}
 
@@ -662,7 +671,7 @@ class WPSEO_Bulk_List_Table extends WP_List_Table {
 	 * @return string $order SQL order string (ASC, DESC).
 	 */
 	protected function sanitize_order( $order ) {
-		if ( in_array( strtoupper( $order ), array( 'ASC', 'DESC' ) ) ) {
+		if ( in_array( strtoupper( $order ), array( 'ASC', 'DESC' ), true ) ) {
 			return $order;
 		}
 
@@ -697,8 +706,12 @@ class WPSEO_Bulk_List_Table extends WP_List_Table {
 
 		if ( ! empty( $_GET['post_status'] ) ) {
 			$requested_state = sanitize_text_field( $_GET['post_status'] );
-			if ( in_array( $requested_state, $states ) ) {
+			if ( in_array( $requested_state, $states, true ) ) {
 				$states = array( $requested_state );
+			}
+
+			if ( $requested_state !== 'trash' ) {
+				unset( $states['trash'] );
 			}
 		}
 
@@ -707,7 +720,6 @@ class WPSEO_Bulk_List_Table extends WP_List_Table {
 
 		return $all_states;
 	}
-
 
 	/**
 	 * Based on $this->items and the defined columns, the table rows will be displayed.
@@ -722,7 +734,7 @@ class WPSEO_Bulk_List_Table extends WP_List_Table {
 
 			foreach ( $records as $rec ) {
 
-				echo '<tr id="record_', $rec->ID, '">';
+				echo '<tr id="', esc_attr( 'record_' . $rec->ID ), '">';
 
 				foreach ( $columns as $column_name => $column_display_name ) {
 
@@ -740,7 +752,7 @@ class WPSEO_Bulk_List_Table extends WP_List_Table {
 					}
 
 					if ( ! empty( $column_value ) ) {
-						echo sprintf( '<td %2$s>%1$s</td>', $column_value, $attributes );
+						printf( '<td %2$s>%1$s</td>', $column_value, $attributes );
 					}
 				}
 
@@ -762,9 +774,9 @@ class WPSEO_Bulk_List_Table extends WP_List_Table {
 	protected function column_attributes( $column_name, $hidden, $classes, $column_display_name ) {
 
 		$attributes = '';
-		$class = array( $column_name, "column-$column_name$classes" );
+		$class      = array( $column_name, "column-$column_name$classes" );
 
-		if ( in_array( $column_name, $hidden ) ) {
+		if ( in_array( $column_name, $hidden, true ) ) {
 			$class[] = 'hidden';
 		}
 
@@ -806,7 +818,7 @@ class WPSEO_Bulk_List_Table extends WP_List_Table {
 		}
 
 		if ( $post_type_object->public ) {
-			if ( in_array( $rec->post_status, array( 'pending', 'draft', 'future' ) ) ) {
+			if ( in_array( $rec->post_status, array( 'pending', 'draft', 'future' ), true ) ) {
 				if ( $can_edit_post ) {
 					$actions['view'] = sprintf(
 						'<a href="%s" aria-label="%s">%s</a>',
@@ -846,7 +858,7 @@ class WPSEO_Bulk_List_Table extends WP_List_Table {
 
 		static $date_format;
 
-		if ( $date_format == null ) {
+		if ( ! isset( $date_format ) ) {
 			$date_format = get_option( 'date_format' );
 		}
 
