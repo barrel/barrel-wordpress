@@ -6,6 +6,11 @@
 2.  Run `npm i` in the theme directory.
 3.  Run `npm start` to start ongoing development task, or `npm run build` to compile assets a single time.
 
+### Setup
+The theme makes use of the [barrel-cli](https://github.com/barrel/barrel-cli), which wraps much of the webpack and postcss functionality along with tooling for our modular development workflow.
+
+If you have an issue with setup, please open an [issue](https://github.com/barrel/barrel-cli/issues) on GitHub.
+
 ### WordPress Plugins
 *The following plugins are always included:*
 
@@ -22,3 +27,7 @@
 These plugins are only used on Pantheon.
 
 1. [Native PHP Sessions for WordPress](https://wordpress.org/plugins/wp-native-php-sessions/) - only used with authenticated user traffic
+
+### Notes
+
+jQuery is deregistered by default in the `enqueue_scripts_and_styles()` method in `lib/class-theme-init.php`. If a plugin requires jQuery as a dependency, you should remove this code.
