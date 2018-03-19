@@ -1,0 +1,51 @@
+.image {
+  opacity: 0;
+  position: relative;
+  transition: opacity $duration--normal;
+}
+.image--absolute {
+  position: absolute;
+}
+.image--cover,
+.image--contain {
+  position: relative;
+  .image__img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+  }
+}
+
+.image--cover {
+  background-size: cover;
+
+  .image__img {
+    object-fit: cover;
+  }
+}
+
+.image--contain {
+  background-size: contain;
+
+  .image__img {
+    object-fit: contain;
+  }
+}
+
+.image--top {
+  .image__img {
+    object-position: 50% 5%;
+  }
+}
+
+.no-object-fit {
+  .image__img {
+    display: none;
+  }
+}
+
+.image--loaded {
+  opacity: 1;
+}

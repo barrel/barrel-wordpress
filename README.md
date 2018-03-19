@@ -33,26 +33,47 @@ Follow steps to setup the new WordPress site by visiting the admin for the first
 - The initial user’s email should be `admin@barrelny.com`.
 - The password should be random-generated.
 - Immediately commit these details to the shared 1Password team vault.
+- Protect multidev, dev, test, and live (if pre-launch) environments with basic authentication to prevent bots and crawlers from indexing the site using the following credentials: username ("barrel") and password ("barrelblocker")
 
 ![alt](http://i.imgur.com/4EOcqYN.png, '')
 
 If you would like to keep a separate set of configuration for local development, you can use a file called `wp-config-local.php`, which is already in our `.gitignore` file.
 
-### 4. Developer: Repo Synchronization
+### 4. Developer: Repository Setup & Synchronization
 
-While the gitlab repo has already been created, it needs to be synchronized with Pantheon's codebase.
+Pantheon's initial codebase needs to be synchronized with GitLab, which is used as the truth respository. Eventually the below steps will be automated, but until that time, please follow the directions from our [documentation](https://docs.google.com/document/d/19W57tD2zPWJstSPmmVvtQuW5JXZE0zhpAZIcHgt5Xi8/edit#heading=h.szengpb25p06) for Development for Pantheon using [Lando](https://docs.devwithlando.io/installation/installing.html).
 
-- Clone the site from Pantheon.
-- Follow steps in our local development setup doc.
+This briefly consists of the following steps:
+- Assumes having cloned from Pantheon using the `-o pantheon` parameter.
+- Add the GitLab remote as "origin" after cloning from Pantheon.
+- Push master to GitLab (must have master permissions of the repo).
 
+#### Continuous Integration
 
-Ongoing Updates and Deployments
+This git image employs GitLab's Continuous Integration feature to utilize Continuous Integration, Continuous Deployment, and Continuous Delivery methods that support the build, test, and deployment processes.
 
-Continuous Integration Notes
+##### GitLab CI/CD Variables
 
-This image employs GitLab's CI Tooling.
+The following environment variables must be set in GitLab in order for CI to work:
 
-- The following environment variables must be set in GitLab in order for them to work:
--- $THEME_NAME
+- `$TERMINUS_TOKEN`
+- `$THEME_NAME`
+- `$PANTHEON_SITE_ID`
+- `$SSH_PRIVATE_KEY`
 
-The scripts assumes only theme development
+![GitLab CI Variables](https://i.imgur.com/km3HW1n.png =250x, '')
+
+##### CI Build Stages
+The below stages are WIP and may be changed:
+
+- build
+- test
+- multidev
+- qa_testing
+- production
+
+##### CI Build Processes
+- Any `feature/branch-name` pushed up to gitlab will check for an existing multidev on Pantheon. 
+- The target branch name takes the existing branch, removes the "feature/" prefix, and truncates the remaining characters to under 11 characters for [Pantheon](https://pantheon.io/docs/multidev/#getting-started) compatibility. 
+- If the multidev exists, a git force-push will also update the latest code from the tip of the branch with a force-push. This will still require an extra "compiled" commit until it can be automated. 
+- A similar process exists after the merge request is closed, but the code merged into `develop` gets deployed via force-push to pantheon/develop.

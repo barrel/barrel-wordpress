@@ -2,7 +2,7 @@ stages:
   - build
   - test
   - multidev
-  - stage
+  - qa_testing
   - production
 php_syntax_check:
   before_script:
@@ -34,26 +34,36 @@ build:
 multidev_create:
   only: 
     - /^feature\/.*$/
-  image: barrelny/pantheon-ci:0.0.5
+  image: barrelny/pantheon-ci:0.0.7
   stage: multidev
   before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - terminus auth:login --machine-token=$TERMINUS_TOKEN
   script:
     - PREFIX=feature/
     - PANTHEON_MULTIDEV=${CI_COMMIT_REF_NAME:${#PREFIX}:11}
     - echo "Checking if ENV $PANTHEON_MULTIDEV exists..."
-    - MATCH=$(terminus multidev:list --format=list --fields=id barrel-base-theme | grep ci)
+    - MATCH=$(terminus multidev:list --format=list --fields=id $PANTHEON_SITE_ID | grep $PANTHEON_MULTIDEV)
     - if [ "$MATCH" != "$PANTHEON_MULTIDEV" ]; then echo "Creating multidev, $PANTHEON_MULTIDEV"; terminus multidev:create $PANTHEON_SITE_ID $PANTHEON_MULTIDEV; fi
+    - echo "Pushing to $CI_COMMIT_REF_NAME on Pantheon..."
+    - git remote add pantheon $REMOTE
+    - git push -f pantheon HEAD:$PANTHEON_MULTIDEV
 multidev_deploy:
   only: 
     - develop
-  image: barrelny/pantheon-ci:0.0.5
-  stage: production
+  image: barrelny/pantheon-ci:0.0.7
+  stage: qa_testing
   before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - terminus auth:login --machine-token=$TERMINUS_TOKEN
   script:
-    - terminus connection:set barrel-base-theme.dev git
-    - REMOTE=$(terminus connection:info --format=list --fields=git_url barrel-base-theme.dev)
-    - HASH=$(git rev-parse HEAD)
+    - terminus connection:set $PANTHEON_SITE_ID.dev git
+    - REMOTE=$(terminus connection:info --format=list --fields=git_url $PANTHEON_SITE_ID.dev)
+    - BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    - echo "Pushing to $CI_COMMIT_REF_NAME on Pantheon..."
     - git remote add pantheon $REMOTE
-    - git push -f pantheon $HASH
+    - git push -f pantheon HEAD:$CI_COMMIT_REF_NAME
