@@ -1,11 +1,12 @@
 {
   "name": "barrel-base",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "scripts": {
     "start": "brrl -w",
     "build": "brrl -b -e production"
   },
   "devDependencies": {
-    "@barrelny/cli": "0.0.18"
+    "dom-event": "^1.0.0",
+    "@barrelny/cli": "0.0.19"
   }
 }

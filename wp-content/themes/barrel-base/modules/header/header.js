@@ -5,6 +5,7 @@
  */
 function Header (el) {
   this.el = el
+  console.warn('Initialized `Header` module.')
 }
 
-module.exports = Header
+export default Header

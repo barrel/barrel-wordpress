@@ -5,6 +5,7 @@
  */
 function Hero (el) {
   this.el = el
+  console.warn('Initialized `Hero` module.')
 }
 
 export default Hero
