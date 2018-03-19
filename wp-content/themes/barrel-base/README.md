@@ -29,6 +29,7 @@ These plugins are only used on Pantheon.
 1. [Native PHP Sessions for WordPress](https://wordpress.org/plugins/wp-native-php-sessions/) - only used with authenticated user traffic
 
 #### Plugin and Library Approvals
+*Move to Contributing?*
 In advanced of adding any new plugin or software library specifically for a requirement of the project, please open an issue and assign it to the lead or overseeing developer for approval. 
 
 Most **WordPress plugins** will need to be added as a support or hotfix sub-branch of the upstream code to reduce review overhead. DO NOT add plugins into a feature branch or in develop directly.
