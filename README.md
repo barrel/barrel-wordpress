@@ -64,8 +64,8 @@ The following environment variables must be set in GitLab in order for CI to wor
 ![GitLab CI Variables](https://i.imgur.com/km3HW1n.png =250x, '')
 
 `$TERMINUS_TOKEN` and `$SSH_PRIVATE_KEY` can both be generated with the same process you may have followed when setting up your Pantheon account. If you your `$TERMINUS_TOKEN` value stored somewhere, you can re-use it. Otherwise, you'll need to generate a new `$TERMINUS_TOKEN`. 
-![Generating an SSH Key](https://pantheon.io/docs/ssh-keys/)
-![Creating a New Terminus Token](https://pantheon.io/docs/machine-tokens/)
+[Generating an SSH Key](https://pantheon.io/docs/ssh-keys/)
+[Creating a New Terminus Token](https://pantheon.io/docs/machine-tokens/)
 
 `$THEME_NAME` is name of your theme's directory in `wp-content/themes`
 `$PANTHEON_SITE_ID` is the name used for the Pantheon site/repository 
