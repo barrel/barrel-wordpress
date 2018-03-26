@@ -41,12 +41,13 @@ If you would like to keep a separate set of configuration for local development,
 
 ### 4. Developer: Repository Setup & Synchronization
 
-Pantheon's initial codebase needs to be synchronized with GitLab, which is used as the truth respository. Eventually the below steps will be automated, but until that time, please follow the directions from our [documentation](https://docs.google.com/document/d/19W57tD2zPWJstSPmmVvtQuW5JXZE0zhpAZIcHgt5Xi8/edit#heading=h.szengpb25p06) for Development for Pantheon using [Lando](https://docs.devwithlando.io/installation/installing.html).
+Pantheon's initial codebase needs to be synchronized with GitLab, which is used as the truth respository. *Eventually the below steps will be automated*, but until that time, please follow the directions from our [documentation](https://docs.google.com/document/d/19W57tD2zPWJstSPmmVvtQuW5JXZE0zhpAZIcHgt5Xi8/edit#heading=h.szengpb25p06) for Development for Pantheon using [Lando](https://docs.devwithlando.io/installation/installing.html).
 
 This briefly consists of the following steps:
-- Assumes having cloned from Pantheon using the `-o pantheon` parameter.
+
+- Clone from Pantheon using the `-o pantheon` parameter.
 - Add the GitLab remote as "origin" after cloning from Pantheon.
-- Push master to GitLab (must have master permissions of the repo).
+- Push master to GitLab (must have master permissions of the project repo).
 
 #### Continuous Integration
 
@@ -56,31 +57,29 @@ This git image employs GitLab's Continuous Integration feature to utilize Contin
 
 The following environment variables must be set in GitLab in order for CI to work:
 
-- `$TERMINUS_TOKEN`
-- `$THEME_NAME`
-- `$PANTHEON_SITE_ID`
-- `$SSH_PRIVATE_KEY`
+- `$SSH_PRIVATE_KEY` - like most ssh-based authentication methods, a public and private ssh key pair must be connected with Pantheon. The public keys belongs on Pantheon while the private key is used in the docker image that runs the CI server.
 
-![GitLab CI Variables](https://i.imgur.com/km3HW1n.png =250x, '')
+   See: [Generating an SSH Key](https://pantheon.io/docs/ssh-keys/).
+- `$TERMINUS_TOKEN` - if this value has already been created and authenticated with Pantheon, then you can re-use it. Otherwise, you'll need to generate a new one. 
 
-`$TERMINUS_TOKEN` and `$SSH_PRIVATE_KEY` can both be generated with the same process you may have followed when setting up your Pantheon account. If you your `$TERMINUS_TOKEN` value stored somewhere, you can re-use it. Otherwise, you'll need to generate a new `$TERMINUS_TOKEN`. 
-[Generating an SSH Key](https://pantheon.io/docs/ssh-keys/)
-[Creating a New Terminus Token](https://pantheon.io/docs/machine-tokens/)
+   See: [Creating a New Terminus Token](https://pantheon.io/docs/machine-tokens/).
+- `$THEME_NAME` - the name of your theme's directory in `wp-content/themes/`
+- `$PANTHEON_SITE_ID` - the handleized name used for the Pantheon site and gitlab repository—these should be the same; i.e. `barrel-base-theme`
 
-`$THEME_NAME` is name of your theme's directory in `wp-content/themes`
-`$PANTHEON_SITE_ID` is the name used for the Pantheon site/repository 
+![GitLab CI Variables](https://i.imgur.com/km3HW1n.png =1/10x, '')
+
+`$TERMINUS_TOKEN` and `$SSH_PRIVATE_KEY` can both be generated with the same process you may have followed when setting up your Pantheon account.
 
 ##### CI Build Stages
-The below stages are WIP and may be changed:
+Build stages are the progression of grouped pipeline tasks. Jobs of the same stage run concurrently while jobs of subsequent stages proceed sequentially. The below [WIP] stages may be changed at any time, but the order is defined as follows:
 
 - build
 - test
-- multidev
-- qa_testing
+- acceptance
 - production
 
-##### CI Build Processes
+##### CI Build Process Notes
 - Any `feature/branch-name` pushed up to gitlab will check for an existing multidev on Pantheon. 
-- The target branch name takes the existing branch, removes the "feature/" prefix, and truncates the remaining characters to under 11 characters for [Pantheon](https://pantheon.io/docs/multidev/#getting-started) compatibility. 
+- When the `multidev_feature` job is activated, the target branch name takes the existing branch, removes the "feature/" prefix, and truncates the remaining characters to under 11 characters for [Pantheon](https://pantheon.io/docs/multidev/#getting-started) compatibility. 
 - If the multidev exists, a git force-push will also update the latest code from the tip of the branch with a force-push. This will still require an extra "compiled" commit until it can be automated. 
-- A similar process exists after the merge request is closed, but the code merged into `develop` gets deployed via force-push to pantheon/develop.
+- A similar process exists after the merge request is accepted. The code is merged into `develop`, gets deployed via force-push to pantheon/develop, and a trailing/ephemeral "build" commit is pushed to Pantheon only.
