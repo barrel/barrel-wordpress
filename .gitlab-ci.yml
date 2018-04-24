@@ -1,69 +1,44 @@
 stages:
   - build
   - test
-  - multidev
-  - qa_testing
+  - acceptance
   - production
-php_syntax_check:
-  before_script:
-    - apt-get update && apt-get -y install git
-    - php -v
-  image: php:7
+image: barrelny/pantheon-ci:0.0.9
+build_theme:
+  only: 
+    - ^(feature\/.*)|(develop)$
+  stage: build
+  script:
+    - cd ./wp-content/themes/$THEME_NAME && npm i
+    - npm run build
+test_php_syntax:
   stage: test
   script: 
-    - php -v
     - git diff --diff-filter=ACMR --name-only origin/master -- '*.php' | xargs -L1 php -d short_open_tag=Off -l
-js_lint:
+test_js_lint:
+  stage: test
   before_script:
     - npm config set loglevel warn && npm set progress=false
     - npm install -g standard --loglevel=warn
     - cd ./wp-content/themes/$THEME_NAME
-  image: node:6
-  stage: test
   script: standard
-build:
-  before_script:
-    - apt-get update && apt-get -y install fontforge findutils
-    - npm config set loglevel warn && npm set progress=false
-    - npm install --loglevel=warn
-    - cd ./wp-content/themes/$THEME_NAME
-  stage: build
-  only:
-    - master
-  script: "npm run build"
-multidev_create:
-  only: 
-    - /^feature\/.*$/
-  image: barrelny/pantheon-ci:0.0.7
-  stage: multidev
-  before_script:
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - terminus auth:login --machine-token=$TERMINUS_TOKEN
-  script:
-    - PREFIX=feature/
-    - PANTHEON_MULTIDEV=${CI_COMMIT_REF_NAME:${#PREFIX}:11}
-    - echo "Checking if ENV $PANTHEON_MULTIDEV exists..."
-    - MATCH=$(terminus multidev:list --format=list --fields=id $PANTHEON_SITE_ID | grep $PANTHEON_MULTIDEV)
-    - if [ "$MATCH" != "$PANTHEON_MULTIDEV" ]; then echo "Creating multidev, $PANTHEON_MULTIDEV"; terminus multidev:create $PANTHEON_SITE_ID $PANTHEON_MULTIDEV; fi
-    - echo "Pushing to $CI_COMMIT_REF_NAME on Pantheon..."
-    - git remote add pantheon $REMOTE
-    - git push -f pantheon HEAD:$PANTHEON_MULTIDEV
-multidev_deploy:
+multidev_develop:
   only: 
     - develop
-  image: barrelny/pantheon-ci:0.0.7
-  stage: qa_testing
+  stage: acceptance
   before_script:
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - terminus auth:login --machine-token=$TERMINUS_TOKEN
+    - bash private/scripts/import_git_remote.sh
   script:
-    - terminus connection:set $PANTHEON_SITE_ID.dev git
-    - REMOTE=$(terminus connection:info --format=list --fields=git_url $PANTHEON_SITE_ID.dev)
-    - BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    - echo "Pushing to $CI_COMMIT_REF_NAME on Pantheon..."
-    - git remote add pantheon $REMOTE
-    - git push -f pantheon HEAD:$CI_COMMIT_REF_NAME
+    - bash private/scripts/multidev_deploy_develop.sh
+# multidev_feature:
+#   only: 
+#     - /^feature\/.*$/
+#   stage: acceptance
+#   before_script:
+#     - eval $(ssh-agent -s)
+#     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+#     - bash private/scripts/import_git_remote.sh
+#   script:
+#     - bash private/scripts/multidev_deploy_feature.sh
