@@ -10,6 +10,7 @@
     "@barrelny/cli": "0.0.19"
   },
   "dependencies": {
-    "layzr.js": "^2.2.2"
+    "layzr.js": "^2.2.2",
+    "postcss-fontpath": "^1.0.0"
   }
 }
