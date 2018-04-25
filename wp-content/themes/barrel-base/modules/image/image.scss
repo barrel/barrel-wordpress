@@ -1,7 +1,7 @@
 .image {
   opacity: 0;
   position: relative;
-  transition: opacity $duration--normal;
+  transition: opacity 0.3s;
 }
 .image--absolute {
   position: absolute;

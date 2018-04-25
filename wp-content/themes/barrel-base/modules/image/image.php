@@ -18,15 +18,17 @@ if (empty($attributes)) {
 if (empty($alt)) {
   $alt = '';
 }
+if (empty($size)) {
+	$size = '';
+}
 if (!isset($use_srcset)) {
   $use_srcset = true;
 }
+$image_id = empty($id) ? $id : get_field('featured_image', 'options');
 ?>
 <figure class="js-wrap image <?= $class ?>" <?= $module; ?> <?= $attributes; ?>>
   <?php
-    if (!empty($id)) {
-      the_lazy_img($id, $size, 'image__img', $sizes, $alt, $use_srcset);
-    }
+    the_lazy_img($image_id, $size, 'image__img', $sizes, $alt, $use_srcset);
 
     if (!empty($content)) {
       echo $content;
