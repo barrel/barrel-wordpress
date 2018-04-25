@@ -27,7 +27,8 @@ function jquery_deregister()
 
 function jquery_reregister()
 {
-  $jquery_wp_ver = $GLOBALS['wp_scripts']->registered[$jquery_handle]->ver ?? '1.12.2';
+	$jquery_handle = jquery_handle();
+  $jquery_wp_ver = $GLOBALS['wp_scripts']->registered[$jquery_handle]->ver ?: '1.12.2';
   $jquery_google = "//ajax.googleapis.com/ajax/libs/jquery/$jquery_wp_ver/jquery.min.js";
   $exclude_pages = [ 'wp-login.php', 'wp-register.php' ];
 
