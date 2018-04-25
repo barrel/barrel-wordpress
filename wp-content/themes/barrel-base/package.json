@@ -8,5 +8,8 @@
   "devDependencies": {
     "dom-event": "^1.0.0",
     "@barrelny/cli": "0.0.19"
+  },
+  "dependencies": {
+    "layzr.js": "^2.2.2"
   }
 }
