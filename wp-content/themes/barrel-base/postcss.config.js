@@ -22,7 +22,8 @@ const config = {
     }),
     require('precss'),
     require('postcss-hexrgba'),
-    require('postcss-automath')
+    require('postcss-automath'),
+    require('postcss-custom-media')
   ]
 }
 
