@@ -15,7 +15,6 @@ class Base_Theme extends BB_Theme {
     add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_scripts_and_styles' ) );
 
     add_action( 'wp_head', array( &$this, 'print_scripts_head_meta' ) );
-    add_action( 'wp_footer', array( &$this, 'print_scripts_before_body_end' ) );
 
     add_filter( 'show_admin_bar', '__return_false' );
 
@@ -232,14 +231,6 @@ class Base_Theme extends BB_Theme {
     <meta name="msapplication-config" content="<?= $favi; ?>browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
   <?php
-  }
-
-  public function print_scripts_before_body_end ()
-  {
-    $tracking_scripts = get_field( 'tracking_scripts', 'options' );
-
-    // dangerously output code that is a script, style, or meta tag
-    echo strip_tags( $tracking_scripts, '<script><style><meta>' );
   }
 
   /**
