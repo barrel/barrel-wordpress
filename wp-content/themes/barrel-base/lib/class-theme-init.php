@@ -14,7 +14,7 @@ class Base_Theme extends BB_Theme {
     add_filter( 'image_size_names_choose', array( &$this, 'image_size_names_choose' ) );
     add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_scripts_and_styles' ) );
 
-    add_action( 'wp_head', array( &$this, 'print_scripts_head_meta' ) );
+    add_action( 'wp_head', array( &$this, 'print_site_favicons' ) );
 
     add_filter( 'show_admin_bar', '__return_false' );
 
@@ -210,17 +210,21 @@ class Base_Theme extends BB_Theme {
   }
 
   /**
-   * Print inline scripts and styles
+   * Print favicons saved in the theme
+   * @todo add checks to prevent output unless assets exists
    */
-  public function print_scripts_head_meta()
+  public function print_site_favicons()
   {
-    global $pagenow;
-    $this->site_favicons();
-  }
-
-  private function site_favicons()
-  {
-    $favi = THEME_URI . '/assets/img/favicon/'; ?>
+    $favicon_path = '/assets/img/favicon/';
+    $favicon_files = array(
+      "apple-touch-icon.png",
+      "favicon-32x32.png",
+      "favicon-16x16.png",
+      "manifest.json",
+      "favicon.ico",
+      "browserconfig.xml",
+    );
+    $favi = THEME_URI . $favicon_path; ?>
 
     <link rel="apple-touch-icon" sizes="180x180" href="<?= $favi; ?>apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="<?= $favi; ?>favicon-32x32.png">
