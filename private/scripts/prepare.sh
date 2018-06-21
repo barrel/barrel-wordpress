@@ -35,6 +35,8 @@ case $i in
     ;;
     -t=*|--themename=*)
     THEME_NAME="${i#*=}"
+    shift # past argument=value
+    ;;
     -f=*|--gitflow=*)
     FLOW="${i#*=}"
     shift # past argument=value
