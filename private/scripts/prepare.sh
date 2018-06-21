@@ -67,7 +67,7 @@ fi
 
 # this is to always be run from the root of the project
 CWD=$(pwd)
-echo "Current working directory is: $CWD"
+printf "\n%s\n\n" "Current working directory is: ${YELLOW}$CWD${DEFAULT}"
 
 # get current version
 CURRENT_VERSION=$(git tag --sort v:refname | grep "^v" | tail -1)
