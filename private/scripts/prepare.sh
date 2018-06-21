@@ -1,5 +1,19 @@
 #!/bin/bash
 
+####################################################################
+## This prepare script is usually for finishing a release or hotfix.
+##
+## Assumptions: the hotfix/release branch has already been created.
+## To start the hotfix/release, run with -s=yes
+##
+## From the hotfix/v0.0.0 or release/v0.0.0 branch, this script:
+## - Updates the Changelog (automatically with commit messages)
+## - Opens vim to interactively confirm and complete the CHANGELOG
+## - Bumps the npm version
+## - Commits the above in a single commit
+## - Runs the finish from gitflow command
+####################################################################
+
 THEME_NAME="barrel-base"
 SEM="patch"
 
