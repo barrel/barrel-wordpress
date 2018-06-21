@@ -6,7 +6,8 @@
     "build": "brrl -b -e production"
   },
   "devDependencies": {
+    "@barrelny/cli": "0.0.19",
     "dom-event": "^1.0.0",
-    "@barrelny/cli": "0.0.19"
+    "layzr.js": "^2.2.2"
   }
 }
