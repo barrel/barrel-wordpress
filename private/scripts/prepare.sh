@@ -65,6 +65,8 @@ elif [[ "$DETECTED" == 'darwin' ]]; then
    PLATFORM='macos'
 fi
 
+AUTO_INC_VERSION_WITH_NPM="npm version $SEM --no-git-tag"
+
 # this is to always be run from the root of the project
 CWD=$(pwd)
 printf "\n%s\n\n" "Current working directory is: ${YELLOW}$CWD${DEFAULT}"
@@ -79,9 +81,14 @@ printf "\nChanging directory to ${BLUE}$THEME_PATH${DEFAULT}"
 cd $THEME_PATH
 CWD=$(pwd)
 printf "\nCurrent working directory is now: ${BLUE}$CWD${DEFAULT}\n"
-git stash
-printf "Running: npm version ${YELLOW}$SEM${DEFAULT}\n"
+
+# get next version with npm, unless you find a clever regex that works
+NEXT_VERSION=$(eval $AUTO_INC_VERSION_WITH_NPM)
+git reset --hard HEAD
+
 printf "\n%s\n\n" "Current version is: ${YELLOW}$CURR_VERSION${DEFAULT}"
+printf "%s\n\n" "Next version is: ${YELLOW}$NEXT_VERSION${DEFAULT}"
+printf "%s\n\n" "Running: npm version ${YELLOW}$SEM${DEFAULT}"
 
 # Remove the "v"
 ALT_CURR_VERSION=${CURR_VERSION:1}
@@ -94,13 +101,14 @@ printf "\nEditing the CHANGELOG.md -- ${YELLOW}need to add new block manually.${
 # path to changelog assumes always in root
 vim ../../../CHANGELOG.md
 
-# replace below with a sed find/replace of current version with new one
-printf "\nReplacing $ALT_VERSION with ${NEXT_VERSION:1} version in style.css"
-sed -i "" -e "s/$ALT_VERSION/${NEXT_VERSION:1}/g" style.css
+# replace current version with new one in style.css
 printf "\nReplacing $ALT_CURR_VERSION with $ALT_NEXT_VERSION version"
+sed -i "" -e "s/$ALT_VERSION/${NEXT_VERSION:1}/g" style.css
+
 printf "\nNext version is: ${YELLOW}"
-npm version $SEM
+eval $AUTO_INC_VERSION_WITH_NPM
 printf "${DEFAULT}\n"
+
 read -r -p "Finish and commit? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 
