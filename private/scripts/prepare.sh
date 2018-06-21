@@ -99,7 +99,32 @@ if [ "$START" == "yes" ]; then
     git flow $FLOW start $NEXT_VERSION
 fi
 
-printf "\nEditing the CHANGELOG.md -- ${YELLOW}need to add new block manually.${DEFAULT}"
+# Add new line to changelog
+printf "\nUsing git messages for CHANGELOG...\n"
+
+# Comparison branch
+BRANCH="master"
+
+printf "\nTarget Branch Comparison: $BRANCH...\n"
+printf "\nTarget GitFlow Operation: $FLOW...\n\n"
+
+DATE=$(date +%Y-%m-%d)
+COMMIT_MSG_AS_CHANGE=$(git log --format="%s" --no-merges $BRANCH.. | sed -E 's/^(.*)/\- \1 \\/')
+
+if [ "$PLATFORM" == "macos" ]; then
+sed -i '' "3i\\
+\\
+## $ALT_NEXT_VERSION - $DATE\\
+### CHANGED:\\
+$COMMIT_MSG_AS_CHANGE
+" ../../../CHANGELOG.md
+else
+sed -i "3i\\
+\\
+## $ALT_NEXT_VERSION - $DATE\\
+### CHANGED:\\
+$COMMIT_MSG_AS_CHANGE " ../../../CHANGELOG.md
+fi
 
 # path to changelog assumes always in root
 vim ../../../CHANGELOG.md
