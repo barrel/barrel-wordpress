@@ -94,7 +94,10 @@ printf "%s\n\n" "Running: npm version ${YELLOW}$SEM${DEFAULT}"
 ALT_CURR_VERSION=${CURR_VERSION:1}
 ALT_NEXT_VERSION=${NEXT_VERSION:1}
 
-git stash
+# Initiate git flow start
+if [ "$START" == "yes" ]; then
+    git flow $FLOW start $NEXT_VERSION
+fi
 
 printf "\nEditing the CHANGELOG.md -- ${YELLOW}need to add new block manually.${DEFAULT}"
 
@@ -116,13 +119,15 @@ case "$response" in
     printf "last version was ${YELLOW}$CURR_VERSION${DEFAULT}"
     printf "\n\n${GREEN}done.${DEFAULT}\n\n"
 	git commit -am "Update changelog and bump versions" 
+    printf "\nFinish up with gitflow command ${BLUE}git flow $FLOW finish $NEXT_VERSION${DEFAULT}"
+    git flow $FLOW finish $NEXT_VERSION
+    exit 0
     ;;
     *)
     printf "\n${RED}Exiting. Goodbye.${DEFAULT}\n\n"
     git reset --hard HEAD
-    exit 0
+    exit 1
     ;;
 esac
-
 
 exit
