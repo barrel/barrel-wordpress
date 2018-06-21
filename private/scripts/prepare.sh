@@ -56,6 +56,15 @@ case $i in
 esac
 done
 
+# Platform detection
+PLATFORM='unknown'
+DETECTED=$(uname | tr '[:upper:]' '[:lower:]')
+if [[ "$DETECTED" == 'linux' ]]; then
+   PLATFORM='linux'
+elif [[ "$DETECTED" == 'darwin' ]]; then
+   PLATFORM='macos'
+fi
+
 # this is to always be run from the root of the project
 CWD=$(pwd)
 echo "Current working directory is: $CWD"
