@@ -69,9 +69,8 @@ fi
 CWD=$(pwd)
 printf "\n%s\n\n" "Current working directory is: ${YELLOW}$CWD${DEFAULT}"
 
-# get current version
-CURRENT_VERSION=$(git tag --sort v:refname | grep "^v" | tail -1)
-printf "Current version is: ${BLUE}$CURRENT_VERSION${DEFAULT}"
+# get current version, assumes prior git tag
+CURR_VERSION=$(git tag --sort v:refname | grep "^v" | tail -1)
 
 # theme path
 THEME_PATH="./wp-content/themes/$THEME_NAME"
@@ -82,9 +81,11 @@ CWD=$(pwd)
 printf "\nCurrent working directory is now: ${BLUE}$CWD${DEFAULT}\n"
 git stash
 printf "Running: npm version ${YELLOW}$SEM${DEFAULT}\n"
+printf "\n%s\n\n" "Current version is: ${YELLOW}$CURR_VERSION${DEFAULT}"
 
-NEXT_VERSION=$(npm version $SEM)
-ALT_VERSION=${CURRENT_VERSION:1}
+# Remove the "v"
+ALT_CURR_VERSION=${CURR_VERSION:1}
+ALT_NEXT_VERSION=${NEXT_VERSION:1}
 
 git stash
 
@@ -96,6 +97,7 @@ vim ../../../CHANGELOG.md
 # replace below with a sed find/replace of current version with new one
 printf "\nReplacing $ALT_VERSION with ${NEXT_VERSION:1} version in style.css"
 sed -i "" -e "s/$ALT_VERSION/${NEXT_VERSION:1}/g" style.css
+printf "\nReplacing $ALT_CURR_VERSION with $ALT_NEXT_VERSION version"
 printf "\nNext version is: ${YELLOW}"
 npm version $SEM
 printf "${DEFAULT}\n"
@@ -103,8 +105,8 @@ read -r -p "Finish and commit? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 
     printf "\nProceeding with package ${GREEN}$NEXT_VERSION${DEFAULT}, "
-    printf "last version was ${YELLOW}$CURRENT_VERSION${DEFAULT}"
-    printf "\n\n${GREEN}done.${DEFAULT}\n\n${RED}Goodbye.${DEFAULT}\n\n"
+    printf "last version was ${YELLOW}$CURR_VERSION${DEFAULT}"
+    printf "\n\n${GREEN}done.${DEFAULT}\n\n"
 	git commit -am "Update changelog and bump versions" 
     ;;
     *)
