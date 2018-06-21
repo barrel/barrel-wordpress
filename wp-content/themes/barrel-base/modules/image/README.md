@@ -1,6 +1,7 @@
 ## TODO
 1. Refactor reporting to be hidden if wp_debug is false
 1. Render Exception message in place of module content if conditions are not met
+1. Update exception to report the name of the required varaible
 
 ## USAGE
 ### Instantiation
