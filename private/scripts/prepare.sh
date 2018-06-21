@@ -15,7 +15,9 @@
 ####################################################################
 
 THEME_NAME="barrel-base"
-SEM="patch"
+SEM="minor"
+FLOW="hotfix"
+START="no"
 
 # Terminal colors
 DEFAULT=$(tput setaf 7)
@@ -33,12 +35,18 @@ case $i in
     ;;
     -t=*|--themename=*)
     THEME_NAME="${i#*=}"
+    -f=*|--gitflow=*)
+    FLOW="${i#*=}"
+    shift # past argument=value
+    ;;
+    -s=*|--start=*)
+    START="${i#*=}"
     shift # past argument=value
     ;;
     --help)
     echo "Utility Usage:"
     echo "--"
-    echo "prepare.sh -v=MAJOR|MINOR|PATCH -t=THEME_NAME"
+    echo "prepare.sh -v=major|minor|patch -f=hotfix|release -s=yes|no"
     shift # past argument with no value
     ;;
     *)
