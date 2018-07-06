@@ -40,6 +40,7 @@ module.exports = {
   },
   resolve: {
     alias: {
+      'lib': path.resolve(__dirname, 'src/js/lib'),
       'modules-root': path.resolve(__dirname, 'modules')
     }
   },
