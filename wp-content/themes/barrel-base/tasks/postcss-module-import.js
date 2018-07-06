@@ -5,7 +5,7 @@ const postcssImport = require('postcss-import')
 const globby = require('globby')
 
 const getAllModules = () => {
-  const modules = process.cwd() + '/modules/**/**.scss'
+  const modules = process.cwd() + '/modules/**/**.css'
 
   return globby(modules)
     .then(files => {

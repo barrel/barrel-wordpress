@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v1.6.0 - 2018-07-06
+### CHANGED:
+- Add Critical CSS workflow
+- Update images module
+- Update css workflow for postcss
+- Update scripts
+- Add barrel mu plugin
+
 ## 1.4.0 - 2018-03-13
 ### CHANGED:
 - Update all plugins
