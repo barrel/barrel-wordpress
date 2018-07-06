@@ -14,7 +14,10 @@ const config = {
     }),
     require('precss'),
     require('postcss-hexrgba'),
-    require('postcss-automath')
+    require('postcss-automath'),
+    require('postcss-critical-split')({
+      'output': process.env.ENV === 'production' ? 'rest' : 'input'
+    })
   ]
 }
 
