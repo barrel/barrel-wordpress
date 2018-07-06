@@ -12,7 +12,10 @@ class Base_Theme extends BB_Theme {
 
     add_action( 'after_setup_theme', array( &$this, 'register_menus' ) );
     add_filter( 'image_size_names_choose', array( &$this, 'image_size_names_choose' ) );
-    add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_scripts_and_styles' ) );
+		add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_scripts_and_styles' ) );
+
+		add_action( 'wp_head', array(&$this, 'add_critical_css'), 1);
+		add_action( 'wp_footer', array(&$this, 'load_rest_css') );
 
     add_action( 'wp_head', array( &$this, 'print_scripts_head_meta' ) );
     add_action( 'wp_footer', array( &$this, 'print_scripts_before_body_end' ) );
@@ -189,11 +192,6 @@ class Base_Theme extends BB_Theme {
     {
       wp_localize_script( $handle, 'wpVars', $wp_vars );
     }
-
-    // styles
-    if ( !IS_DEV ) {
-      wp_enqueue_style( $handle, "$script_path/main.min.css", array(), $version, 'all' );
-    }
   }
 
   /**
@@ -335,8 +333,52 @@ class Base_Theme extends BB_Theme {
     /* Add it as first item in the row */
     array_unshift( $buttons, 'styleselect' );
     return $buttons;
-  }
+	}
 
+	/**
+	 * Add critical css file to <head></head>
+	 */
+	public function add_critical_css() {
+		$file = TEMPLATEPATH . '/assets/critical.min.css';
+		$file_content = @file_get_contents( $file );
+		// note that we might need to write a filter here to dynamically replace filepaths to font files
+		if ( file_exists( $file ) ) {
+			echo '<style type="text/css">';
+			echo $file_content;
+			echo '</style>';
+		}
+	}
+
+	/**
+	 * Load main css (rest styles) file asynchrounsly in footer
+	 */
+	public function load_rest_css() {
+		$theme     = wp_get_theme();
+		$theme_ver = $theme->version;
+		if ( !IS_DEV ) {
+			?>
+			<noscript id="deferred-styles">
+				<link rel="stylesheet"
+					  href="<?php echo esc_url( get_template_directory_uri() . '/assets/main.min.css?ver=' . $theme_ver ); ?>">
+			</noscript>
+			<script>
+				var loadDeferredStyles = function () {
+					var addStylesNode = document.getElementById("deferred-styles");
+					var replacement = document.createElement("div");
+					replacement.innerHTML = addStylesNode.textContent;
+					document.body.appendChild(replacement)
+					addStylesNode.parentElement.removeChild(addStylesNode);
+				};
+				var raf = requestAnimationFrame || mozRequestAnimationFrame ||
+					webkitRequestAnimationFrame || msRequestAnimationFrame;
+				if (raf) raf(function () {
+					window.setTimeout(loadDeferredStyles, 0);
+				});
+				else window.addEventListener('load', loadDeferredStyles);
+			</script>
+			<?php
+		}
+	}
 }
 
 new Base_Theme();
