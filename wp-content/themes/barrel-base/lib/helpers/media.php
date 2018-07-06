@@ -233,27 +233,43 @@ function the_video_element($url = '', $attrs = '', $classes = '') {
 	echo get_video_element($url, $attrs, $classes);
 }
 
-function the_lazy_img( $id, $size, $class, $sizes = '', $alt = '' ) {
-	$img = wp_get_attachment_image_src( $id, $size );
+/**
+ * Construct and return an image tag for lazy-loading
+ *
+ * @param array $image
+ * @param string $size
+ * @param string $class
+ * @param string $sizes
+ * @param string $alt
+ */
+function the_lazy_img( $image, $size, $class, $sizes = '', $alt ) {
+	if( is_array($image) ) {
+	  $id = $image['ID'];
+	  $img = wp_get_attachment_image_src( $id, $size )[0];
+	} elseif (is_numeric($image)) {
+	  $id = $image;
+	  $img = wp_get_attachment_image_src( $id, $size )[0];
+	} else {
+	  $id = null;
+	  $img = $image;
+	}
 
 	if ( empty( $img ) ) {
-		return;
+	  return;
 	}
 
 	$blank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-	$srcset = wp_get_attachment_image_srcset( $id, $size );
-	$srcset_attr = sprintf( empty( $srcset ) ? '' : 'data-srcset="%s"', $srcset );
-	$html = '<img %s src="%s" data-normal="%s" data-retina="%s" %s %s alt="%s">';
+	$html = '<img %s src="%s" data-normal="%s" data-retina="%s" data-srcset="%s" alt="%s" %s>';
 
 	printf(
-		$html,
-		empty( $class ) ? '' : "class=\"${class}\"",
-		$blank,
-		$img[0],
-    $img[0],
-		$srcset_attr,
-    empty( $sizes ) ? '' : "sizes=\"${sizes}\"",
-    $alt
+	  $html,
+	  empty( $class ) ? '' : "class=\"${class}\"",
+	  $blank,
+	  $img,
+	  $img,
+	  wp_get_attachment_image_srcset($id, $size) ? wp_get_attachment_image_srcset($id, $size) : $img,
+	  $alt,
+	  empty( $sizes ) ? '' : "sizes=\"${sizes}\""
 	);
-}
+  }
 
