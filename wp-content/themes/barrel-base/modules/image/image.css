@@ -1,3 +1,4 @@
+/* critical:start */
 .image {
   opacity: 0;
   position: relative;
@@ -49,3 +50,4 @@
 .image--loaded {
   opacity: 1;
 }
+/* critical:end */

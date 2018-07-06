@@ -3,7 +3,7 @@ const path = require('path')
 module.exports = {
   devtool: 'cheap-module-source-map',
   entry: {
-    main: ['./src/scss/main.scss', './src/js/main.js']
+    main: ['./src/css/main.css', './src/js/main.js']
   },
   output: {
     path: path.join(__dirname, 'assets'),
