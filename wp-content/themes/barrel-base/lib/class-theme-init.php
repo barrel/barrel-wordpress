@@ -192,11 +192,6 @@ class Base_Theme extends BB_Theme {
     {
       wp_localize_script( $handle, 'wpVars', $wp_vars );
     }
-
-    // styles
-    if ( !IS_DEV ) {
-      wp_enqueue_style( $handle, "$script_path/main.min.css", array(), $version, 'all' );
-    }
   }
 
   /**
