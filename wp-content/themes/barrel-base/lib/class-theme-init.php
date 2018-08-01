@@ -337,11 +337,10 @@ class Base_Theme extends BB_Theme {
 		$file = TEMPLATEPATH . '/assets/critical.min.css';
 		$file_content = @file_get_contents( $file );
 		// note that we might need to write a filter here to dynamically replace filepaths to font files
-		if ( file_exists( $file ) ) {
-			echo '<style type="text/css">';
-			echo $file_content;
-			echo '</style>';
-		}
+		// If a reference is needed, this has been done on a Well+Good project
+		echo '<style type="text/css">';
+		echo $file_content;
+		echo '</style>';
 	}
 
 	/**
