@@ -26,7 +26,10 @@ class Base_Theme extends BB_Theme {
     add_shortcode( 'year', array( &$this, 'shortcode_year' ) );
 
     add_filter( 'tiny_mce_before_init', array( &$this, 'insert_formats' ) );
-    add_filter( 'mce_buttons_2', array( &$this, 'add_mce_button' ), 10, 2 );
+		add_filter( 'mce_buttons_2', array( &$this, 'add_mce_button' ), 10, 2 );
+
+		add_filter( 'upload_mimes', array( &$this, 'cc_mime_types' ));
+    add_filter( 'gform_tabindex', '__return_false' );
 
     add_editor_style();
 
@@ -372,6 +375,14 @@ class Base_Theme extends BB_Theme {
 			</script>
 			<?php
 		}
+	}
+
+	/**
+	 * Add support to upload SVG icons
+	 */
+	public function cc_mime_types($mimes) {
+		$mimes['svg'] = 'image/svg+xml';
+		return $mimes;
 	}
 }
 
