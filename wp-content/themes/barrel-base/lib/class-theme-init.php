@@ -338,9 +338,9 @@ class Base_Theme extends BB_Theme {
 		$file_content = @file_get_contents( $file );
 		// note that we might need to write a filter here to dynamically replace filepaths to font files
 		// If a reference is needed, this has been done on a Well+Good project
-		echo '<style type="text/css">';
-		echo $file_content;
-		echo '</style>';
+		if (!empty($file_content)) {
+			printf('<style type="text/css">%s</style>', $file_content);
+		}
 	}
 
 	/**
