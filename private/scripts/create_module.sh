@@ -14,7 +14,7 @@
 ####################################################################
 
 # Variables
-THEME_NAME="dance-theatre-harlem"
+THEME_NAME="barrel-base"
 THEME_PATH="../../wp-content/themes/$THEME_NAME"
 MODULE_PATH="$THEME_PATH/modules"
 

@@ -1,7 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## V1.7.0 - 2018-08-1
+## v1.7.1 - 2018-08-1
+### CHANGED:
+- Fix name of theme in create module script
+
+## v1.7.0 - 2018-08-1
 ### CHANGED:
 - Add create module script
 - Update critical css workflow
