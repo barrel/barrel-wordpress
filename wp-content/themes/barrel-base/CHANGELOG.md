@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v1.7.2 - 2018-08-01
+### CHANGED:
+- Add condition around critical.css
+
 ## v1.7.1 - 2018-08-1
 ### CHANGED:
 - Fix name of theme in create module script
