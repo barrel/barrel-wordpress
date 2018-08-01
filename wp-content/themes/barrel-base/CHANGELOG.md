@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## V1.7.0 - 2018-08-1
+### CHANGED:
+- Add create module script
+- Update critical css workflow
+
 ## v1.6.0 - 2018-07-06
 ### CHANGED:
 - Add Critical CSS workflow
