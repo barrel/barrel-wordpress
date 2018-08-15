@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v1.7.3 - 2018-08-15
+### CHANGED:
+- Add dom and util js files
+
 ## v1.7.2 - 2018-08-01
 ### CHANGED:
 - Add condition around critical.css
