@@ -2,6 +2,8 @@
 
 ####################################################################
 ## This create module script is for creating an empty module
+## This script can be run from within the theme directory using npm (see package.json)
+## npm run create-module -- -n=$MODULE_NAME
 ## 
 ## Assumptions:
 ## The module name passed to this script is all lower-case and hyphenated:
@@ -14,9 +16,7 @@
 ####################################################################
 
 # Variables
-THEME_NAME="barrel-base"
-THEME_PATH="../../wp-content/themes/$THEME_NAME"
-MODULE_PATH="$THEME_PATH/modules"
+MODULE_PATH="./modules"
 
 # handle arguments
 for i in "$@"; do
@@ -27,8 +27,9 @@ case $i in
     ;;
     --help)
     echo "Utility Usage:"
+    echo "This script can be run from anywhere within the theme directory using npm"
     echo "--"
-    echo "create-module.sh -n=MODULE_NAME"
+    echo "npm run create-module -- -n=MODULE_NAME"
     shift # past argument with no value
     ;;
     *)
