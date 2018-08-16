@@ -289,6 +289,40 @@ const parseOptions = (string, def = {}) => {
   return Object.assign({}, def, options)
 }
 
+
+/**
+ * Throttle a function so that it fires once every { threshold }
+ * @param {Function} fn
+ * @param {Integer} threshold
+ * @param {FunctionContext} scope
+ */
+
+const throttle = (fn, threshold, scope) => {
+  if (!threshold) {
+    threshold = 250
+  }
+
+  var last, deferTimer
+
+  return function () {
+    var context = scope || this
+    var now = +new Date()
+    var args = arguments
+
+    if (last && now < last + threshold) {
+      // hold on to it
+      clearTimeout(deferTimer)
+      deferTimer = setTimeout(function () {
+        last = now
+        fn.apply(context, args)
+      }, threshold)
+    } else {
+      last = now
+      fn.apply(context, args)
+    }
+  }
+}
+
 export {
   add,
   allPass,
@@ -325,6 +359,7 @@ export {
   setProp,
   staggerCallback,
   then,
+  throttle,
   reject,
   tryCatch,
   when,
