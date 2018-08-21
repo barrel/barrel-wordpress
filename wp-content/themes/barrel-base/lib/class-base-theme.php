@@ -11,8 +11,8 @@ abstract class BB_Theme {
    */
   public function __construct(){
     $this->remove_emojis();
-    add_action( 'init', array( &$this, 'add_post_types' ) );
-    add_action( 'init', array( &$this, 'add_taxonomies' ) );
+    // add_action( 'init', array( &$this, 'add_post_types' ) );
+    // add_action( 'init', array( &$this, 'add_taxonomies' ) );
     add_action( 'after_setup_theme', array( &$this, 'add_theme_supports' ) );
 
     // Disable X-Pingback to header
@@ -23,9 +23,9 @@ abstract class BB_Theme {
     add_filter( 'acf/settings/load_json', array( &$this, 'acf_json_load_point' ) );
   }
 
-  abstract protected function add_post_types();
+  // abstract protected function add_post_types();
 
-  abstract protected function add_taxonomies();
+  // abstract protected function add_taxonomies();
 
   abstract protected function add_theme_supports();
 
