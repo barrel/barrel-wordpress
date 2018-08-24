@@ -3,7 +3,8 @@
 ####################################################################
 ## This create module script is for creating an empty module
 ## This script can be run from within the theme directory using npm (see package.json)
-## npm run create-module -- -n=$MODULE_NAME
+##
+## npm run create-module -- -n=$MODULE_NAME --e="$EXCLUDED FILES"
 ## 
 ## Assumptions:
 ## The module name passed to this script is all lower-case and hyphenated:
@@ -11,8 +12,7 @@
 ##
 ## TODO:
 ## - Update the string santization variable to camelCase the module name
-## - Add options to not include certain files
-## - Add an initial readme.md file
+## - Refactor file creation logic into a singular function
 ####################################################################
 
 # Variables
@@ -25,19 +25,35 @@ case $i in
     MODULE_NAME="${i#*=}"
     shift # past argument=value
     ;;
+    -e=*|--exclude=*)
+    EXCLUDE="${i#*=}"
+    shift # past argument=value
+    ;;
     --help)
-    echo "Utility Usage:"
+    echo "\n\nUtility Usage:"
     echo "This script can be run from anywhere within the theme directory using npm"
-    echo "--"
-    echo "npm run create-module -- -n=MODULE_NAME"
+    echo "npm run create-module -- -n=MODULE_NAME -e=\"EXLCUDED FILES\"\n"
+    echo "--\n"
+    echo "Arguments:"
+    echo "-n | --name - Module name: -n=the-module"
+    echo "-e | --exclude - Files to exclude: -e=\"js php\"\n\n"
+
     shift # past argument with no value
+    exit
     ;;
     *)
 	echo "Unknown option: ${i#*=}"
           # unknown option
+    exit
     ;;
 esac
 done
+
+## Check if module name was provided before moving on
+if [ -z ${MODULE_NAME+x} ]; then
+    echo "Hmm... Looks like you didn't set a module name yet. Please provide a name for this module:"
+    read MODULE_NAME
+fi
 
 ## Update Module Path
 MODULE_DIRECTORY="$MODULE_PATH/$MODULE_NAME"
@@ -48,7 +64,11 @@ SANITIZED_MODULE_NAME=`echo "$MODULE_NAME" | sed 's/[\._-]//g'`
 mkdir -p -- "$MODULE_PATH/$MODULE_NAME"
 
 # Javascript File
-if [[ ! -e "$MODULE_FILE.js" ]]; then
+if [[ $EXCLUDE = *"js"* ]]; then
+    echo "Exluding javascript file from new module, $MODULE_NAME"
+elif [[ -e "$MODULE_FILE.js" ]]; then
+    echo "$MODULE_NAME.js already exists in the module directory, so we won't create a new one."
+else
 cat <<EOF >$MODULE_FILE.js
 /**
 * Initializes the site's $SANITIZED_MODULE_NAME module.
@@ -56,7 +76,7 @@ cat <<EOF >$MODULE_FILE.js
 * @param {Object} el - The site's $SANITIZED_MODULE_NAME container element.
 */
 function $SANITIZED_MODULE_NAME (el) {
-  this.el = el
+    this.el = el
 }
 
 export default $SANITIZED_MODULE_NAME
@@ -64,27 +84,47 @@ EOF
 fi
 
 # PHP File
-if [[ ! -e "$MODULE_FILE.php" ]]; then
+if [[ $EXCLUDE = *"php"* ]]; then
+    echo "Exluding php file from new module, $MODULE_NAME"
+elif [[ -e "$MODULE_FILE.php" ]]; then
+    echo "$MODULE_NAME.php already exists in the module directory, so we won't create a new one."
+else
 cat <<EOF >$MODULE_FILE.php
 <section class="$MODULE_NAME" data-module="$MODULE_NAME"></section>
 EOF
 fi
 
 # CSS File
-if [[ ! -e "$MODULE_FILE.css" ]]; then
+if [[ $EXCLUDE = *"css"* ]]; then
+    echo "Exluding css file from new module, $MODULE_NAME"
+elif [[ -e "$MODULE_FILE.css" ]]; then
+    echo "$MODULE_NAME.css already exists in the module directory, so we won't create a new one."
+else
 cat <<EOF >$MODULE_FILE.css
 /* styles for $MODULE_NAME */
 EOF
 fi
 
 # README File
-if [[ ! -e "$MODULE_DIRECTORY/README.md" ]]; then
+if [[ -e "$MODULE_DIRECTORY/README.md" ]]; then
+    echo "README.md already exists in the module directory, so we won't create a new one."
+else
 cat <<EOF >$MODULE_DIRECTORY/README.md
 # Summary
-Use this file to explain some of the less obvious aspects about this module.
-For example, maybe this module will expect some specific arguments, or it uses another
-module for its output. Using markdown syntax, you should use this file to explain the things 
-that might not be intuitive about this module.
+Replace the contents of this file to explain some of the less obvious aspects about this module.
+Be sure to update the summary and explain a little bit about why this module exists (what is it used for?).
+
+# Inclusion
+This module is used on the following templates and sections:
+
+- Module Name
+- Template Name
+  - Notes about how it might be included
+
+# Parameters
+This modules accepts the follwing arguments:
+- \`\$argument\` (type = string): Argument description
+- \`\$required\` (type = string) - required: Argument description
 EOF
 fi
 
