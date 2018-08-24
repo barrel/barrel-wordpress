@@ -18,6 +18,13 @@
 # Variables
 MODULE_PATH="./modules"
 
+# Terminal colors
+DEFAULT=$(tput setaf 7)
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+BLUE=$(tput setaf 4)
+
 # handle arguments
 for i in "$@"; do
 case $i in
@@ -51,7 +58,7 @@ done
 
 ## Check if module name was provided before moving on
 if [ -z ${MODULE_NAME+x} ]; then
-    echo "Hmm... Looks like you didn't set a module name yet. Please provide a name for this module:"
+    echo "${YELLOW}Hmm... Looks like you didn't set a module name yet. What would you like to name this module?${DEFAULT}"
     read MODULE_NAME
 fi
 
@@ -65,9 +72,9 @@ mkdir -p -- "$MODULE_PATH/$MODULE_NAME"
 
 # Javascript File
 if [[ $EXCLUDE = *"js"* ]]; then
-    echo "Exluding javascript file from new module, $MODULE_NAME"
+    echo "${YELLOW}Exluding javascript file from new module, $MODULE_NAME${DEFAULT}"
 elif [[ -e "$MODULE_FILE.js" ]]; then
-    echo "$MODULE_NAME.js already exists in the module directory, so we won't create a new one."
+    echo "${YELLOW}$MODULE_NAME.js already exists in the module directory, so we won't create a new one.${DEFAULT}"
 else
 cat <<EOF >$MODULE_FILE.js
 /**
@@ -85,9 +92,9 @@ fi
 
 # PHP File
 if [[ $EXCLUDE = *"php"* ]]; then
-    echo "Exluding php file from new module, $MODULE_NAME"
+    echo "${YELLOW}Exluding php file from new module, $MODULE_NAME${DEFAULT}"
 elif [[ -e "$MODULE_FILE.php" ]]; then
-    echo "$MODULE_NAME.php already exists in the module directory, so we won't create a new one."
+    echo "${YELLOW}$MODULE_NAME.php already exists in the module directory, so we won't create a new one.${DEFUALT}"
 else
 cat <<EOF >$MODULE_FILE.php
 <section class="$MODULE_NAME" data-module="$MODULE_NAME"></section>
@@ -96,9 +103,9 @@ fi
 
 # CSS File
 if [[ $EXCLUDE = *"css"* ]]; then
-    echo "Exluding css file from new module, $MODULE_NAME"
+    echo "${YELLOW}Exluding css file from new module, $MODULE_NAME${DEFAULT}"
 elif [[ -e "$MODULE_FILE.css" ]]; then
-    echo "$MODULE_NAME.css already exists in the module directory, so we won't create a new one."
+    echo "${YELLOW}$MODULE_NAME.css already exists in the module directory, so we won't create a new one.${DEFAULT}"
 else
 cat <<EOF >$MODULE_FILE.css
 /* styles for $MODULE_NAME */
@@ -107,7 +114,7 @@ fi
 
 # README File
 if [[ -e "$MODULE_DIRECTORY/README.md" ]]; then
-    echo "README.md already exists in the module directory, so we won't create a new one."
+    echo "${YELLOW}README.md already exists in the module directory, so we won't create a new one.${DEFAULT}"
 else
 cat <<EOF >$MODULE_DIRECTORY/README.md
 # Summary
@@ -127,5 +134,7 @@ This modules accepts the follwing arguments:
 - \`\$required\` (type = string) - required: Argument description
 EOF
 fi
+
+echo "${YELLOW}All finished! Your module should now be located in $MODULE_DIRECTORY (relative to the theme's directory).${DEFAULT}"
 
 exit
