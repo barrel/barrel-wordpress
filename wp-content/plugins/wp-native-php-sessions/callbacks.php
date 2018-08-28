@@ -98,7 +98,7 @@ function _pantheon_session_write( $sid, $value ) {
 	}
 
 	if ( ! $session ) {
-		trigger_error( 'Could not write session to the database. Please check MySQL configuration.', E_WARNING );
+		trigger_error( 'Could not write session to the database. Please check MySQL configuration.', E_USER_WARNING );
 		return false;
 	}
 
@@ -123,6 +123,7 @@ function _pantheon_session_destroy( $sid ) {
 
 	$session->destroy();
 
+	return true;
 }
 
 /**

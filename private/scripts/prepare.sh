@@ -142,7 +142,7 @@ esac
 
 # replace current version with new one in style.css
 printf "\nReplacing $ALT_CURR_VERSION with $ALT_NEXT_VERSION version"
-sed -i "" -e "s/$ALT_VERSION/${NEXT_VERSION:1}/g" style.css
+sed -i "" -e "s/$ALT_CURR_VERSION/$ALT_NEXT_VERSION/g" style.css
 
 printf "\nNext version is: ${YELLOW}"
 eval $AUTO_INC_VERSION_WITH_NPM

@@ -1,10 +1,11 @@
 {
   "name": "barrel-base",
-  "version": "1.7.3",
+  "version": "1.8.0",
   "scripts": {
     "start": "brrl -w",
     "build": "brrl -b -e production; npm run critical",
-    "critical": "postcss src/css/main.css -o assets/critical.min.css --config tasks/"
+    "critical": "postcss src/css/main.css -o assets/critical.min.css --config tasks/",
+    "create-module": "sh ../../../private/scripts/create_module.sh"
   },
   "devDependencies": {
     "@barrelny/cli": "0.0.19",
