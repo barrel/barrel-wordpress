@@ -19,13 +19,21 @@ fi
 
 printf "\ndone\n"
 
-echo "Adding pantheon git remote ..."
-git remote add pantheon $REMOTE
-
-if [ $? -gt 0 ]
+echo "Checking to make sure the Pantheon git remote exists ..."
+git remote | grep pantheon
+if test $? != 0;
 then
-	echo "There was a problem adding the Pantheon git remote."
-	exit 1
+	echo "Didn't find the Pantheon git remote. Adding it now ..."
+	git remote add pantheon $REMOTE
+
+	if [ $? -gt 0 ]
+	then
+		echo "There was a problem adding the Pantheon git remote."
+		exit 1
+	fi
+else
+	echo "Found Pantheon git remote ..."
 fi
+
 
 printf "\ndone\n"
