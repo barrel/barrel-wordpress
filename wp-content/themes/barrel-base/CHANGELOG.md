@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v1.8.0 - 2018-08-28
+### CHANGED:
+- Update wordpress core version
+- Update all plugins
+- Add condition to acceptance pipeline to check if git remote exists already before trying to create it
+
 ## v1.7.3 - 2018-08-15
 ### CHANGED:
 - Add dom and util js files
