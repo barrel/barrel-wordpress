@@ -12,7 +12,7 @@
 ####################################################################
 
 # Variables
-MODULE_DIRECTORY="../../wp-content/themes/$THEME_NAME/modules"
+MODULE_DIRECTORY="./wp-content/themes/$THEME_NAME/modules"
 NO_MARKUP=()
 
 # Terminal colors
@@ -21,6 +21,8 @@ RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 YELLOW=$(tput setaf 3)
 BLUE=$(tput setaf 4)
+
+echo "Validating modules for theme: $THEME_NAME"
 
 # Loop through modules directory and check if each module contains a markup file
 for path in ${MODULE_DIRECTORY}/*; do
