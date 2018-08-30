@@ -13,7 +13,7 @@
   .video--playing & {
     opacity: 1;
   }
-  @media (--m) {
+  @media (min-width: 600px) { /* replace this with breakpoint function */
     display: block;
     object-position: center;
   }
