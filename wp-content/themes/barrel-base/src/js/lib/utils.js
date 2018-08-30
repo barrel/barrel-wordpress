@@ -323,6 +323,16 @@ const throttle = (fn, threshold, scope) => {
   }
 }
 
+const doesSupportObjectFit = () => {
+  const i = document.createElement('img')
+  return ('objectFit' in i.style)
+}
+
+const doesSupportObjectPosition = () => {
+  const i = document.createElement('img')
+  return ('objectPosition' in i.style)
+}
+
 export {
   add,
   allPass,
@@ -331,6 +341,8 @@ export {
   cond,
   count,
   debounce,
+  doesSupportObjectFit,
+  doesSupportObjectPosition,
   log,
   logArgs,
   logWrap,
