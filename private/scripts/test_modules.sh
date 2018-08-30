@@ -30,8 +30,7 @@ done
 
 if [ ! ${#NO_MARKUP[@]} -eq 0 ]; then
     echo "The following module(s) do not contain a markup file. Each module should output markup."
-    printf '\n%s\n' "${NO_MARKUP[@]}"
-    echo "\n"
+    printf '\n%s' "${NO_MARKUP[@]}"
     exit 1
 else
     echo "All modules passed validation, moving on ..."
