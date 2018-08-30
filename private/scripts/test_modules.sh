@@ -15,13 +15,6 @@
 MODULE_DIRECTORY="./wp-content/themes/$THEME_NAME/modules"
 NO_MARKUP=()
 
-# Terminal colors
-DEFAULT=$(tput setaf 7)
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-BLUE=$(tput setaf 4)
-
 echo "Validating modules for theme: $THEME_NAME"
 
 # Loop through modules directory and check if each module contains a markup file
@@ -36,9 +29,9 @@ for path in ${MODULE_DIRECTORY}/*; do
 done
 
 if [ ! ${#NO_MARKUP[@]} -eq 0 ]; then
-    echo "The following module(s) do not contain a markup file. Each module should output markup.\n${YELLOW}"
-    printf '%s\n' "${NO_MARKUP[@]}"
-    echo ${DEFAULT}
+    echo "The following module(s) do not contain a markup file. Each module should output markup."
+    printf '\n%s\n' "${NO_MARKUP[@]}"
+    echo "\n"
     exit 1
 else
     echo "All modules passed validation, moving on ..."
