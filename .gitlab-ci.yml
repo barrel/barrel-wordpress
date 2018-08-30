@@ -22,6 +22,10 @@ test_js_lint:
     - npm install -g standard --loglevel=warn
     - cd ./wp-content/themes/$THEME_NAME
   script: standard
+test_modules:
+  stage: test
+  script: 
+    - bash private/scripts/test_modules.sh
 multidev_develop:
   only: 
     - develop
