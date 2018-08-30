@@ -289,7 +289,6 @@ const parseOptions = (string, def = {}) => {
   return Object.assign({}, def, options)
 }
 
-
 /**
  * Throttle a function so that it fires once every { threshold }
  * @param {Function} fn

@@ -10,7 +10,6 @@
   margin: auto;
   object-fit: cover;
   object-position: right;
-  @include transition(opacity);
   .video--playing & {
     opacity: 1;
   }
@@ -55,7 +54,6 @@
   display: inline-table;
   opacity: 0;
   visibility: hidden;
-  @include transition(0.3s, opacity, ease-in-out);
   &.showing {
     opacity: 1;
     visibility: visible;
