@@ -1,6 +1,6 @@
 {
   "name": "barrel-base",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "scripts": {
     "start": "brrl -w",
     "build": "brrl -b -e production; npm run critical",
@@ -9,10 +9,12 @@
   },
   "devDependencies": {
     "@barrelny/cli": "0.0.19",
+    "cssnano": "^3.10.0",
     "dom-event": "^1.0.0",
+    "es6-promise": "^4.2.4",
     "layzr.js": "^2.2.2",
     "postcss-cli": "^5.0.1",
     "postcss-critical-split": "^2.5.1",
-    "cssnano": "^3.10.0"
+    "tweezer.js": "^1.4.0"
   }
 }
