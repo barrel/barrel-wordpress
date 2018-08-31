@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v1.9.0 - 2018-08-31
+### CHANGED:
+- Add test-module script for test pipeline
+- Add ambient video module
+
 ## v1.8.0 - 2018-08-28
 ### CHANGED:
 - Update wordpress core version
