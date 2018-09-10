@@ -1,7 +1,7 @@
 /* global Element, getComputedStyle, CustomEvent */
-import {makeArray, curry, getProp, parseOptions, setProp, partial, pipe, map, whileDo} from 'lib/utils'
+import { makeArray, curry, getProp, parseOptions, setProp, partial, pipe, map, whileDo } from 'lib/utils'
 import Tweezer from 'tweezer.js'
-import {Promise} from 'es6-promise'
+import { Promise } from 'es6-promise'
 
 const _getElementRect = (el) => el.getBoundingClientRect()
 
@@ -327,7 +327,7 @@ const trigger = (eventName, el) => {
     eventName = eventName.event
   }
   if (typeof window.CustomEvent === 'function') {
-    event = new CustomEvent(eventName, {detail: {some: 'data'}})
+    event = new CustomEvent(eventName, { detail: { some: 'data' } })
   } else {
     event = document.createEvent('CustomEvent')
     event.initCustomEvent(eventName, true, true, data)

@@ -1,5 +1,5 @@
-import {select, addClass, removeClass} from 'lib/dom'
-import {throttle, doesSupportObjectFit, doesSupportObjectPosition} from 'lib/utils'
+import { select, addClass, removeClass } from 'lib/dom'
+import { throttle, doesSupportObjectFit, doesSupportObjectPosition } from 'lib/utils'
 
 const Video = (el) => {
   const src = el.getAttribute('data-src')
