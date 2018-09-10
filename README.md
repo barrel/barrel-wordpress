@@ -64,7 +64,7 @@ The following environment variables must be set in GitLab in order for CI to wor
 
    See: [Creating a New Terminus Token](https://pantheon.io/docs/machine-tokens/).
 - `$THEME_NAME` - the name of your theme's directory in `wp-content/themes/`
-- `$PANTHEON_SITE_ID` - the handleized name used for the Pantheon site and gitlab repository—these should be the same; i.e. `barrel-base-theme`
+- `$PANTHEON_SITE_ID` - the handleized name used for the Pantheon site and gitlab repository—these should be the same; i.e. `barrel-wordpress`
 
 ![GitLab CI Variables](https://i.imgur.com/km3HW1n.png =1/10x, '')
 
