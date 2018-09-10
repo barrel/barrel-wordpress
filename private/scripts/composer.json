@@ -1,0 +1,8 @@
+{
+    "require": {
+        "rmccue/requests": "^1.7"
+    },
+    "autoload": {
+        "psr-0": {"Requests": "library/"}
+    }
+}

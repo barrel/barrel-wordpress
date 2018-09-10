@@ -4,3 +4,12 @@
 # For more information see: https://pantheon.io/docs/pantheon-upstream-yml
 api_version: 1
 php_version: 7.2
+
+workflows:
+  
+  # Site Creation
+  deploy_product:
+    after:
+      - type: webphp
+        description: Create GitLab Repo (via Zapier)
+        script: private/scripts/zapier/webhook-540021.php
