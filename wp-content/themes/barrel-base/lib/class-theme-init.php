@@ -36,6 +36,7 @@ class Base_Theme extends BB_Theme {
     // if you want to prevent acf from filtering wysiwyg editor fields
     // remove_filter( 'acf_the_content', array( &$this, 'wpautop') );
     add_filter( 'default_page_template_title', array(&$this, 'rename_default_template' ) );
+    add_filter('pre_option_upload_url_path', array( &$this, 'rewrite_uploads'));
 
     $this->add_options_page();
     $this->register_image_sizes();
@@ -383,7 +384,21 @@ class Base_Theme extends BB_Theme {
 	public function cc_mime_types($mimes) {
 		$mimes['svg'] = 'image/svg+xml';
 		return $mimes;
-	}
+  }
+
+
+  /**
+  * Map any urls for the Uploads to a remote domain/server if we're in a local environment.
+  * This function allows us to not download the /uploads directory and avoid copious 404 errors
+  */
+  public function rewrite_uploads($upload_url_path) {
+    if (!isset($_SERVER['LANDO']))
+      return;
+
+    if ( $_SERVER['LANDO'] == 'ON' && $_SERVER['PANTHEON_ENVIRONMENT'] == 'dev' ) {
+      return 'http://develop-barrel-base.pantheonsite.io/wp-content/uploads';
+    }
+  }
 }
 
 new Base_Theme();
