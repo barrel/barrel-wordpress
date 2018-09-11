@@ -12,9 +12,19 @@ $options = $_POST + $_SERVER;
 
 try {
   // make request
-  $query = http_build_query( $options );
-  $response = Requests::post($base_url, $headers, $options);
-  print_r( $response->body );
+  $ch = curl_init();
+
+  curl_setopt( $ch, CURLOPT_URL, $base_url );
+  curl_setopt( $ch, CURLOPT_POST, true );
+  curl_setopt( $ch, CURLOPT_POSTFIELDS, $options );
+  curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+  curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+
+  $response = curl_exec($ch);
+  $body = json_decode( $response );
+
+  curl_close ($ch);
+  print_r( $body );
 } catch (Exception $ex) {
   echo $ex;
 }
