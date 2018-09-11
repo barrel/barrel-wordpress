@@ -44,7 +44,7 @@ chances of your issue being dealt with quickly:
 ### Submitting a Merge Request
 Before you submit your merge request consider the following guidelines:
 
-* Search [GitLab](https://gitlab.com/barrel/barrel-base-theme/merge_requests) for an open or closed Merge Request
+* Search [GitLab](https://gitlab.com/barrel/barrel-wordpress/merge_requests) for an open or closed Merge Request
   that relates to your submission. You don't want to duplicate effort.
 * Make your changes in a new git branch:
 
@@ -77,14 +77,14 @@ Before you submit your merge request consider the following guidelines:
 * Push your branch to GitLab:
 
     ```shell
-    git push origin my-fix-branch
+    git push origin feature/my-fix-branch
     ```
 
-* In GitLab, send a merge request to `barrel-base-theme:master`.
+* In GitLab, send a merge request to `barrel-wordpress:develop`.
 * If we suggest changes then:
   * Make the required updates.
   * Re-run the Theme test suite to ensure tests are still passing.
-  * Commit your changes to your branch (e.g. `my-fix-branch`).
+  * Commit your changes to your branch (e.g. `bugfix/my-fix-branch`).
   * Push the changes to your GitLab repository (this will update your Merge Request).
 
 If the MR gets too outdated we may ask you to rebase and force push to update the MR:

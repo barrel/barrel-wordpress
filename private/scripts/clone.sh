@@ -2,6 +2,8 @@
 
 BASE_THEME="barrel-base"
 THEME_NAME=""
+WP_CONTENT="wp-content"
+THEMES_DIR="./$WP_CONTENT/themes"
 
 # handle arguments
 for i in "$@"; do
@@ -24,10 +26,25 @@ esac
 done
 
 if [ "$THEME_NAME" == "" ]; then 
-	echo ""
-	echo "Please either define the variable for THEME_NAME"
-	echo "or supply the theme name as an argument: -t=theme-name"
-	exit
+    if [ -d "$WP_CONTENT" ]; then
+        # assume theme is the same as project
+        THEME_NAME=$(basename $(pwd))
+    fi
+    if [ "$THEME_NAME" == "" ]; then
+        echo ""
+        echo "Please define the variable for THEME_NAME within your environment"
+        echo "or supply the theme name as an argument: -t=theme-name"
+        exit
+    fi
+fi
+
+# Platform detection
+PLATFORM='unknown'
+DETECTED=$(uname | tr '[:upper:]' '[:lower:]')
+if [[ "$DETECTED" == 'linux' ]]; then
+   PLATFORM='linux'
+elif [[ "$DETECTED" == 'darwin' ]]; then
+   PLATFORM='macos'
 fi
 
 # this is to always be run from the root of the project
@@ -35,10 +52,31 @@ CWD=$(pwd)
 echo "Current working directory is: $CWD"
 
 echo "Copying theme files..."
-cp -R ./wp-content/themes/$BASE_THEME ./wp-content/themes/$THEME_NAME
+cp -R $THEMES_DIR/$BASE_THEME $THEMES_DIR/$THEME_NAME
 
-echo "You should replace these files..."
-grep -rnw wp-content/themes/$THEME_NAME/ -e "barrel-base"
+# remove lando config 
+echo "Removing lando config, please re-run 'lando init' when connecting with Pantheon..."
+rm .lando.yml
 
-# TODO
-# What needs to be grep/replaced within the theme itself?
+# replace barrel-base
+if [ "$PLATFORM" == "macos" ]; then
+    sed -i "" "s/$BASE_THEME/$THEME_NAME/g" ./private/scripts/create_module.sh
+    sed -i "" "s/$BASE_THEME/$THEME_NAME/g" ./private/scripts/prepare.sh
+    sed -i "" "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/composer.json
+    sed -i "" "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/lib/class-theme-init.php
+    sed -i "" "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/lib/helpers/wordpress.php
+    sed -i "" "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/modules/search-form/search-form.php
+    sed -i "" "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/package.json
+    sed -i "" "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/package-lock.json
+    sed -i "" "s/$BASE_THEME-theme/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/config.yml
+else
+    sed -i "s/$BASE_THEME/$THEME_NAME/g" ./private/scripts/create_module.sh
+    sed -i "s/$BASE_THEME/$THEME_NAME/g" ./private/scripts/prepare.sh
+    sed -i "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/composer.json
+    sed -i "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/lib/class-theme-init.php
+    sed -i "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/lib/helpers/wordpress.php
+    sed -i "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/modules/search-form/search-form.php
+    sed -i "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/package.json
+    sed -i "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/package-lock.json
+    sed -i "s/$BASE_THEME-theme/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/config.yml
+fi
