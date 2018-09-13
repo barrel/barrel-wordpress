@@ -203,6 +203,12 @@ export default {
 
             // If the post types didn't change, we need to check the other criteria
             // This is more straightforward because any change means an unoptimized index
+            // ******************
+            // !!!! NOT TRUE !!!!
+            // ******************
+            // There is a false positive returned if *new* Custom Field(s) or Taxonomy Term(s)
+            // are added to a new Post Type — this should not happen because we are only adding
+            // to the index, so the index is technically not dirty. See Issue #33.
             if (!indexDirty) {
                 // We want a copy of the fingerprints to manipulate without consequence
                 let initialFingerprint = JSON.parse(JSON.stringify(this.initialFingerprint));

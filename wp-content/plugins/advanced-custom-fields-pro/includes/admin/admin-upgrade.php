@@ -78,8 +78,10 @@ class ACF_Admin_Upgrade {
 			// check for upgrade
 			if( acf_has_upgrade() ) {
 				$has_upgrade = true;
-				break;
 			}
+			
+			// restore blog
+			restore_current_blog();
 		}}
 		
 		// check if upgrade is avaialble

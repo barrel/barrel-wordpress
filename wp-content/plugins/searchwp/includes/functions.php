@@ -98,6 +98,11 @@ function searchwp_update_option( $option, $value = false ) {
  */
 function searchwp_get_option( $option ) {
 
+	// The purge queue has been causing issues on certain hosts so the purge queue is DISABLED (20180907)
+	if ( 'purge_queue' == $option ) {
+		return array();
+	}
+
 	searchwp_maybe_clear_cache( $option );
 
 	return get_option( SEARCHWP_PREFIX . $option );
