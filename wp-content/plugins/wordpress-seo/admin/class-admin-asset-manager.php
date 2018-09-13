@@ -233,7 +233,10 @@ class WPSEO_Admin_Asset_Manager {
 			array(
 				'name' => 'search-appearance',
 				'src'  => 'search-appearance-' . $flat_version,
-				'deps' => 'react-dependencies',
+				'deps' => array(
+					self::PREFIX . 'react-dependencies',
+					self::PREFIX . 'components',
+				),
 			),
 			array(
 				'name' => 'wp-globals-backport',
@@ -334,6 +337,7 @@ class WPSEO_Admin_Asset_Manager {
 					self::PREFIX . 'replacevar-plugin',
 					self::PREFIX . 'shortcode-plugin',
 					'wp-util',
+					'wp-api',
 					self::PREFIX . 'wp-globals-backport',
 					self::PREFIX . 'analysis',
 					self::PREFIX . 'react-dependencies',
@@ -385,6 +389,7 @@ class WPSEO_Admin_Asset_Manager {
 					'jquery',
 					'wp-util',
 					self::PREFIX . 'react-dependencies',
+					self::PREFIX . 'wp-globals-backport',
 				),
 			),
 			array(
@@ -570,9 +575,6 @@ class WPSEO_Admin_Asset_Manager {
 			array(
 				'name' => 'search-appearance',
 				'src'  => 'search-appearance-' . $flat_version,
-				'deps' => array(
-					self::PREFIX . 'components',
-				),
 			),
 			array(
 				'name' => 'structured-data-blocks',
