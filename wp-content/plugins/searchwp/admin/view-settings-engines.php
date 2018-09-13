@@ -4,6 +4,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die();
 }
 
+if ( class_exists( 'SearchWPUpgrade' ) && empty( SWP()->settings['engines'] ) ) {
+	$swp_upgrader = new SearchWPUpgrade();
+	$swp_upgrader->install();
+}
+
 $indexer = new SearchWPIndexer();
 $indexer->update_running_counts();
 

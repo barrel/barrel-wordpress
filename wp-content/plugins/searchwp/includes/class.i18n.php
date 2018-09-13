@@ -121,12 +121,12 @@ class SearchWP_i18n {
 	 */
 	function textdomain() {
 		$locale = apply_filters( 'searchwp', get_locale(), 'searchwp' );
-		$mofile = WP_LANG_DIR . '/searchwp/searchwp-' . $locale . '.mo';
+		$mofile = WP_LANG_DIR . '/plugins/searchwp-' . $locale . '.mo';
 
 		if ( file_exists( $mofile ) ) {
 			load_textdomain( 'searchwp', $mofile );
 		} else {
-			load_plugin_textdomain( 'searchwp', false, SWP()->dir . '/languages/' );
+			load_plugin_textdomain( 'searchwp', false, basename( SWP()->dir ) . '/languages/' );
 		}
 	}
 }
