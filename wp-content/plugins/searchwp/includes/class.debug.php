@@ -26,19 +26,28 @@ class SearchWPDebug {
 		$this->active = true;
 		$this->logfile = trailingslashit( $dir ) . 'searchwp-debug.txt';
 
-		// init environment
-		if ( ! file_exists( $this->logfile ) ) {
-			WP_Filesystem();
-			if ( method_exists( $wp_filesystem, 'put_contents' ) ) {
-				if ( ! $wp_filesystem->put_contents( $this->logfile, '' ) ) {
-					$this->active = false;
+		if ( version_compare( PHP_VERSION, '5.3', '>=' ) ) {
+			include_once( SWP()->dir . '/vendor/monolog-bootloader.php' );
+
+			if ( class_exists( 'SearchWP_Monolog' ) ) {
+				$monolog = new SearchWP_Monolog( $this->logfile );
+				add_action( 'searchwp_log', array( $monolog, 'log' ), 1, 2 );
+			}
+		} else {
+			// Legacy logging for PHP 5.2
+			if ( ! file_exists( $this->logfile ) ) {
+				WP_Filesystem();
+				if ( method_exists( $wp_filesystem, 'put_contents' ) ) {
+					if ( ! $wp_filesystem->put_contents( $this->logfile, '' ) ) {
+						$this->active = false;
+					}
 				}
 			}
-		}
 
-		// after determining whether we can write to the logfile, add our action
-		if ( $this->active ) {
-			add_action( 'searchwp_log', array( $this, 'log' ), 1, 2 );
+			// after determining whether we can write to the logfile, add our action
+			if ( $this->active ) {
+				add_action( 'searchwp_log', array( $this, 'log' ), 1, 2 );
+			}
 		}
 	}
 

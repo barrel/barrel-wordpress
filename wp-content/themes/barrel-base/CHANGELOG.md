@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v1.10.0 - 2018-09-13
+### CHANGED:
+- Update plugins
+
 ## v1.9.2 - 2018-09-11
 ### CHANGED:
 - Add quicksilver creation hook

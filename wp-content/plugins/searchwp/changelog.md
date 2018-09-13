@@ -1,3 +1,20 @@
+### 2.9.15
+- **[Fix]** Fixes an issue where in some cases delta update requests were not processed correctly
+- **[Fix]** PHP Warning cleanup
+- **[Improvement]** The debug log generation process has been improved and the debug log more streamlined/readable
+- **[New]** New filter `searchwp_debug_detailed` to control whether detailed items are logged when debugging is enabled
+
+### 2.9.14
+- **[Fix]** Fixes false positive error message relating to HTTP Basic Authentication
+- **[Fix]** Resolves an issue preventing translations from loading as expected
+- **[Change]** Algorithm SQL has been updated to be more specific when considering Custom Fields and Taxonomies
+- **[New]** New filter `searchwp_dashboard_widget_transient_ttl` that allows for customization of cache duration of Dashboard Widget data
+
+### 2.9.13
+- **[Fix]** Prevent redundant statistics logging on paginated results when using `SWP_Query`
+- **[Fix]** Better handling of taxonomy terms with special characters
+- **[Fix]** Fixes PHP Warning and PHP Notice in certain cases
+
 ### 2.9.12
 - **[Improvement]** Index better optimized when limiting to Media mime type
 - **[Improvement]** AND logic is more restrictive when applicable
@@ -35,7 +52,7 @@
 - **[Fix]** Fixed link in admin notice
 
 ### 2.9.6
-- **[Fix]** Fixed an issue causing newly regiestered taxonomies to be unavailable in settings UI
+- **[Fix]** Fixed an issue causing newly registered taxonomies to be unavailable in settings UI
 - **[Fix]** Messaging for index being out of date is now more accurate
 - **[Fix]** Paged searches are no longer redundantly logged
 - **[Improvement]** Improved default regex patterns by making them more strict

@@ -158,7 +158,7 @@ class SearchWPIndexer {
 			if ( ! empty( $hash ) ) {
 				do_action( 'searchwp_log', 'Invalid index request ' . $hash );
 			} else {
-				do_action( 'searchwp_log', 'External SearchWPIndexer instantiation' );
+				do_action( 'searchwp_log', 'External SearchWPIndexer instantiation ' . $_SERVER['REQUEST_URI'] );
 			}
 		} else {
 
@@ -487,7 +487,7 @@ class SearchWPIndexer {
 			foreach ( $content as $key => $val ) {
 				$content[ $key ] = $this->do_shortcode_deep( $val );
 			}
-		} else {
+		} elseif ( is_string( $content ) ) {
 			$content = do_shortcode( $content );
 		}
 
@@ -1972,7 +1972,7 @@ class SearchWPIndexer {
 			while ( ( $term = current( $terms ) ) !== false ) {
 				/** @noinspection PhpUnusedLocalVariableInspection */
 				$termsKey = key( $terms );
-				$term_string_to_index = $term->name;
+				$term_string_to_index = html_entity_decode( $term->name ); // e.g. A&B is encoded as A&amp;B (it will be sanitized later)
 
 				$context = array(
 					'SWP'       => $this,

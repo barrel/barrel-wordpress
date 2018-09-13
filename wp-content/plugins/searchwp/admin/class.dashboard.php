@@ -90,18 +90,28 @@ class SearchWP_Dashboard {
 								?>
 								<div class="searchwp-widget-tab-wrapper ui-helper-clearfix" id="swp-<?php echo esc_attr( $engine ); ?>">
 									<?php
+									$transient_ttl = apply_filters( 'searchwp_dashboard_widget_transient_ttl', 12 * HOUR_IN_SECONDS );
+
 									$transient_today_key = 'swp_stats_' . md5( 'searchwp_widget_stats_today_' . $engine );
 									if ( false === ( $popular_searches_today = get_transient( $transient_today_key ) ) ) {
 										/** @noinspection PhpInternalEntityUsedInspection */
-										$popular_searches_today = $stats->get_popular_searches( array( 'days' => 1, 'engine' => $engine ) );
-											set_transient( $transient_today_key, $popular_searches_today, 12 * HOUR_IN_SECONDS );
+										$popular_searches_today = $stats->get_popular_searches( array(
+											'days'    => 1,
+											'engine'  => $engine,
+											'exclude' => $stats->get_ignored_queries(),
+										) );
+										set_transient( $transient_today_key, $popular_searches_today, absint( $transient_ttl ) );
 									}
 
 									$transient_month_key = 'swp_stats_' . md5( 'searchwp_widget_stats_month_' . $engine );
 									if ( false === ( $popular_searches_month = get_transient( $transient_month_key ) ) ) {
 										/** @noinspection PhpInternalEntityUsedInspection */
-										$popular_searches_month = $stats->get_popular_searches( array( 'days' => 30, 'engine' => $engine ) );
-											set_transient( $transient_month_key, $popular_searches_month, 12 * HOUR_IN_SECONDS );
+										$popular_searches_month = $stats->get_popular_searches( array(
+											'days'    => 30,
+											'engine'  => $engine,
+											'exclude' => $stats->get_ignored_queries(),
+										) );
+										set_transient( $transient_month_key, $popular_searches_month, absint( $transient_ttl ) );
 									}
 									?>
 									<div class="searchwp-stats-segment searchwp-stats-today">
@@ -134,7 +144,7 @@ class SearchWP_Dashboard {
 	 *
 	 * @since 2.8
 	 */
-	function echo_stats( $stats ) { 
+	function echo_stats( $stats ) {
 		$stats_obj = new SearchWP_Stats();
 		$stats_obj->display( $stats );
 	}

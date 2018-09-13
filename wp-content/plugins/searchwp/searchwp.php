@@ -3,7 +3,7 @@
 Plugin Name: SearchWP
 Plugin URI: https://searchwp.com/
 Description: The best WordPress search you can find
-Version: 2.9.12
+Version: 2.9.15
 Author: SearchWP, LLC
 Author URI: https://searchwp.com/
 Text Domain: searchwp
@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SEARCHWP_VERSION', '2.9.12' );
+define( 'SEARCHWP_VERSION', '2.9.15' );
 define( 'SEARCHWP_PREFIX', 'searchwp_' );
 define( 'SEARCHWP_DBPREFIX', 'swp_' );
 define( 'SEARCHWP_EDD_STORE_URL', 'https://searchwp.com' );
@@ -649,10 +649,6 @@ class SearchWP {
 			$debug->init( $wp_upload_dir['basedir'] );
 		}
 
-		do_action( 'searchwp_log', ' ' );
-		do_action( 'searchwp_log', '========== INIT ' . $this->pid . ' ' . SEARCHWP_VERSION . ' ==========' );
-		do_action( 'searchwp_log', ' ' );
-
 		$this->prepare_endpoint();
 
 		// set the registered post types
@@ -790,18 +786,24 @@ class SearchWP {
 
 			// if the alternative indexer is in play, we need to process
 			// the purge queue right now instead of relying on background processing
-			if ( $this->alternate_indexer ) {
 
+			// This has been causing issues on certain hosts so the purge queue is DISABLED (20180907)
+			// Specifically the check for the alternate indexer has been commented out so we always purge inline
+			// if ( $this->alternate_indexer ) {
+
+				do_action( 'searchwp_log', 'BEGIN processing purge queue' );
 				foreach ( $this->purgeQueue as $post_to_purge ) {
 					$this->purge_post( absint( $post_to_purge ) );
+					do_action( 'searchwp_log', 'Purged ' . absint( $post_to_purge ) );
 				}
+				do_action( 'searchwp_log', 'END processing purge queue' );
 
 				$this->trigger_index();
 
 				// now that the purge queue has been processed, we need to clear it
 				// out so as to prevent the purge collection from taking place
 				$this->purgeQueue = array();
-			}
+			// }
 
 			searchwp_update_option( 'purge_queue', $this->purgeQueue );
 		}
@@ -818,9 +820,9 @@ class SearchWP {
 			return;
 		}
 
-		do_action( 'searchwp_log', ' ' );
-		do_action( 'searchwp_log', '========== END ' . $this->pid . ' ==========' );
-		do_action( 'searchwp_log', ' ' );
+		// do_action( 'searchwp_log', ' ' );
+		// do_action( 'searchwp_log', '========== END ' . $this->pid . ' ==========' );
+		// do_action( 'searchwp_log', ' ' );
 	}
 
 
@@ -853,13 +855,13 @@ class SearchWP {
 			add_action( 'add_attachment', array( $this, 'purge_post_via_edit' ), 999 );
 			add_action( 'edit_attachment', array( $this, 'purge_post_via_edit' ), 999 );
 		} elseif ( is_admin() ) {
-			do_action( 'searchwp_log', 'User cannot edit_posts, delta hooks omitted' );
+			// do_action( 'searchwp_log', 'User cannot edit_posts, delta hooks omitted' );
 		}
 
 		if ( is_admin() && current_user_can( 'delete_posts' ) ) {
 			add_action( 'before_delete_post', array( $this, 'purge_post_via_edit' ), 999 );
 		} elseif ( is_admin() ) {
-			do_action( 'searchwp_log', 'User cannot delete_posts, delta hooks omitted' );
+			// do_action( 'searchwp_log', 'User cannot delete_posts, delta hooks omitted' );
 		}
 
 		// we want to purge a post from the index when comments are manipulated
@@ -1117,7 +1119,8 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 					do_action( 'searchwp_log', '$post->ID = ' . $post->ID );
 
 					// we need to pull the purge queue manually to see if this post is currently waiting to be indexed
-					$tmpPurgeQueue = searchwp_get_option( 'purge_queue' );
+					// This has been causing issues on certain hosts so the purge queue is DISABLED (20180907)
+					$tmpPurgeQueue = searchwp_get_option( 'purge_queue' ); // This will return an empty array always (20180907)
 					if ( ! empty( $tmpPurgeQueue ) ) {
 						if ( is_array( $tmpPurgeQueue ) ) {
 							do_action( 'searchwp_log', 'Temporary purge queue: ' . implode( ', ', $tmpPurgeQueue ) );
@@ -1162,7 +1165,7 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 							$lastIndexedMessage = __( 'Last indexed', 'searchwp' ) . ' ' . $lastIndexed;
 						}
 
-						do_action( 'searchwp_log', $lastIndexedMessage );
+						do_action( 'searchwp_log', strip_tags( $lastIndexedMessage ) );
 					}
 
 					// add the menu item
@@ -1473,6 +1476,10 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 	 * @since 1.6
 	 */
 	function process_updates( $conclude = false ) {
+
+		// This has been causing issues on certain hosts so the purge queue is DISABLED (20180907)
+		return;
+
 		do_action( 'searchwp_log', 'process_updates()' );
 
 		// $debugging_enabled = apply_filters( 'searchwp_debug', false );
@@ -1678,7 +1685,7 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 	function check_for_main_query( $query ) {
 		if ( $query->is_main_query() || $this->force_run ) {
 			if ( ! isset( $_GET['swpjumpstart'] ) ) {
-				do_action( 'searchwp_log', 'check_for_main_query(): It is the main query' );
+				// do_action( 'searchwp_log', 'check_for_main_query(): It is the main query' );
 			}
 			$this->isMainQuery = true;
 		} else {
@@ -1770,6 +1777,10 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 	 * @since 1.0
 	 */
 	function search( $engine = 'default', $terms, $page = 1 ) {
+
+		// do_action( 'searchwp_log', ' ' );
+		// do_action( 'searchwp_log', '========== INIT search ' . $this->pid . ' ' . SEARCHWP_VERSION . ' ==========' );
+		// do_action( 'searchwp_log', ' ' );
 
 		do_action( 'searchwp_log', 'search()' );
 
@@ -2458,6 +2469,12 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 			return $posts;
 		}
 
+		// do_action( 'searchwp_log', ' ' );
+		// do_action( 'searchwp_log', '========== INIT search (native) ' . $this->pid . ' ' . SEARCHWP_VERSION . ' ==========' );
+		// do_action( 'searchwp_log', ' ' );
+
+		do_action( 'searchwp_log', 'wp_search()' );
+
 		// TODO: This nested conditional nest has become crazy
 		if ( ! $this->force_run ) {
 			// make sure we're not in the admin, that we are searching, that it is the main query, and that SearchWP is not active
@@ -2525,9 +2542,12 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 			$wp_query_s = isset( $_REQUEST['s'] ) ? sanitize_text_field( $_REQUEST['s'] ) : '';
 		}
 
-		$this->original_query = $wp_query_s;
+		$this->original_query = stripslashes( $wp_query_s );
 		$terms_trimmed = trim( $wp_query_s );
-		$terms = stripslashes( $terms_trimmed );
+
+		// This is redundant, but legacy because stripslashes() used to be called here which is late
+		$terms = $terms_trimmed;
+
 		do_action( 'searchwp_log', '$terms = ' . var_export( $terms, true ) );
 
 		// facilitate filtering the actual terms
@@ -3881,7 +3901,10 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 				$this->purgeQueue[ $object_id ] = $object_id;
 				do_action( 'searchwp_log', 'purge_post_via_comment() ' . $object_id );
 			} else {
-				do_action( 'searchwp_log', 'Prevented duplicate purge purge_post_via_comment() ' . $object_id );
+				$detailed_debug = apply_filters( 'searchwp_debug_detailed', false );
+				if ( $detailed_debug ) {
+					do_action( 'searchwp_log', 'Prevented duplicate purge purge_post_via_comment() ' . $object_id );
+				}
 			}
 		}
 	}
@@ -3917,11 +3940,17 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 				$this->purgeQueue[ $object_id ] = $object_id;
 				do_action( 'searchwp_log', 'purge_post_via_term() ' . $object_id );
 			} else {
-				do_action( 'searchwp_log', 'purge_post_via_term() skipped, taxonomy not used: ' . $taxonomy );
+				$detailed_debug = apply_filters( 'searchwp_debug_detailed', false );
+				if ( $detailed_debug ) {
+					do_action( 'searchwp_log', 'purge_post_via_term() skipped, taxonomy not used: ' . $taxonomy );
+				}
 			}
 		}
 		else {
-			do_action( 'searchwp_log', 'Prevented duplicate purge purge_post_via_term() ' . $object_id );
+			$detailed_debug = apply_filters( 'searchwp_debug_detailed', false );
+			if ( $detailed_debug ) {
+				do_action( 'searchwp_log', 'Prevented duplicate purge purge_post_via_term() ' . $object_id );
+			}
 		}
 	}
 
@@ -4583,7 +4612,7 @@ add_filter( 'searchwp_file_content_limit', 'my_searchwp_file_content_limit' );</
 				$tax_term_ids = call_user_func_array( 'array_intersect', $tax_term_ids );
 			} else {
 				$tax_term_ids = array_values( $tax_term_ids );
-				$tax_term_ids = $tax_term_ids[0];
+				$tax_term_ids = isset( $tax_term_ids[0] ) ? $tax_term_ids[0] : array();
 			}
 
 			if ( empty( $tax_term_ids ) ) {
@@ -4729,6 +4758,10 @@ add_filter( 'searchwp_file_content_limit', 'my_searchwp_file_content_limit' );</
 			$ids = $ids['default'];
 		}
 
+		if ( ! is_array( $ids ) ) {
+			$ids = array();
+		}
+
 		// Now we can merge the common IDs with the existing exclusions
 		$ids = array_merge( $ids, $existing_ids );
 		$ids = array_map( 'absint', $ids );
@@ -4827,7 +4860,7 @@ add_filter( 'searchwp_file_content_limit', 'my_searchwp_file_content_limit' );</
 						$engine_meta_key_parts = explode( '%', $engine_meta_key );
 
 						foreach ( $engine_meta_key_parts as $engine_meta_key_part ) {
-							if ( false !== strpos( $meta_key, $engine_meta_key_part ) ) {
+							if ( ! empty( $engine_meta_key_part ) && false !== strpos( $meta_key, $engine_meta_key_part ) ) {
 								$used = true;
 								break;
 							}
@@ -4858,6 +4891,10 @@ add_filter( 'searchwp_file_content_limit', 'my_searchwp_file_content_limit' );</
 	 */
 	function is_used_taxonomy( $taxonomy ) {
 		$used = false;
+
+		if ( empty( $this->settings['engines'] ) ) {
+			return $used;
+		}
 
 		foreach ( $this->settings['engines'] as $engine => $post_types ) {
 			foreach ( $post_types as $post_type => $post_type_settings ) {

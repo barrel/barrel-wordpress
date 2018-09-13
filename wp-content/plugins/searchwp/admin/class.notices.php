@@ -239,8 +239,9 @@ class SearchWPAdminNotices extends SearchWP {
 		);
 
 		$erroneousPosts = get_posts( $args );
+		$index_notice_default = current_user_can( SWP()->settings_cap );
 
-		if ( ! empty( $erroneousPosts ) && apply_filters( 'searchwp_failed_index_notice', true, $erroneousPosts ) ) : ?>
+		if ( ! empty( $erroneousPosts ) && apply_filters( 'searchwp_failed_index_notice', $index_notice_default, $erroneousPosts ) ) : ?>
 			<div class="updated error" id="searchwp-index-errors-notice">
 				<?php
 					$the_link = admin_url( 'options-general.php?page=searchwp' ) . '&nonce=' . esc_attr( wp_create_nonce( 'swperroneous' ) );

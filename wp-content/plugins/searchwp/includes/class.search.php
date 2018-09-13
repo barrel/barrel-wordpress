@@ -209,7 +209,10 @@ class SearchWPSearch {
 		// instantiate our stemmer for later
 		$this->stemmer = new SearchWPStemmer();
 
-		do_action( 'searchwp_log', '$args = ' . var_export( $args, true ) );
+		$detailed_debug = apply_filters( 'searchwp_debug_detailed', false );
+		if ( $detailed_debug ) {
+			do_action( 'searchwp_log', '$args = ' . var_export( $args, true ) );
+		}
 
 		// if we have a valid engine, perform the query
 		if ( $this->searchwp->is_valid_engine( $args['engine'] ) ) {
@@ -336,8 +339,7 @@ class SearchWPSearch {
 				$this->posts = $this->query();
 
 				// log this
-				$paged = get_query_var( 'paged' );
-				$paged = absint( $paged ) > 1;
+				$paged = absint( $this->page ) > 1;
 
 				// Default is to log if we're not doing an admin column nor are we paging
 				$log_default = ! $this->doing_admin_column() && ! $paged;
@@ -495,6 +497,8 @@ class SearchWPSearch {
 			'postsPer'  => $this->postsPer,
 		);
 
+		do_action( 'searchwp_log', 'query() complete' );
+
 		do_action( 'searchwp_after_query_index', $swpargs );
 
 		// facilitate filtration of returned results
@@ -529,6 +533,8 @@ class SearchWPSearch {
 		} else {
 			$posts = $this->postIDs;
 		}
+
+		do_action( 'searchwp_log', 'query() return' );
 
 		return $posts;
 	}
@@ -625,7 +631,10 @@ class SearchWPSearch {
 
 		$excludeIDs = array_unique( $excludeIDs );
 
-		do_action( 'searchwp_log', '$excludeIDs = ' . var_export( $excludeIDs, true ) );
+		$detailed_debug = apply_filters( 'searchwp_debug_detailed', false );
+		if ( $detailed_debug ) {
+			do_action( 'searchwp_log', '$excludeIDs = ' . var_export( $excludeIDs, true ) );
+		}
 
 		$this->excluded = $excludeIDs;
 	}
@@ -696,7 +705,10 @@ class SearchWPSearch {
 		}
 		remove_filter( 'searchwp_force_wp_query', '__return_true' );
 
-		do_action( 'searchwp_log', 'After taxonomy exclusion $excludeIDs = ' . var_export( $this->excluded, true ) );
+		$detailed_debug = apply_filters( 'searchwp_debug_detailed', false );
+		if ( $detailed_debug ) {
+			do_action( 'searchwp_log', 'After taxonomy exclusion $excludeIDs = ' . var_export( $this->excluded, true ) );
+		}
 	}
 
 	/**
@@ -770,7 +782,10 @@ class SearchWPSearch {
 		}
 		remove_filter( 'searchwp_force_wp_query', '__return_true' );
 
-		do_action( 'searchwp_log', 'After taxonomy limiter $includeIDS = ' . var_export( $limited_ids, true ) );
+		$detailed_debug = apply_filters( 'searchwp_debug_detailed', false );
+		if ( $detailed_debug ) {
+			do_action( 'searchwp_log', 'After taxonomy limiter $includeIDS = ' . var_export( $limited_ids, true ) );
+		}
 
 		return $limited_ids;
 	}
@@ -1125,7 +1140,10 @@ class SearchWPSearch {
 		$postsWithTermPresent = array_diff( $postsWithTermPresent, $this->excluded );
 
 		if ( ! empty( $postsWithTermPresent ) ) {
-			do_action( 'searchwp_log', 'Algorithm AND logic pass: ' . implode( ', ', $postsWithTermPresent ) );
+			$detailed_debug = apply_filters( 'searchwp_debug_detailed', false );
+			if ( $detailed_debug ) {
+				do_action( 'searchwp_log', 'Algorithm AND logic pass: ' . implode( ', ', $postsWithTermPresent ) );
+			}
 		}
 
 		return $postsWithTermPresent;
@@ -1198,7 +1216,10 @@ class SearchWPSearch {
 
 						$postsWithTermPresent = $this->get_post_ids_via_and( $and_fields_for_post_type, $andTerm, $postType );
 
-						do_action( 'searchwp_log', '$postsWithTermPresent (' . $postType . ') = ' . implode( ', ', $postsWithTermPresent ) );
+						$detailed_debug = apply_filters( 'searchwp_debug_detailed', false );
+						if ( $detailed_debug ) {
+							do_action( 'searchwp_log', '$postsWithTermPresent (' . $postType . ') = ' . implode( ', ', $postsWithTermPresent ) );
+						}
 
 						$andTerms[ $postType ][] = $postsWithTermPresent;
 					}
@@ -1444,7 +1465,10 @@ class SearchWPSearch {
 		// find the common post IDs across the board
 		if ( $applicableAndResults ) {
 			$relevantPostIds = call_user_func_array( 'array_intersect', $andTerms );
-			do_action( 'searchwp_log', 'Algorithm AND refinement pass: ' . implode( ', ', $relevantPostIds ) );
+			$detailed_debug = apply_filters( 'searchwp_debug_detailed', false );
+			if ( $detailed_debug ) {
+				do_action( 'searchwp_log', 'Algorithm AND refinement pass: ' . implode( ', ', $relevantPostIds ) );
+			}
 		}
 
 		return $relevantPostIds;
@@ -1924,7 +1948,7 @@ class SearchWPSearch {
                     {$post_meta_clause}
                     {$this->sql_conditions}
                     GROUP BY post_id
-                ) cfweights{$i} USING(post_id)";
+                ) AS cfweights{$i} ON cfweights{$i}.post_id = {$wpdb->prefix}posts.ID";
 			$i++;
 		}
 
@@ -1949,7 +1973,7 @@ class SearchWPSearch {
                     {$post_meta_clause}
                     {$this->sql_conditions}
                     GROUP BY post_id
-                ) cfweights{$i} USING(post_id)";
+                ) AS cfweights{$i} ON cfweights{$i}.post_id = {$wpdb->prefix}posts.ID";
 				$i++;
 			}
 		}
@@ -2001,7 +2025,7 @@ class SearchWPSearch {
                     AND {$this->db_prefix}tax.taxonomy IN (" . implode( ',', $postTypeTaxonomies ) . ")
                     {$this->sql_conditions}
                     GROUP BY {$this->db_prefix}tax.post_id
-                ) taxweights{$i} USING(post_id)";
+                ) AS taxweights{$i} ON taxweights{$i}.post_id = {$wpdb->prefix}posts.ID";
 			$i++;
 		}
 	}
@@ -2557,7 +2581,7 @@ class SearchWPSearch {
 			}
 		}
 
-		do_action( 'searchwp_log', 'Search results: ' . implode( ', ', $postIDs ) );
+		do_action( 'searchwp_log', 'Search results (' . count( $postIDs ) . ') IDs: ' . implode( ', ', $postIDs ) );
 
 		// retrieve how many total posts were found without the limit
 		$this->foundPosts = (int) $wpdb->get_var(
@@ -2845,7 +2869,7 @@ class SearchWPSearch {
 			$attributed_post_parents_sql = "
 				SELECT DISTINCT {$wpdb->posts}.post_parent
 				FROM {$wpdb->posts}
-				LEFT JOIN {$this->db_prefix}index ON {$this->db_prefix}index.post_id = wp_posts.ID
+				LEFT JOIN {$this->db_prefix}index ON {$this->db_prefix}index.post_id = {$wpdb->posts}.ID
 				LEFT JOIN {$this->db_prefix}terms ON {$this->db_prefix}terms.id = {$this->db_prefix}index.term
 				WHERE {$wpdb->posts}.post_parent > 0
 				AND (

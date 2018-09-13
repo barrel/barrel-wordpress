@@ -67,9 +67,9 @@ if ( ! defined( 'ABSPATH' ) || ! class_exists( 'SearchWP_System_Info' ) || ! cla
 <div class="searchwp-system-info">
 	<h3><?php esc_html_e( 'System Information', 'searchwp' ); ?></h3>
 	<?php $search_template = locate_template( 'search.php' ) ? locate_template( 'search.php' ) : locate_template( 'index.php' ); ?>
-	<p><?php echo wp_kses( sprintf( __( 'When submitting this information to support staff it will also be helpful if you can create a <a href="%s">Gist</a> of your search results template which is found here:', 'searchwp' ), 'https://gist.github.com' ), array( 'a' => array( 'href' => array() ) ) ); ?></p>
+	<p><?php echo wp_kses( sprintf( __( 'When submitting this information to support staff it will also be helpful if you can <a href="%s">create a snippet</a> of your search results template which is found here:', 'searchwp' ), 'https://searchwp.com/snippet/' ), array( 'a' => array( 'href' => array() ) ) ); ?></p>
 	<p><code><?php echo esc_html( $search_template ); ?></code></p>
-	<p class="description"><?php echo wp_kses( sprintf( __( 'Please provide this information (ideally as a link to a <a href="%s">Gist</a>) when requested by support staff', 'searchwp' ), 'https://gist.github.com' ), array( 'a' => array( 'href' => array() ) ) ); ?></p>
+	<p class="description"><?php echo wp_kses( sprintf( __( 'Please provide this information (ideally as a link to a <a href="%s">snippet</a>) when requested by support staff', 'searchwp' ), 'https://searchwp.com/snippet/' ), array( 'a' => array( 'href' => array() ) ) ); ?></p>
 	<?php
 	$searchwp_system_info = new SearchWP_System_Info();
 	$searchwp_system_info->output();

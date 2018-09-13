@@ -84,7 +84,7 @@ class SearchWPUpgrade {
 	 *
 	 * @since 1.0
 	 */
-	private function install() {
+	function install() {
 
 		/**
 		 * Save our default settings so we have a working search engine on activation
