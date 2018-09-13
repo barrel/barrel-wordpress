@@ -396,7 +396,7 @@ class Base_Theme extends BB_Theme {
       return;
 
     if ( $_SERVER['LANDO'] == 'ON' && $_SERVER['PANTHEON_ENVIRONMENT'] == 'dev' ) {
-      return 'http://develop-barrel-base.pantheonsite.io/wp-content/uploads';
+      return '//develop-barrel-base.pantheonsite.io/wp-content/uploads';
     }
   }
 }
