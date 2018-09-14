@@ -386,17 +386,19 @@ class Base_Theme extends BB_Theme {
 		return $mimes;
   }
 
-
   /**
   * Map any urls for the Uploads to a remote domain/server if we're in a local environment.
   * This function allows us to not download the /uploads directory and avoid copious 404 errors
   */
   public function rewrite_uploads($upload_url_path) {
+		printf("<pre>%s</pre>", print_r($_SERVER, true)); exit;
     if (!isset($_SERVER['LANDO']))
       return;
 
+		$site_name = $_SERVER['PANTHEON_SITE_NAME'] ?? 'barrel-base';
+
     if ( $_SERVER['LANDO'] == 'ON' && $_SERVER['PANTHEON_ENVIRONMENT'] == 'dev' ) {
-      return '//develop-barrel-base.pantheonsite.io/wp-content/uploads';
+      return "//develop-$site_name.pantheonsite.io/wp-content/uploads";
     }
   }
 }
