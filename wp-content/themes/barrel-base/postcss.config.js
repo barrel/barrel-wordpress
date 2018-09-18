@@ -1,5 +1,4 @@
 const config = {
-  parser: 'postcss-scss',
   plugins: [
     require('./tasks/postcss-module-import'),
     require('postcss-sassy-mixins'),
