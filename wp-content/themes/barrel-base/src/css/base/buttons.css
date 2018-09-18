@@ -1,0 +1,29 @@
+button {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background-color: transparent;
+  color: inherit;
+  font-size: inherit;
+  -webkit-appearance: none;
+}
+
+button[disabled],
+input[disabled] {
+  cursor: default
+}
+
+.btn {
+  display: inline-block;
+  background-color: var(--color-primary);
+  color: white;
+  cursor: pointer;
+  padding: 1em;
+  text-decoration: none;
+  text-align: center;
+}
+
+.pointer {
+  cursor: pointer;
+}
+

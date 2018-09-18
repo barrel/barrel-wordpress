@@ -1,0 +1,9 @@
+.rel { position: relative }
+.abs { position: absolute }
+.fix { position: fixed }
+.fit, .fit-t { top: 0 }
+.fit, .fit-b { bottom: 0 }
+.fit, .fit-l { left: 0 }
+.fit, .fit-r { right: 0 }
+.fill, .fill-w { width: 100% }
+.fill, .fill-h { height: 100% }

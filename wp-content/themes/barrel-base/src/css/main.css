@@ -1,6 +1,22 @@
 /** Imports from src directory */
+@import "base/reset.css";
 @import "base/variables.css";
+@import "base/align.css";
+@import "base/animations.css";
+@import "base/buttons.css";
+@import "base/colors.css";
+@import "base/containers.css";
+@import "base/display.css";
+@import "base/floats.css";
+@import "base/flexbox.css";
+@import "base/forms.css";
+@import "base/lists.css";
+@import "base/positioning.css";
+@import "base/spacing.css";
+@import "base/tables.css";
 @import "base/typography.css";
+@import "base/widths.css";
+@import "base/z-index.css";
 
 /** Imports from module folders (Paths are expanded within Gulp task) */
 @import "<Modules>";
