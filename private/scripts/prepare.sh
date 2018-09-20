@@ -148,22 +148,33 @@ printf "\nNext version is: ${YELLOW}"
 eval $AUTO_INC_VERSION_WITH_NPM
 printf "${DEFAULT}\n"
 
-read -r -p "Finish and commit? [y/N] " response
+read -r -p "Finish and commit version changes? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 
     printf "\nProceeding with package ${GREEN}$NEXT_VERSION${DEFAULT}, "
     printf "last version was ${YELLOW}$CURR_VERSION${DEFAULT}"
     printf "\n\n${GREEN}done.${DEFAULT}\n\n"
 	git commit -am "Update changelog and bump versions" 
-    printf "\nFinish up with gitflow command ${BLUE}git flow $FLOW finish $NEXT_VERSION${DEFAULT}"
-    git flow $FLOW finish $NEXT_VERSION
-    exit 0
-    ;;
-    *)
-    printf "\n${RED}Exiting. Goodbye.${DEFAULT}\n\n"
-    git reset --hard HEAD
-    exit 1
-    ;;
 esac
+
+read -r -p "Do you want to build and commit scripts/styles? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+    printf "\nBuilding scripts and styles..."
+    npm run build #might want to include `nmp i` here
+    git commit -am "Process scripts/styles"
+    printf "\n\n${GREEN}done.${DEFAULT}\n\n"
+esac
+
+
+printf "\nFinish up with gitflow command ${BLUE}git flow $FLOW finish $NEXT_VERSION${DEFAULT}"
+git flow $FLOW finish $NEXT_VERSION
+exit 0
+;;
+*)
+printf "\n${RED}Exiting. Goodbye.${DEFAULT}\n\n"
+git reset --hard HEAD
+exit 1
+;;
 
 exit
