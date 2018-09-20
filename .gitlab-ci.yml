@@ -46,3 +46,13 @@ multidev_develop:
 #     - bash private/scripts/import_git_remote.sh
 #   script:
 #     - bash private/scripts/multidev_deploy_feature.sh
+multidev_hotfix:
+  only:
+    - /^hotfix\/.*$/
+  stage: acceptance
+  before_script:
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - bash private/scripts/import_git_remote.sh
+  script:
+    - bash private/scripts/multidev_deploy_hotfix.sh
