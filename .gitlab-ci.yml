@@ -50,7 +50,7 @@ multidev_hotfix:
   only:
     - /^hotfix\/.*$/
   stage: acceptance
-   before_script:
+  before_script:
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - bash private/scripts/import_git_remote.sh
