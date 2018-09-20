@@ -1,6 +1,6 @@
 {
   "name": "barrel-base",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "scripts": {
     "start": "brrl -w",
     "build": "brrl -b -e production; npm run critical",
