@@ -21,7 +21,7 @@ echo "Looks like the most recent data can be found in the <$DATA_ENVIRONMENT> en
 echo "Checking if ENV '$ENV' exists ..."
 if [ "$MATCH" != "$ENV" ]
 then 
-    echo "Multidev not found. Creating $ENV from develop ..."
+    echo "Multidev not found. Creating $ENV from the <$DATA_ENVIRONMENT?> environment ..."
     terminus multidev:create $PANTHEON_SITE_ID.$DATA_ENVIRONMENT $ENV
     terminus remote:wp $PANTHEON_SITE_ID.$ENV -- theme activate $THEME_NAME
 	printf "\ndone\n"
