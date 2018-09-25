@@ -41,11 +41,11 @@ test_css_lint:
   stage: test
   before_script:
     - npm config set loglevel warn && npm set progress=false
-    - npm install -g stylelint && npm i stylelint-config-standard
-    - cd ./wp-content/themes/$THEME_NAME
+    - npm install -g stylelint
+    - cd ./wp-content/themes/$THEME_NAME && npm i stylelint-config-standard
   script: 
     - echo "{\"extends\":\"stylelint-config-standard\"}" > .stylelintrc
-    - stylelint "*/**.css"
+    - stylelint "**/*.css, !**/*.min.css"
 test_modules:
   stage: test
   script: 
