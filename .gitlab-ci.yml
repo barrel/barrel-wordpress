@@ -45,7 +45,7 @@ test_css_lint:
     - cd ./wp-content/themes/$THEME_NAME && npm i stylelint-config-standard
   script: 
     - echo "{\"extends\":\"stylelint-config-standard\"}" > .stylelintrc
-    - stylelint "**/*.css, !**/*.min.css"
+    - stylelint src/css/*.css modules/**/*.css
 test_modules:
   stage: test
   script: 
