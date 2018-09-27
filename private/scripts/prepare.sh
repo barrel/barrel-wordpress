@@ -4,7 +4,9 @@
 ## This prepare script is usually for finishing a release or hotfix.
 ##
 ## Assumptions: the hotfix/release branch has already been created.
+##   The theme's node_modules directory is up to date (`npm i` has been run)
 ## To start the hotfix/release, run with -s=yes
+##
 ##
 ## From the hotfix/v0.0.0 or release/v0.0.0 branch, this script:
 ## - Updates the Changelog (automatically with commit messages)
@@ -84,6 +86,17 @@ cd $THEME_PATH
 CWD=$(pwd)
 printf "\nCurrent working directory is now: ${BLUE}$CWD${DEFAULT}\n"
 
+# check to process stlyes and scripts before continuing
+read -r -p "Do you want to build and commit scripts/styles? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+    printf "\nBuilding scripts and styles..."
+    npm run build #might want to include `nmp i` here
+    printf "\nCommitting styles and scripts..."
+    git commit -am "Process scripts/styles"
+    printf "\n\n${GREEN}done.${DEFAULT}\n\n"
+esac
+
 # get next version with npm, unless you find a clever regex that works
 NEXT_VERSION=$(eval $AUTO_INC_VERSION_WITH_NPM)
 git reset --hard HEAD
@@ -156,16 +169,6 @@ case "$response" in
     printf "\n\n${GREEN}done.${DEFAULT}\n\n"
 	git commit -am "Update changelog and bump versions" 
 esac
-
-read -r -p "Do you want to build and commit scripts/styles? [y/N] " response
-case "$response" in
-    [yY][eE][sS]|[yY]) 
-    printf "\nBuilding scripts and styles..."
-    npm run build #might want to include `nmp i` here
-    git commit -am "Process scripts/styles"
-    printf "\n\n${GREEN}done.${DEFAULT}\n\n"
-esac
-
 
 printf "\nFinish up with gitflow command ${BLUE}git flow $FLOW finish $NEXT_VERSION${DEFAULT}"
 git flow $FLOW finish $NEXT_VERSION
