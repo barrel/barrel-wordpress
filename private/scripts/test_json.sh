@@ -8,17 +8,12 @@
 
 THEME_NAME="barrel-base"
 INVALID_FILES=""
-COUNT=0
 
 echo "Validating json files in the ${THEME_NAME} theme"
 while read -r line; do
     php -r "if ( ! json_decode(file_get_contents('$line')) ) { exit(1); }"
     if [ $? -ne 0 ]; then
-        if [ $COUNT -eq 0 ]; then
-            INVALID_FILES+="INVALID JSON FILES:\n"
-        fi
-        INVALID_FILES+="${line}"
-        COUNT=$(($COUNT+1))
+        INVALID_FILES+="${line}\n"
     fi
 done <<< "$(find ./wp-content/themes/${THEME_NAME} -type f -name '*.json' -not -path './wp-content/themes/barrel-base/node_modules/*')"
 
@@ -26,9 +21,7 @@ if [ -z "$INVALID_FILES" ]; then
     echo "All JSON files look ok. Moving on ..."
     exit
 else
-    echo "JSON Syntax errors were found in the ${THEME_NAME} theme. Please check the snytax of the following files and fix any errors."
-    echo $INVALID_FILES
+    printf "\nJSON Syntax errors were found in the ${THEME_NAME} theme. Please check the snytax of the following files and fix any errors.\n"
+    printf "\nINVALID JSON FILES:\n${INVALID_FILES}"
     exit 1;
 fi
-
-
