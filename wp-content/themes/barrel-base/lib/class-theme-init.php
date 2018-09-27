@@ -391,9 +391,12 @@ class Base_Theme extends BB_Theme {
   * This function allows us to not download the /uploads directory and avoid copious 404 errors
   */
   public function rewrite_uploads($upload_url_path) {
-		printf("<pre>%s</pre>", print_r($_SERVER, true)); exit;
     if (!isset($_SERVER['LANDO']))
       return;
+
+		$enable_proxy = get_field('proxy_images','option');
+		if (!$enable_proxy)
+			return;
 
 		$site_name = $_SERVER['PANTHEON_SITE_NAME'] ?? 'barrel-base';
 
