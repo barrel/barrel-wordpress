@@ -6,7 +6,8 @@
     "build": "brrl -b -e production; npm run critical",
     "critical": "postcss src/css/main.css -o assets/critical.min.css --config tasks/",
     "dependencies": "brrl-install",
-    "create-module": "sh ../../../private/scripts/create_module.sh"
+    "create-module": "sh ../../../private/scripts/create_module.sh",
+    "remove-multidev": "sh ../../../private/scripts/create_module.sh"
   },
   "devDependencies": {
     "@barrelny/cli": "^1.0.3",

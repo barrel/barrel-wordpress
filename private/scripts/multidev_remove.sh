@@ -3,16 +3,14 @@
 ####################################################################
 ## This script will remove a multidev environment and associated branch 
 ## from a provided pantheon environment
-## 
-## Assumptions:
 ##
-##
-## TODO:
+## This script should be run from within the theme directory using the npm script
+## `npm run remove-multidev`
 ## 
 ####################################################################
 
 # Variables - Need to be updated per project
-PANTHEON_SITE="bkbx"
+PANTHEON_SITE="barrel-base"
 
 # Terminal colors
 DEFAULT=$(tput setaf 7)
