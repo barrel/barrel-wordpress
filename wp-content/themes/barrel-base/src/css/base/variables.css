@@ -1,3 +1,49 @@
 :root {
-  --break-mobile-min: 600px;
+  /* Padding */
+  --padding: 20px;
+  --paddingXS: 30px;
+  --paddingM: 50px;
+
+  /* Breakpoints */
+  --xxs: 445px;
+  --xs: 625px;
+  --s: 768px;
+  --ms: 840px;
+  --m: 960px;
+  --ml: 1160px;
+  --l: 1290px;
+  --xl: 1440px;
+  --xxl: 1800px;
+
+  /* Colors */
+  --black: #000000;
+  --white: #ffffff;
+  --color-primary: #313131;
+
+  /* Borders */
+  --border: 1px solid var(--black);
+
+  /* Transitions */
+  --duration: 0.25s;
+  --speed: 200ms;
+  --ease: ease-in-out;
+
+  /* Grids */
+  --gutter-sm: 10px;
+  --gutter-lg: 20px;
+
+  /* Header */
+  --h-height: 57px;
+  --h-height-lg: 83px;
 }
+
+/* Breakpoint Queries */
+@custom-media --xxs (min-width: 445px);
+@custom-media --xs (min-width: 625px);
+@custom-media --s (min-width: 768px);
+@custom-media --ms (min-width: 840px);
+@custom-media --m (min-width: 960px);
+@custom-media --ml (min-width: 1160px);
+@custom-media --l (min-width: 1290px);
+@custom-media --xl (min-width: 1440px);
+@custom-media --xxl (min-width: 800px);
