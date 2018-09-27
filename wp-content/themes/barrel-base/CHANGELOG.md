@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## v1.12.0 - 2018-09-27
+### CHANGED:
+- Update Barrel CLI 
+- Add base style utility classes
+- Add screenshot generation script
+- Enable multidev deployments by default
+
 ## v1.11.0 - 2018-09-20
 ### CHANGED:
 - Add auto-deploy script for hotfixes
