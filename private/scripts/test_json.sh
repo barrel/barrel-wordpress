@@ -15,12 +15,12 @@ while read -r line; do
     php -r "if ( ! json_decode(file_get_contents('$line')) ) { exit(1); }"
     if [ $? -ne 0 ]; then
         if [ $COUNT -eq 0 ]; then
-            INVALID_FILES+="INVALID JSON FILES:"
+            INVALID_FILES+="INVALID JSON FILES:\n"
         fi
         INVALID_FILES+="${line}"
         COUNT=$(($COUNT+1))
     fi
-done <<< "$(rg wp-content/themes/${THEME_NAME} --files --type json)"
+done <<< "$(find ./wp-content/themes/${THEME_NAME} -type f -name '*.json' -not -path './wp-content/themes/barrel-base/node_modules/*')"
 
 if [ -z "$INVALID_FILES" ]; then
     echo "All JSON files look ok. Moving on ..."
