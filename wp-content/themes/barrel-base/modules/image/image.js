@@ -27,6 +27,7 @@ instance
     if (!objectFit) {
       const src = el.getAttribute('data-normal')
       wrapper.style.backgroundImage = 'url("' + src + '")'
+      wrapper.classList.add('image--loaded')
     }
   })
 
