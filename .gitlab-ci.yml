@@ -2,19 +2,21 @@ stages:
   - merge_request
   - build
   - test
-  - acceptance
+  - deploy
   - production
 image: barrelny/pantheon-ci:0.0.9
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+  - wp-content/themes/$THEME_NAME/node_modules/
 create_merge_request:
   stage: merge_request
   only:
     - /^(feature|bugfix|support)\/.*/
   script:
     - ./private/scripts/merge-request.sh
-build_theme:
-  only: 
-    - ^(feature\/.*)|(develop)$
-  stage: build
+test_build_theme:
+  stage: test
   script:
     - cd ./wp-content/themes/$THEME_NAME && npm i
     - npm run build
@@ -22,6 +24,7 @@ test_php_syntax:
   stage: test
   script: 
     - git diff --diff-filter=ACMR --name-only origin/master -- '*.php' | xargs -L1 php -d short_open_tag=Off -l
+# @todo: install standard globally to CI image
 test_js_lint:
   stage: test
   before_script:
@@ -29,6 +32,7 @@ test_js_lint:
     - npm install -g standard --loglevel=warn
     - cd ./wp-content/themes/$THEME_NAME
   script: standard
+# @todo: install editorconfig-checker globally to CI image
 test_editorconfig:
   stage: test
   before_script:
@@ -37,6 +41,15 @@ test_editorconfig:
     - cd ./wp-content/themes/$THEME_NAME
   script:
     - editorconfig-checker ./**/*
+# @todo: install stylelint globally to CI image
+test_css_lint:
+  stage: test
+  before_script:
+    - npm config set loglevel warn && npm set progress=false
+    - npm install -g stylelint
+    - cd ./wp-content/themes/$THEME_NAME
+  script: 
+    - stylelint src/css/*.css modules/**/*.css
 test_modules:
   stage: test
   script: 
@@ -44,7 +57,7 @@ test_modules:
 multidev_develop:
   only: 
     - develop
-  stage: acceptance
+  stage: deploy
   before_script:
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
@@ -54,7 +67,7 @@ multidev_develop:
 multidev_feature:
   only: 
     - /^feature\/.*$/
-  stage: acceptance
+  stage: deploy
   before_script:
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
@@ -64,7 +77,7 @@ multidev_feature:
 multidev_hotfix:
   only:
     - /^hotfix\/.*$/
-  stage: acceptance
+  stage: deploy
   before_script:
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
