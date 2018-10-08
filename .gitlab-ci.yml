@@ -24,6 +24,7 @@ test_php_syntax:
   stage: test
   script: 
     - git diff --diff-filter=ACMR --name-only origin/master -- '*.php' | xargs -L1 php -d short_open_tag=Off -l
+# @todo: install standard globally to CI image
 test_js_lint:
   stage: test
   before_script:
@@ -31,6 +32,7 @@ test_js_lint:
     - npm install -g standard --loglevel=warn
     - cd ./wp-content/themes/$THEME_NAME
   script: standard
+# @todo: install editorconfig-checker globally to CI image
 test_editorconfig:
   stage: test
   before_script:
@@ -39,6 +41,7 @@ test_editorconfig:
     - cd ./wp-content/themes/$THEME_NAME
   script:
     - editorconfig-checker ./**/*
+# @todo: install stylelint globally to CI image
 test_css_lint:
   stage: test
   before_script:
