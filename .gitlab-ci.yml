@@ -2,7 +2,7 @@ stages:
   - merge_request
   - build
   - test
-  - acceptance
+  - deploy
   - production
 image: barrelny/pantheon-ci:0.0.9
 cache:
@@ -54,7 +54,7 @@ test_modules:
 multidev_develop:
   only: 
     - develop
-  stage: acceptance
+  stage: deploy
   before_script:
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
@@ -64,7 +64,7 @@ multidev_develop:
 multidev_feature:
   only: 
     - /^feature\/.*$/
-  stage: acceptance
+  stage: deploy
   before_script:
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
@@ -74,7 +74,7 @@ multidev_feature:
 multidev_hotfix:
   only:
     - /^hotfix\/.*$/
-  stage: acceptance
+  stage: deploy
   before_script:
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
