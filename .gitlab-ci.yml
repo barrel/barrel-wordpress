@@ -5,16 +5,18 @@ stages:
   - acceptance
   - production
 image: barrelny/pantheon-ci:0.0.9
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+  - wp-content/themes/$THEME_NAME/node_modules/
 create_merge_request:
   stage: merge_request
   only:
     - /^(feature|bugfix|support)\/.*/
   script:
     - ./private/scripts/merge-request.sh
-build_theme:
-  only: 
-    - ^(feature\/.*)|(develop)$
-  stage: build
+test_build_theme:
+  stage: test
   script:
     - cd ./wp-content/themes/$THEME_NAME && npm i
     - npm run build
