@@ -39,6 +39,8 @@ class Base_Theme extends BB_Theme {
 
     $this->add_options_page();
     $this->register_image_sizes();
+    $this->add_post_types();
+    $this->add_taxonomies();
   }
 
 
@@ -62,13 +64,13 @@ class Base_Theme extends BB_Theme {
    */
   public function add_post_types()
   {
-    $ctp_post_types = $this->cpt_config_data();
-    $types = array(
-    );
-
-    foreach( $types as $type ) {
-      $this->add_post_type($type);
-    }
+	  $ctp_post_types = $this->cpt_config_data();
+	  foreach( $ctp_post_types as $type ) {
+		  $type['plural'] = $type['label'];
+		  $type['singular'] = $type['singular_label'];
+		  $type['icon'] = $type['menu_icon'];
+		  $this->add_post_type($type);
+	  }
   }
 
   /**
@@ -76,15 +78,13 @@ class Base_Theme extends BB_Theme {
    */
   public function add_taxonomies()
   {
-    $cpt_taxonomies = $this->cpt_config_data( false );
-    $taxonomies = array(
-    );
-
-    foreach( $taxonomies as $taxonomy_args ) {
-      $post_type = $taxonomy_args['types'];
-      unset($taxonomy_args['types']);
-      $this->add_taxonomy( $taxonomy_args, $post_type );
-    }
+	  $cpt_taxonomies = $this->cpt_config_data( false );
+	  foreach( $cpt_taxonomies as $taxonomy_args ) {
+		  $post_type = $taxonomy_args['object_types'];
+		  $taxonomy_args['plural'] = $taxonomy_args['label'];
+		  $taxonomy_args['singular'] = $taxonomy_args['singular_label'];
+		  $this->add_taxonomy( $taxonomy_args, $post_type );
+	  }
   }
 
   public function cpt_config_data( $is_post_type = true )
