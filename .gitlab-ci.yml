@@ -44,7 +44,7 @@ test_css_lint:
   before_script:
     - npm config set loglevel warn && npm set progress=false
     - npm install -g stylelint
-    - cd ./wp-content/themes/$THEME_NAME && npm i stylelint-config-standard
+    - cd ./wp-content/themes/$THEME_NAME
   script: 
     - echo "{\"extends\":\"stylelint-config-standard\"}" > .stylelintrc
     - stylelint src/css/*.css modules/**/*.css
