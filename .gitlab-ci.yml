@@ -29,6 +29,14 @@ test_js_lint:
     - npm install -g standard --loglevel=warn
     - cd ./wp-content/themes/$THEME_NAME
   script: standard
+test_editorconfig:
+  stage: test
+  before_script:
+    - npm config set loglevel warn && npm set progress=false
+    - npm i -g editorconfig-checker
+    - cd ./wp-content/themes/$THEME_NAME
+  script:
+    - editorconfig-checker ./**/*
 test_modules:
   stage: test
   script: 
