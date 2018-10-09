@@ -7,7 +7,9 @@
     "critical": "postcss src/css/main.css -o assets/critical.min.css --config tasks/",
     "dependencies": "brrl-install",
     "create-module": "sh ../../../private/scripts/create_module.sh",
-    "remove-multidev": "sh ../../../private/scripts/create_module.sh"
+    "remove-multidev": "sh ../../../private/scripts/create_module.sh",
+    "test": "npm run test_css_lint",
+    "test_css_lint": "stylelint src/css/*.css modules/**/*.css"
   },
   "devDependencies": {
     "@barrelny/cli": "^1.0.3",
