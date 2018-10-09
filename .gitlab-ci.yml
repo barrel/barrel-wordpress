@@ -45,11 +45,9 @@ test_editorconfig:
 test_css_lint:
   stage: test
   before_script:
-    - npm config set loglevel warn && npm set progress=false
-    - npm install -g stylelint
     - cd ./wp-content/themes/$THEME_NAME
   script: 
-    - stylelint src/css/*.css modules/**/*.css
+    - npx stylelint src/css/*.css modules/**/*.css
 test_modules:
   stage: test
   script: 
