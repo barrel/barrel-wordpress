@@ -28,18 +28,16 @@ test_js_lint:
 test_editorconfig:
   stage: test
   before_script:
-    - npm config set loglevel warn && npm set progress=false
-    - npm i -g editorconfig-checker
-    - cd ./wp-content/themes/$THEME_NAME
+    - cd ./wp-content/themes/$THEME_NAME && npm i
   script:
-    - editorconfig-checker ./**/*
+    - npm run test:editorconfig
 # @todo: install stylelint globally to CI image
 test_css_lint:
   stage: test
   before_script:
     - cd ./wp-content/themes/$THEME_NAME && npm i
   script: 
-    - npm run test_css_lint
+    - npm run test:css_lint
 test_modules:
   stage: test
   script: 

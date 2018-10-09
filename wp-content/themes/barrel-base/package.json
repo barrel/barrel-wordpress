@@ -8,9 +8,9 @@
     "dependencies": "brrl-install",
     "create-module": "sh ../../../private/scripts/create_module.sh",
     "remove-multidev": "sh ../../../private/scripts/create_module.sh",
-    "test": "npm run test_css_lint && npm run test_editorconfig",
-    "test_css_lint": "stylelint src/css/*.css modules/**/*.css",
-    "test_editorconfig": "editorconfig-checker ./**/*"
+    "test": "npm run test:css_lint && npm run test:editorconfig",
+    "test:css_lint": "stylelint src/css/*.css modules/**/*.css",
+    "test:editorconfig": "editorconfig-checker ./**/*"
   },
   "devDependencies": {
     "@barrelny/cli": "^1.0.3",
