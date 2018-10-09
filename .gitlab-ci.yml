@@ -39,7 +39,7 @@ test_css_lint:
   before_script:
     - cd ./wp-content/themes/$THEME_NAME && npm i
   script: 
-    - npx stylelint src/css/*.css modules/**/*.css
+    - npm run test_css_lint
 test_modules:
   stage: test
   script: 
