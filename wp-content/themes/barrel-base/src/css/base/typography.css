@@ -6,45 +6,61 @@
  * i.e h1, h2, h3, p, li, a, etc
  */
 body {
-	color: var(--black);
-	font-family: Helvetica, Arial, sans-serif;
-	font-size: 100%;
+  color: var(--black);
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 100%;
   line-height: 1.7;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
 }
-.h1, .h2, .h3, .h4, .h5, .h6 {
+
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
   font-weight: 600;
 }
+
 .h1 {
   line-height: 1.1px;
 }
+
 .h2 {
   line-height: 1.3px;
 }
+
 .h3 {
   line-height: 1.5px;
 }
+
 .h4 {
   line-height: 1.5px;
 }
+
 .h5 {
   line-height: 1.6px;
 }
+
 .h6 {
   line-height: 1.6px;
 }
+
 .p {
   line-height: 1.4px;
 }
+
 .link {
   color: inherit;
 }
+
 .blockquote {
   margin: 3rem 0;
   padding-left: 2rem;
-  border-left: 4px solid #148ECC;
+  border-left: 4px solid #148ecc;
 }
+
 .hr {
   display: block;
   background-color: currentColor;
@@ -54,31 +70,40 @@ body {
   width: 100%;
   margin: 0;
 }
+
 .small {
   font-size: 0.8em;
 }
+
 .type--reset {
   margin: 0;
   line-height: 1;
 }
+
 .italic {
   font-style: italic;
 }
+
 .light {
   font-weight: 100;
 }
+
 .medium {
   font-weight: 500;
 }
+
 .bold {
   font-weight: 900;
 }
+
 .uppercase {
   text-transform: uppercase;
 }
+
 .underline {
   text-decoration: underline;
 }
+
 .decoration--none {
   text-decoration: none;
 }

@@ -4,12 +4,15 @@
   position: relative;
   transition: opacity $duration--normal;
 }
+
 .image--absolute {
   position: absolute;
 }
+
 .image--cover,
 .image--contain {
   position: relative;
+
   .image__img {
     position: absolute;
     top: 0;
@@ -50,4 +53,5 @@
 .image--loaded {
   opacity: 1;
 }
+
 /* critical:end */

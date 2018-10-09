@@ -10,13 +10,16 @@
   margin: auto;
   object-fit: cover;
   object-position: right;
+
   .video--playing & {
     opacity: 1;
   }
+
   @media (min-width: 600px) { /* replace this with breakpoint function */
     display: block;
     object-position: center;
   }
+
   body.no-object-position & {
     height: auto;
     width: auto;
@@ -29,6 +32,7 @@
     left: auto;
     right: 0;
   }
+
   body.no-object-fit & {
     width: auto;
     height: auto;
@@ -41,9 +45,9 @@
     transform: translateX(-50%);
   }
 }
+
 .play-btn {
   position: absolute;
-  display: none;
   top: 0;
   left: 0;
   right: 0;
@@ -54,10 +58,12 @@
   display: inline-table;
   opacity: 0;
   visibility: hidden;
+
   &.showing {
     opacity: 1;
     visibility: visible;
   }
+
   .video--playing & {
     opacity: 0;
     visibility: hidden;
