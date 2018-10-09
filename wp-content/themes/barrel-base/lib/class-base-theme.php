@@ -6,9 +6,9 @@ abstract class BB_Theme {
 
 
   /**
-   * Constructor: Filters and Actions.
-   * @return  void
-   */
+  * Constructor: Filters and Actions.
+  * @return  void
+  */
   public function __construct(){
     $this->remove_emojis();
     // add_action( 'init', array( &$this, 'add_post_types' ) );
@@ -30,23 +30,23 @@ abstract class BB_Theme {
   abstract protected function add_theme_supports();
 
   /**
-   * The path where JSON files are created when ACF field groups are saved/updated
-   * @param string path of save point
-   * @return string path of save point
-   * @link http://www.advancedcustomfields.com/resources/local-json/
-   * @link http://www.advancedcustomfields.com/resources/synchronized-json/
-   */
+  * The path where JSON files are created when ACF field groups are saved/updated
+  * @param string path of save point
+  * @return string path of save point
+  * @link http://www.advancedcustomfields.com/resources/local-json/
+  * @link http://www.advancedcustomfields.com/resources/synchronized-json/
+  */
   public function acf_json_save_point( $path ) {
     return $this->acf_json_path;
   }
 
   /**
-   * The path where JSON files are loaded when ACF field groups are initialized
-   * @param array of string paths of load point(s)
-   * @return array of string paths of load point(s)
-   * @link http://www.advancedcustomfields.com/resources/local-json/
-   * @link http://www.advancedcustomfields.com/resources/synchronized-json/
-   */
+  * The path where JSON files are loaded when ACF field groups are initialized
+  * @param array of string paths of load point(s)
+  * @return array of string paths of load point(s)
+  * @link http://www.advancedcustomfields.com/resources/local-json/
+  * @link http://www.advancedcustomfields.com/resources/synchronized-json/
+  */
   public function acf_json_load_point($paths) {
     return array($this->acf_json_path);
   }
@@ -66,13 +66,13 @@ abstract class BB_Theme {
   }
 
   /**
-   * Register taxonomy
-   * @param array $args       - 'name': Taxonomy name
-   *                          - 'plural': Plural form for title
-   *                          - 'singular': Singular form for title
-   *                          - 'slug': Slug used for permalink rewrite
-   * @param string $post_type Post type associated with this taxonomy
-   */
+  * Register taxonomy
+  * @param array $args       - 'name': Taxonomy name
+  *                          - 'plural': Plural form for title
+  *                          - 'singular': Singular form for title
+  *                          - 'slug': Slug used for permalink rewrite
+  * @param string $post_type Post type associated with this taxonomy
+  */
   protected function add_taxonomy( $args, $post_type ) {
     $labels = array(
       'name'              => $args['plural'],
@@ -101,13 +101,13 @@ abstract class BB_Theme {
   }
 
   /**
-   * Register post type
-   * @param array $args - 'name': Name of post type
-   *                    - 'plural': Plural form of the post type title
-   *                    - 'singular': Singular form of the post type title
-   *                    - 'slug': Slug used for permalink rewrite
-   *                    - 'icon': Name of icon class
-   */
+  * Register post type
+  * @param array $args - 'name': Name of post type
+  *                    - 'plural': Plural form of the post type title
+  *                    - 'singular': Singular form of the post type title
+  *                    - 'slug': Slug used for permalink rewrite
+  *                    - 'icon': Name of icon class
+  */
   protected function add_post_type( $args ) {
     $labels = array(
       'name'               => $args['plural'],

@@ -11,4 +11,3 @@
 
 ### PARTIALS
 - Partials should be defined in the modules directory as a module.
-
