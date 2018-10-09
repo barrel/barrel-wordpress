@@ -45,7 +45,7 @@ test_editorconfig:
 test_css_lint:
   stage: test
   before_script:
-    - cd ./wp-content/themes/$THEME_NAME
+    - cd ./wp-content/themes/$THEME_NAME && npm i
   script: 
     - npx stylelint src/css/*.css modules/**/*.css
 test_modules:
