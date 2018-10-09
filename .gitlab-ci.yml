@@ -1,18 +1,12 @@
 stages:
-  - merge_request
   - test
   - deploy
+  - merge_request
 image: barrelny/pantheon-ci:0.0.9
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
   - wp-content/themes/$THEME_NAME/node_modules/
-create_merge_request:
-  stage: merge_request
-  only:
-    - /^(feature|bugfix|support)\/.*/
-  script:
-    - ./private/scripts/merge-request.sh
 test_build_theme:
   stage: test
   script:
@@ -80,3 +74,10 @@ multidev_hotfix:
     - bash private/scripts/import_git_remote.sh
   script:
     - bash private/scripts/multidev_deploy_hotfix.sh
+create_merge_request:
+  stage: merge_request
+  only:
+    - /^(feature|bugfix|support)\/.*/
+  when: manual
+  script:
+    - ./private/scripts/merge-request.sh
