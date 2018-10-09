@@ -1,9 +1,7 @@
 stages:
   - merge_request
-  - build
   - test
   - deploy
-  - production
 image: barrelny/pantheon-ci:0.0.9
 cache:
   key: ${CI_COMMIT_REF_SLUG}
