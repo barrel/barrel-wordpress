@@ -10,7 +10,7 @@ button {
 
 button[disabled],
 input[disabled] {
-  cursor: default
+  cursor: default;
 }
 
 .btn {
@@ -26,4 +26,3 @@ input[disabled] {
 .pointer {
   cursor: pointer;
 }
-

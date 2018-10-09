@@ -7,7 +7,9 @@
     "critical": "postcss src/css/main.css -o assets/critical.min.css --config tasks/",
     "dependencies": "brrl-install",
     "create-module": "sh ../../../private/scripts/create_module.sh",
-    "remove-multidev": "sh ../../../private/scripts/create_module.sh"
+    "remove-multidev": "sh ../../../private/scripts/create_module.sh",
+    "test": "npm run test_css_lint",
+    "test_css_lint": "stylelint src/css/*.css modules/**/*.css"
   },
   "devDependencies": {
     "@barrelny/cli": "^1.0.3",
@@ -43,7 +45,9 @@
     "precss": "^2.0.0",
     "standard": "^11.0.1",
     "style-loader": "^0.18.2",
+    "stylelint": "^9.6.0",
     "stylelint-config-standard": "^18.2.0",
+    "stylelint-webpack-plugin": "^0.10.5",
     "tweezer.js": "^1.4.0",
     "url-loader": "^1.1.1",
     "webpack": "^4.19.1"

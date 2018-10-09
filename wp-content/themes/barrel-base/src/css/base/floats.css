@@ -1,18 +1,20 @@
-.float-l { 
-  float: left 
-}
-.float-r { 
-  float: right 
-}
-.float-n { 
-  float: none 
+.float-l {
+  float: left;
 }
 
-// CLEARFIX
+.float-r {
+  float: right;
+}
+
+.float-n {
+  float: none;
+}
+
+/* CLEARFIX */
 .clear {
   &::before,
   &::after {
-    content:' ';
+    content: ' ';
     display: table;
   }
 

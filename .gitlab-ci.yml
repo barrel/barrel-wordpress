@@ -1,20 +1,12 @@
 stages:
-  - merge_request
-  - build
   - test
   - deploy
-  - production
+  - merge_request
 image: barrelny/pantheon-ci:0.0.9
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
   - wp-content/themes/$THEME_NAME/node_modules/
-create_merge_request:
-  stage: merge_request
-  only:
-    - /^(feature|bugfix|support)\/.*/
-  script:
-    - ./private/scripts/merge-request.sh
 test_build_theme:
   stage: test
   script:
@@ -45,11 +37,9 @@ test_editorconfig:
 test_css_lint:
   stage: test
   before_script:
-    - npm config set loglevel warn && npm set progress=false
-    - npm install -g stylelint
-    - cd ./wp-content/themes/$THEME_NAME
+    - cd ./wp-content/themes/$THEME_NAME && npm i
   script: 
-    - stylelint src/css/*.css modules/**/*.css
+    - npm run test_css_lint
 test_modules:
   stage: test
   script: 
@@ -84,3 +74,21 @@ multidev_hotfix:
     - bash private/scripts/import_git_remote.sh
   script:
     - bash private/scripts/multidev_deploy_hotfix.sh
+multidev_remove:
+  only:
+    - /^(feature|bugfix|support)\/.*/
+  stage: deploy
+  when: manual
+  before_script:
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - bash private/scripts/import_git_remote.sh
+  script:
+    - bash private/scripts/multidev_remove.sh
+create_merge_request:
+  stage: merge_request
+  only:
+    - /^(feature|bugfix|support)\/.*/
+  when: manual
+  script:
+    - ./private/scripts/merge-request.sh
