@@ -74,6 +74,17 @@ multidev_hotfix:
     - bash private/scripts/import_git_remote.sh
   script:
     - bash private/scripts/multidev_deploy_hotfix.sh
+multidev_remove:
+  only:
+    - /^(feature|bugfix|support)\/.*/
+  stage: deploy
+  when: manual
+  before_script:
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - bash private/scripts/import_git_remote.sh
+  script:
+    - bash private/scripts/multidev_remove.sh
 create_merge_request:
   stage: merge_request
   only:
