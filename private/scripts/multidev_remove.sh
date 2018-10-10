@@ -11,7 +11,8 @@
 
 # Variables - Need to be updated per project
 # PANTHEON_SITE_ID, defined in environment variables
-ENVIRONMENT=$(echo $CI_COMMIT_REF_NAME | cut -d'/' -f2 | tr '[:upper:]' '[:lower:]') 
+TARGET=$(echo $CI_COMMIT_REF_NAME | cut -d'/' -f2)
+ENVIRONMENT=$(echo ${TARGET:0:11} | tr '[:upper:]' '[:lower:]') 
 
 # Terminal colors
 DEFAULT=$(tput setaf 7 -T)
