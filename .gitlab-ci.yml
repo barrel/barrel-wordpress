@@ -24,7 +24,7 @@ test_modules:
     - bash private/scripts/test_modules.sh
 multidev_deploy:
   only: 
-    - (develop|feature|bugfix|hotfix)\/?(.*)
+    - /(develop|feature|bugfix|hotfix)\/?(.*)/
   stage: deploy
   before_script:
     - eval $(ssh-agent -s)
