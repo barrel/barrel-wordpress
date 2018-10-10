@@ -29,9 +29,9 @@ if ( !defined('UPLOADS_URI')){
 
 if ( ! function_exists( '_wp_render_title_tag' ) ) :
   /**
-   * Wordpress 4.4 deprecates wp_title(), but this may change.
-   * @link https://make.wordpress.org/core/2015/10/20/document-title-in-4-4/
-   */
+  * Wordpress 4.4 deprecates wp_title(), but this may change.
+  * @link https://make.wordpress.org/core/2015/10/20/document-title-in-4-4/
+  */
   function theme_slug_render_title() {
     echo '<title>';
     wp_title( '|', true, 'right' );

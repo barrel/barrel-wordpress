@@ -7,5 +7,3 @@ Write a standart test to check PHP Error logs for notices or errors
 
 WPML websites
 - Ensure the ACF field group exists for every supported language
-
-

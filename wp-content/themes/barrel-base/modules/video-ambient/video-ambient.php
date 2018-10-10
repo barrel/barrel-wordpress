@@ -1,9 +1,9 @@
 <div class="video-container">
-	<?php if ($mobile_btn) : ?>
-		<div class="play-btn">
-			<?= _get_svg('play_button'); ?>
-		</div>
-	<?php endif; ?>
+  <?php if ($mobile_btn) : ?>
+    <div class="play-btn">
+      <?= _get_svg('play_button'); ?>
+    </div>
+  <?php endif; ?>
   <video
     class="video--ambient"
     data-module="video-ambient"

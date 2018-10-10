@@ -10,14 +10,16 @@
 ####################################################################
 
 # Variables - Need to be updated per project
-PANTHEON_SITE="barrel-base"
+# PANTHEON_SITE_ID, defined in environment variables
+TARGET=$(echo $CI_COMMIT_REF_NAME | cut -d'/' -f2)
+ENVIRONMENT=$(echo ${TARGET:0:11} | tr '[:upper:]' '[:lower:]') 
 
 # Terminal colors
-DEFAULT=$(tput setaf 7)
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-BLUE=$(tput setaf 4)
+DEFAULT=$(tput setaf 7 -T)
+RED=$(tput setaf 1 -T)
+GREEN=$(tput setaf 2 -T)
+YELLOW=$(tput setaf 3 -T)
+BLUE=$(tput setaf 4 -T)
 
 # Parameters 
 for i in "$@"; do
@@ -51,17 +53,17 @@ if [ -z ${ENVIRONMENT+x} ]; then
 fi
 
 # Check if provided multidev exists
-EXISTS=$(terminus multidev:list ${PANTHEON_SITE} | grep "${ENVIRONMENT}")
+EXISTS=$(terminus multidev:list ${PANTHEON_SITE_ID} | grep "${ENVIRONMENT}")
 STATUS=$?
 
 if [ $STATUS -ne 0 ]; then
-    echo "${RED}Error:${DEFAULT} Multidev <${ENVIRONMENT}> doesn't appear to exist on the ${PANTHEON_SITE} pantheon account. Check your multidev name and try again."
+    echo "${RED}Error:${DEFAULT} Multidev <${ENVIRONMENT}> doesn't appear to exist on the ${PANTHEON_SITE_ID} pantheon account. Check your multidev name and try again."
     echo "${YELLOW}Exiting...${DEFAULT}"
     exit 1
 fi
 
-echo "Deleting multidev environment <${YELLOW}${PANTHEON_SITE}${DEFAULT}>.<${YELLOW}${ENVIRONMENT}${DEFAULT}>..."
-terminus multidev:delete ${PANTHEON_SITE}.${ENVIRONMENT}
+echo "Deleting multidev environment <${YELLOW}${PANTHEON_SITE_ID}${DEFAULT}>.<${YELLOW}${ENVIRONMENT}${DEFAULT}>..."
+terminus multidev:delete ${PANTHEON_SITE_ID}.${ENVIRONMENT} --yes
 MD_DELETED_STATUS=$?
 
 if [ $MD_DELETED_STATUS -eq 0 ]; then
@@ -69,6 +71,6 @@ if [ $MD_DELETED_STATUS -eq 0 ]; then
     git push -d pantheon ${ENVIRONMENT}
 fi
 
-echo "All finished here.. goodbye."
+echo "All finished here... goodbye."
 
 exit
