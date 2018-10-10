@@ -4,8 +4,8 @@
 ## This script will remove a multidev environment and associated branch 
 ## from a provided pantheon environment
 ##
-## This script should be run from within the theme directory using the npm script
-## `npm run remove-multidev`
+## This script should be run from within the theme directory using the 
+## npm script: `npm run remove-multidev`
 ## 
 ####################################################################
 
