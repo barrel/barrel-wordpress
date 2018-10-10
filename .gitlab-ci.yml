@@ -22,36 +22,16 @@ test_modules:
   stage: test
   script: 
     - bash private/scripts/test_modules.sh
-multidev_develop:
+multidev_deploy:
   only: 
-    - develop
+    - (develop|feature|bugfix|hotfix)\/?(.*)
   stage: deploy
   before_script:
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - bash private/scripts/import_git_remote.sh
   script:
-    - bash private/scripts/multidev_deploy_develop.sh
-multidev_feature:
-  only: 
-    - /^feature\/.*$/
-  stage: deploy
-  before_script:
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bash private/scripts/import_git_remote.sh
-  script:
-    - bash private/scripts/multidev_deploy_feature.sh
-multidev_hotfix:
-  only:
-    - /^hotfix\/.*$/
-  stage: deploy
-  before_script:
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bash private/scripts/import_git_remote.sh
-  script:
-    - bash private/scripts/multidev_deploy_hotfix.sh
+    - bash private/scripts/multidev_deploy.sh
 multidev_remove:
   only:
     - /^(feature|bugfix|support)\/.*/
