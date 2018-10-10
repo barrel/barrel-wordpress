@@ -51,28 +51,28 @@ then
     echo "${YELLOW}Multidev not found. Creating $ENV from the <$DATA_ENVIRONMENT> environment...${DEFAULT}"
     terminus multidev:create $PANTHEON_SITE_ID.$DATA_ENVIRONMENT $ENV
     terminus remote:wp $PANTHEON_SITE_ID.$ENV -- theme activate $THEME_NAME
-    echo -ne $DONE
+    echo -n $DONE
 else
     echo "${YELLOW}Looks like the $ENV environment exists.. cloning data from <$DATA_ENVIRONMENT>...${DEFAULT}"
     terminus env:clone-content $PANTHEON_SITE_ID.$DATA_ENVIRONMENT $ENV
-    echo -ne $DONE
+    echo -n $DONE
 fi
 
 echo "${YELLOW}Setting Pantheon '$ENV' to git mode...${DEFAULT}"
 terminus connection:set $PANTHEON_SITE_ID.$ENV git
-echo -ne $DONE
+echo -n $DONE
 
 echo "${YELLOW}Pushing to '$ENV' on Pantheon...${DEFAULT}"
 git push -f pantheon HEAD:$ENV
-echo -ne $DONE
+echo -n $DONE
 
 echo "${YELLOW}Installing theme build tools...${DEFAULT}"
 cd ./wp-content/themes/$THEME_NAME && npm i
-echo -ne $DONE
+echo -n $DONE
 
 echo "${YELLOW}Building theme...${DEFAULT}"
 npm run build
-echo -ne $DONE
+echo -n $DONE
 
 # Just checking if there are changes, surely there's more to consider
 CHANGED=$(git status --porcelain)
@@ -82,8 +82,8 @@ then
     git commit -am "Process scripts and styles"
     echo "${YELLOW}Pushing...${DEFAULT}"
     git push pantheon HEAD:$ENV --verbose
-    echo -ne $DONE
+    echo -n $DONE
 else
 	echo "${YELLOW}No changes...${DEFAULT}"
-    echo -ne $DONE
+    echo -n $DONE
 fi
