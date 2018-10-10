@@ -12,32 +12,27 @@ test_build_theme:
   script:
     - cd ./wp-content/themes/$THEME_NAME && npm i
     - npm run build
-test_php_syntax:
-  stage: test
-  script: 
-    - git diff --diff-filter=ACMR --name-only origin/master -- '*.php' | xargs -L1 php -d short_open_tag=Off -l
-# @todo: install standard globally to CI image
-test_js_lint:
+test_grammars:
   stage: test
   before_script:
+    # @todo: move script to bash with proper exit
+    # @todo: install standard globally to CI image
+    # @todo: install editorconfig-checker globally to CI image
+    # @todo: install stylelint globally to CI image
+    - echo "Testing Grammars, installing unversioned dependencies..."
     - npm config set loglevel warn && npm set progress=false
     - npm install -g standard --loglevel=warn
-    - cd ./wp-content/themes/$THEME_NAME
-  script: standard
-# @todo: install editorconfig-checker globally to CI image
-test_editorconfig:
-  stage: test
-  before_script:
-    - cd ./wp-content/themes/$THEME_NAME && npm i
-  script:
-    - npm run test:editorconfig
-# @todo: install stylelint globally to CI image
-test_css_lint:
-  stage: test
-  before_script:
-    - cd ./wp-content/themes/$THEME_NAME && npm i
   script: 
+    - echo "Performing PHP Syntax Check..."
+    - git diff --diff-filter=ACMR --name-only origin/master -- '*.php' | xargs -L1 php -d short_open_tag=Off -l
+    - echo "Changing directories, installing theme dependencies..."
+    - cd ./wp-content/themes/$THEME_NAME && npm i
+    - echo "Testing js against standardjs..."
+    - standard
+    - echo "Testing css against stylelint..."
     - npm run test:css_lint
+    - echo "Testing files against editorconfig..."
+    - npm run test:editorconfig
 test_modules:
   stage: test
   script: 
