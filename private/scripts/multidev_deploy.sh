@@ -60,7 +60,8 @@ fi
 echo -e "Looks like the most recent data can be found in the <$DATA_ENVIRONMENT> environment.\n"
 echo -e "${YELLOW}Checking if ENV '$ENV' exists...${DEFAULT}"
 
-if [[ "$MATCH_EXISTS" -ne 0 ]]
+# note potential false-positive if $PANTHEON_SITE_ID|$ENV is !defined
+if [[ "$MATCH_EXISTS" -ne 0 ]] 
 then 
     echo -e "Multidev not found.\n"
     echo -e "${YELLOW}Creating $ENV from the <$DATA_ENVIRONMENT> environment...${DEFAULT}"
