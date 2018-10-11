@@ -2,20 +2,22 @@
 
 ####################################################################
 ## This script will deploy to a pantheon site's multidev environment 
-## and associated branch.
+## and associated branch. Assumes CI variables populated and the 
+## before_script properly adds a 'pantheon' remote to the git repo.
+##
+## Variables:
+## - $CI_COMMIT_REF_NAME, defined by GitLab CI or by user
+## - $PANTHEON_SITE_ID, defined in environment variables or by user
+## - $THEME_NAME, defined by environment variables
+## - $ENV, defined automatically
 ####################################################################
 
-# Variables
 # Terminal colors
 DEFAULT=$(tput setaf 7 -T xterm)
 RED=$(tput setaf 1 -T xterm)
 GREEN=$(tput setaf 2 -T xterm)
 YELLOW=$(tput setaf 3 -T xterm)
 BLUE=$(tput setaf 4 -T xterm)
-
-# CI_COMMIT_REF_NAME, defined by GitLab CI or by user
-# PANTHEON_SITE_ID, defined in environment variables or by user
-# ENV, defined automatically
 
 if [ -z ${CI_COMMIT_REF_NAME+x} ]; then
     echo "${YELLOW}Hmm... Looks like this is not being run in GitLab CI, what's the original branch name?${DEFAULT}"
