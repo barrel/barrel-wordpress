@@ -7,11 +7,6 @@ cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
   - wp-content/themes/$THEME_NAME/node_modules/
-test_build_theme:
-  stage: test
-  script:
-    - cd ./wp-content/themes/$THEME_NAME && npm i
-    - npm run build
 test_grammars:
   stage: test
   before_script:
@@ -19,54 +14,24 @@ test_grammars:
     # @todo: install standard globally to CI image
     # @todo: install editorconfig-checker globally to CI image
     # @todo: install stylelint globally to CI image
-    - echo "Testing Grammars, installing unversioned dependencies..."
     - npm config set loglevel warn && npm set progress=false
     - npm install -g standard --loglevel=warn
   script: 
-    - echo "Performing PHP Syntax Check..."
-    - git diff --diff-filter=ACMR --name-only origin/master -- '*.php' | xargs -L1 php -d short_open_tag=Off -l
-    - echo "Changing directories, installing theme dependencies..."
-    - cd ./wp-content/themes/$THEME_NAME && npm i
-    - echo "Testing js against standardjs..."
-    - standard
-    - echo "Testing css against stylelint..."
-    - npm run test:css_lint
-    - echo "Testing files against editorconfig..."
-    - npm run test:editorconfig
+    - bash private/scripts/test_grammars.sh
 test_modules:
   stage: test
   script: 
     - bash private/scripts/test_modules.sh
-multidev_develop:
+multidev_deploy:
   only: 
-    - develop
+    - /(develop|feature|bugfix|hotfix)\/?(.*)/
   stage: deploy
   before_script:
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - bash private/scripts/import_git_remote.sh
   script:
-    - bash private/scripts/multidev_deploy_develop.sh
-multidev_feature:
-  only: 
-    - /^feature\/.*$/
-  stage: deploy
-  before_script:
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bash private/scripts/import_git_remote.sh
-  script:
-    - bash private/scripts/multidev_deploy_feature.sh
-multidev_hotfix:
-  only:
-    - /^hotfix\/.*$/
-  stage: deploy
-  before_script:
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bash private/scripts/import_git_remote.sh
-  script:
-    - bash private/scripts/multidev_deploy_hotfix.sh
+    - bash private/scripts/multidev_deploy.sh
 multidev_remove:
   only:
     - /^(feature|bugfix|support)\/.*/
