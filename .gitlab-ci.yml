@@ -51,4 +51,4 @@ create_merge_request:
     - /^(feature|bugfix|support)\/.*/
   when: manual
   script:
-    - ./private/scripts/merge-request.sh
+    - ./private/scripts/merge_request.sh
