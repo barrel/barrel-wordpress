@@ -32,8 +32,8 @@ if [[ "$?" -ne 0 ]]; then
 fi
 echo $OK
 
-echo "${YELLOW}Testing json file syntax against editorconfig...${DEFAULT}"
-npm run test:json_lint
+echo "${YELLOW}Performing JSON syntax check...${DEFAULT}"
+sh private/scripts/test_json.sh
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}JSON syntax check failed!${DEFAULT}"
     exit 6
