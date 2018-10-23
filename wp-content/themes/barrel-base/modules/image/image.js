@@ -1,5 +1,5 @@
 import on from 'dom-event'
-import { select, addClass, doesSupportObjectFit } from 'lib/dom'
+import { select, addClass, doesSupportObjectFit, getData } from 'lib/dom'
 import Layzr from 'layzr.js'
 import throttle from 'lodash.throttle'
 
@@ -28,7 +28,7 @@ instance
     if (!imageWrapper.classList.contains('js-wrap')) return
 
     if (!objectFit) {
-      const src = el.getAttribute('data-normal')
+      const src = getData('normal', el)
       imageWrapper.style.backgroundImage = 'url("' + src + '")'
       addClass(LOADED_CLASS, imageWrapper)
     }
