@@ -6,9 +6,10 @@ import throttle from 'lodash.throttle'
 const wrapper = select('.wrapper')
 const body = document.body
 const LOADED_CLASS = 'image--loaded'
+const DELAY_TIMING = 100
 
 const instance = window.layzr = Layzr({
-  threshold: 100
+  threshold: DELAY_TIMING
 })
 
 const objectFit = doesSupportObjectFit()
@@ -39,9 +40,9 @@ const updateLazyLoad = () => instance.update().check()
 updateLazyLoad().handlers(true)
 
 if (wrapper) {
-  on(wrapper, 'scroll', throttle(updateLazyLoad, 100))
+  on(wrapper, 'scroll', throttle(updateLazyLoad, DELAY_TIMING))
 } else {
-  on(window, 'scroll', throttle(updateLazyLoad, 100))
+  on(window, 'scroll', throttle(updateLazyLoad, DELAY_TIMING))
 }
 
 export default (el) => {
