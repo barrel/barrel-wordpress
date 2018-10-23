@@ -1,9 +1,11 @@
 import on from 'dom-event'
-import { select } from 'lib/dom'
+import { select, addClass } from 'lib/dom'
 import Layzr from 'layzr.js'
 import throttle from 'lodash.throttle'
 
 const wrapper = select('.wrapper')
+const body = document.body
+const LOADED_CLASS = 'image--loaded'
 
 const instance = window.layzr = Layzr({
   threshold: 100
@@ -14,13 +16,13 @@ const doesSupportObjectFit = () => {
   return ('objectFit' in i.style)
 }
 const objectFit = doesSupportObjectFit()
-if (!objectFit) document.body.classList.add('no-object-fit')
+if (!objectFit) addClass('no-object-fit', body)
 
 instance
   .on('src:before', image => {
     on(image, 'load', (event) => {
       const imageWrapper = image.parentNode
-      imageWrapper.classList.add('image--loaded')
+      addClass(LOADED_CLASS, imageWrapper)
     })
   })
 
@@ -32,7 +34,7 @@ instance
     if (!objectFit) {
       const src = el.getAttribute('data-normal')
       imageWrapper.style.backgroundImage = 'url("' + src + '")'
-      imageWrapper.classList.add('image--loaded')
+      addClass(LOADED_CLASS, imageWrapper)
     }
   })
 
