@@ -1,9 +1,14 @@
 import on from 'dom-event'
+import { select } from 'lib/dom'
 import Layzr from 'layzr.js'
+import throttle from 'lodash.throttle'
+
+const wrapper = select('.wrapper')
 
 const instance = window.layzr = Layzr({
   threshold: 100
 })
+
 const doesSupportObjectFit = () => {
   const i = document.createElement('img')
   return ('objectFit' in i.style)
@@ -31,11 +36,17 @@ instance
     }
   })
 
-instance.update().check().handlers(true)
+const updateLazyLoad = () => instance.update().check()
+
+updateLazyLoad().handlers(true)
+
+if (wrapper) {
+  on(wrapper, 'scroll', throttle(updateLazyLoad, 100))
+}
 
 export default (el) => {
-  instance
-    .update()
-    .check()
-    .handlers(true)
+}
+
+export {
+  updateLazyLoad
 }
