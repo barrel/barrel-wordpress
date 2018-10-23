@@ -1,5 +1,5 @@
 import on from 'dom-event'
-import { select, addClass } from 'lib/dom'
+import { select, addClass, doesSupportObjectFit } from 'lib/dom'
 import Layzr from 'layzr.js'
 import throttle from 'lodash.throttle'
 
@@ -11,10 +11,6 @@ const instance = window.layzr = Layzr({
   threshold: 100
 })
 
-const doesSupportObjectFit = () => {
-  const i = document.createElement('img')
-  return ('objectFit' in i.style)
-}
 const objectFit = doesSupportObjectFit()
 if (!objectFit) addClass('no-object-fit', body)
 
