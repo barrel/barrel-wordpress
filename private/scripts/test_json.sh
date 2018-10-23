@@ -6,22 +6,26 @@
 ## json_decode() function of PHP. 
 ####################################################################
 
-THEME_NAME="barrel-base"
 INVALID_FILES=""
+THEME_LOCATION="wp-content/themes/$THEME_NAME"
 
-echo "Validating json files in the ${THEME_NAME} theme"
+printf "Switching to the theme directory in $THEME_LOCATION..\n"
+cd $THEME_LOCATION
+
+printf "Validating json files in the $THEME_NAME theme\n"
 while read -r line; do
+    echo "Testing $line..."
     php -r "if ( ! json_decode(file_get_contents('$line')) ) { exit(1); }"
     if [ $? -ne 0 ]; then
-        INVALID_FILES+="${line}\n"
+        INVALID_FILES+="$line\n"
     fi
-done <<< "$(find ./wp-content/themes/${THEME_NAME} -type f -name '*.json' -not -path './wp-content/themes/barrel-base/node_modules/*')"
+done <<< "$(find . -type f -name '*.json' -not -path './node_modules/*')"
 
 if [ -z "$INVALID_FILES" ]; then
     echo "All JSON files look ok. Moving on ..."
     exit
 else
-    printf "\nJSON Syntax errors were found in the ${THEME_NAME} theme. Please check the snytax of the following files and fix any errors.\n"
+    printf "\nJSON Syntax errors were found in the ${THEME_NAME} theme. Please check the syntax of the following files and fix any errors.\n"
     printf "\nINVALID JSON FILES:\n${INVALID_FILES}"
     exit 1;
 fi
