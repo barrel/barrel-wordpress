@@ -1,5 +1,5 @@
 import on from 'dom-event'
-import { select, addClass, doesSupportObjectFit, getData } from 'lib/dom'
+import { select, addClass, doesSupportObjectFit, getData, setStyle } from 'lib/dom'
 import Layzr from 'layzr.js'
 import throttle from 'lodash.throttle'
 
@@ -30,7 +30,7 @@ instance
 
     if (!objectFit) {
       const src = getData('normal', el)
-      imageWrapper.style.backgroundImage = 'url("' + src + '")'
+      setStyle('backgroundImage', 'url("' + src + '")', imageWrapper)
       addClass(LOADED_CLASS, imageWrapper)
     }
   })
