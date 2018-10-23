@@ -40,6 +40,8 @@ updateLazyLoad().handlers(true)
 
 if (wrapper) {
   on(wrapper, 'scroll', throttle(updateLazyLoad, 100))
+} else {
+  on(window, 'scroll', throttle(updateLazyLoad, 100))
 }
 
 export default (el) => {
