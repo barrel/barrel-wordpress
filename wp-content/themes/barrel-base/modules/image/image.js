@@ -19,20 +19,20 @@ if (!objectFit) document.body.classList.add('no-object-fit')
 instance
   .on('src:before', image => {
     on(image, 'load', (event) => {
-      let wrapper = image.parentNode
-      wrapper.classList.add('image--loaded')
+      const imageWrapper = image.parentNode
+      imageWrapper.classList.add('image--loaded')
     })
   })
 
 instance
   .on('src:after', el => {
-    const wrapper = el.parentNode
-    if (!wrapper.classList.contains('js-wrap')) return
+    const imageWrapper = el.parentNode
+    if (!imageWrapper.classList.contains('js-wrap')) return
 
     if (!objectFit) {
       const src = el.getAttribute('data-normal')
-      wrapper.style.backgroundImage = 'url("' + src + '")'
-      wrapper.classList.add('image--loaded')
+      imageWrapper.style.backgroundImage = 'url("' + src + '")'
+      imageWrapper.classList.add('image--loaded')
     }
   })
 
