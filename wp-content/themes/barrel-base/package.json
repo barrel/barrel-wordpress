@@ -7,10 +7,11 @@
     "critical": "postcss src/css/main.css -o assets/critical.min.css --config tasks/",
     "dependencies": "brrl-install",
     "create-module": "sh ../../../private/scripts/create_module.sh",
-    "remove-multidev": "sh ../../../private/scripts/create_module.sh",
+    "remove-multidev": "sh ../../../private/scripts/multidev_remove.sh",
     "test": "npm run test:css_lint && npm run test:editorconfig",
     "test:css_lint": "stylelint src/css/*.css modules/**/*.css",
-    "test:editorconfig": "editorconfig-checker ./**/*"
+    "test:editorconfig": "editorconfig-checker ./**/*",
+    "test:json_lint": "sh ../../../private/scripts/test_json.sh"
   },
   "devDependencies": {
     "@barrelny/cli": "^1.0.3",
