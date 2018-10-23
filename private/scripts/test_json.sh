@@ -15,7 +15,7 @@ BLUE=$(tput setaf 4 -T xterm)
 
 ## Check if module name was provided before moving on
 if [ -z ${THEME_NAME+x} ]; then
-    echo "${YELLOW}=Hmm... Looks like you didn't set a theme name yet. What theme are we evaluating?${DEFAULT}"
+    echo "${YELLOW}Hmm... Looks like you didn't set a theme name yet. What theme are we evaluating?${DEFAULT}"
     read THEME_NAME
 fi
 

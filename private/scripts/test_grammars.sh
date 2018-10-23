@@ -33,7 +33,7 @@ fi
 echo $OK
 
 echo "${YELLOW}Performing JSON syntax check...${DEFAULT}"
-sh private/scripts/test_json.sh
+bash private/scripts/test_json.sh
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}JSON syntax check failed!${DEFAULT}"
     exit 6
