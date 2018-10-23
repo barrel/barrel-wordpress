@@ -1,5 +1,5 @@
 import on from 'dom-event'
-import { select, addClass, doesSupportObjectFit, getData, setStyle } from 'lib/dom'
+import { select, addClass, doesSupportObjectFit, getData, setStyle, hasClass } from 'lib/dom'
 import Layzr from 'layzr.js'
 import throttle from 'lodash.throttle'
 
@@ -26,7 +26,7 @@ instance
 instance
   .on('src:after', el => {
     const imageWrapper = el.parentNode
-    if (!imageWrapper.classList.contains('js-wrap')) return
+    if (!hasClass('js-wrap', imageWrapper)) return
 
     if (!objectFit) {
       const src = getData('normal', el)
