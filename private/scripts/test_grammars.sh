@@ -32,6 +32,14 @@ if [[ "$?" -ne 0 ]]; then
 fi
 echo $OK
 
+echo "${YELLOW}Performing JSON syntax check...${DEFAULT}"
+bash private/scripts/test_json.sh
+if [[ "$?" -ne 0 ]]; then
+    echo "${RED}JSON syntax check failed!${DEFAULT}"
+    exit 6
+fi
+echo $OK
+
 echo "${YELLOW}Changing directories, installing theme dependencies...${DEFAULT}"
 cd ./wp-content/themes/$THEME_NAME && npm i
 if [[ "$?" -ne 0 ]]; then
