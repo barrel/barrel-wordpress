@@ -51,4 +51,5 @@
 
 .image--loaded {
   opacity: 1;
+  /* defer */
 }

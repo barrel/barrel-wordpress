@@ -69,6 +69,10 @@ Ideally, we'd be able to manipulate the plugin config and just change the `outpu
 the only thing we really need to change for the deferred process. I would love to do something like 
 `config.plugins.postcssCriticalSplit.options.output = 'critical'`, but couldn't figure it out :(
 
+#### Known Issues/ToDos
+1. Right now, the deferred style build doesn't handle _other_ comments well. Any comment that isn't related to the build task _should_ be
+getting stripped out with the `cssnano` plugin, but they're still showing up in the `deferred.min.css` file.
+
 ### WordPress Plugins
 *The following plugins are always included:*
 
