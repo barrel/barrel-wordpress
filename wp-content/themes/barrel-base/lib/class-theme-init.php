@@ -14,8 +14,8 @@ class Base_Theme extends BB_Theme {
     add_filter( 'image_size_names_choose', array( &$this, 'image_size_names_choose' ) );
     add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_scripts_and_styles' ) );
 
-    add_action( 'wp_head', array(&$this, 'add_critical_css'), 1);
-    add_action( 'wp_footer', array(&$this, 'load_rest_css') );
+    add_action( 'wp_head', array(&$this, 'add_main_css'), 1);
+    add_action( 'wp_footer', array(&$this, 'load_deferred_css') );
 
     add_action( 'wp_head', array( &$this, 'print_site_favicons' ) );
 
@@ -335,10 +335,12 @@ class Base_Theme extends BB_Theme {
   }
 
   /**
-  * Add critical css file to <head></head>
+  * Add main css file to <head></head>
   */
-  public function add_critical_css() {
-    $file = TEMPLATEPATH . '/assets/critical.min.css';
+  public function add_main_css() {
+    $theme = wp_get_theme();
+    $version = $theme->version;
+    $file = TEMPLATEPATH . '/assets/main.min.css?ver=' . $version;
     $file_content = @file_get_contents( $file );
     // note that we might need to write a filter here to dynamically replace filepaths to font files
     // If a reference is needed, this has been done on a Well+Good project
@@ -348,16 +350,17 @@ class Base_Theme extends BB_Theme {
   }
 
   /**
-  * Load main css (rest styles) file asynchrounsly in footer
+  * Load deferred css file asynchrounsly in footer.
+  * These styles will be notated in css files as `defer` or between `defer:start` and `defer:end` comments
   */
-  public function load_rest_css() {
+  public function load_deferred_css() {
     $theme     = wp_get_theme();
     $theme_ver = $theme->version;
     if ( !IS_DEV ) {
       ?>
       <noscript id="deferred-styles">
         <link rel="stylesheet"
-            href="<?php echo esc_url( get_template_directory_uri() . '/assets/main.min.css?ver=' . $theme_ver ); ?>">
+            href="<?php echo esc_url( get_template_directory_uri() . '/assets/deferred.min.css?ver=' . $theme_ver ); ?>">
       </noscript>
       <script>
         var loadDeferredStyles = function () {
