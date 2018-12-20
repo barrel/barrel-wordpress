@@ -3,10 +3,12 @@
   background: none;
   border: 0;
 }
+
 .search-submit-icon {
   &::after {
     content: '\1F50E';
     display: block;
   }
 }
+
 /* defer:end */
