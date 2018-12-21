@@ -11,6 +11,8 @@ then
     terminus multidev:create $PANTHEON_SITE_ID.dev $ENV
     terminus remote:wp $PANTHEON_SITE_ID.$ENV -- theme activate $THEME_NAME
 	printf "\ndone\n"
+else
+    echo -e "Looks like the $ENV environment exists.\n"
 fi
 
 echo "Setting Pantheon '$ENV' to git mode ..."
