@@ -78,12 +78,6 @@ then
     echo -ne $DONE
 else
     echo -e "Looks like the $ENV environment exists.\n"
-    echo -e "${YELLOW}Cloning data from <$DATA_ENVIRONMENT>...${DEFAULT}"
-    terminus env:clone-content $PANTHEON_SITE_ID.$DATA_ENVIRONMENT $ENV --yes
-    if [[ "$?" -ne 0 ]]; then
-        exit 1
-    fi
-    echo -ne $DONE
 fi
 
 echo -e "${YELLOW}Setting Pantheon '$ENV' to git mode...${DEFAULT}"
