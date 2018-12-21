@@ -1,3 +1,4 @@
+/* defer:start */
 .search-submit {
   background: none;
   border: 0;
@@ -9,3 +10,5 @@
     display: block;
   }
 }
+
+/* defer:end */

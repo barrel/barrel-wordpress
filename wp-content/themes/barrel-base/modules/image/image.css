@@ -1,8 +1,7 @@
-/* critical:start */
 .image {
   opacity: 0;
   position: relative;
-  transition: opacity $duration--normal;
+  transition: opacity var(--duration);
 }
 
 .image--absolute {
@@ -52,6 +51,6 @@
 
 .image--loaded {
   opacity: 1;
-}
 
-/* critical:end */
+  /* defer */
+}

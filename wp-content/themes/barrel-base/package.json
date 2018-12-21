@@ -3,8 +3,8 @@
   "version": "1.12.0",
   "scripts": {
     "start": "brrl -w",
-    "build": "brrl -b -e production; npm run critical",
-    "critical": "postcss src/css/main.css -o assets/critical.min.css --config tasks/",
+    "build": "brrl -b -e production; npm run build:lazy-css",
+    "build:lazy-css": "postcss src/css/main.css -o assets/deferred.min.css --config tasks/",
     "dependencies": "brrl-install",
     "create-module": "sh ../../../private/scripts/create_module.sh",
     "remove-multidev": "sh ../../../private/scripts/multidev_remove.sh",

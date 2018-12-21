@@ -14,8 +14,8 @@ class Base_Theme extends BB_Theme {
     add_filter( 'image_size_names_choose', array( &$this, 'image_size_names_choose' ) );
     add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_scripts_and_styles' ) );
 
-    add_action( 'wp_head', array(&$this, 'add_critical_css'), 1);
-    add_action( 'wp_footer', array(&$this, 'load_rest_css') );
+    add_action( 'wp_head', array(&$this, 'add_main_css'), 1);
+    add_action( 'wp_footer', array(&$this, 'load_deferred_css') );
 
     add_action( 'wp_head', array( &$this, 'print_site_favicons' ) );
 
@@ -335,29 +335,46 @@ class Base_Theme extends BB_Theme {
   }
 
   /**
-  * Add critical css file to <head></head>
+  * Add main css file to <head></head>
+  * To prevent site-speed analysis services from complaining about too much "above-the-fold" content,
+  * The main.min.css file contents will be added in an inline <style></style> tag only if the file size is under
+  * a certain threshold. If it's over the threshold, the file will be added as an external <link>
+  *
+  * Threshold is set at 50kb for now, but this should be tested further with PageSpeed insights in real-theme development
   */
-  public function add_critical_css() {
-    $file = TEMPLATEPATH . '/assets/critical.min.css';
-    $file_content = @file_get_contents( $file );
-    // note that we might need to write a filter here to dynamically replace filepaths to font files
-    // If a reference is needed, this has been done on a Well+Good project
-    if (!empty($file_content)) {
-      printf('<style type="text/css">%s</style>', $file_content);
+  public function add_main_css() {
+    $main_style_uri = '/assets/main.min.css';
+    $file_path = TEMPLATEPATH . $main_style_uri;
+    $size_threshold = 50000;
+    $file_size = filesize($file_path);
+
+    if ($file_size < $size_threshold) {
+      $file_content = @file_get_contents( $file_path );
+      if (!empty($file_content)) {
+        // note that we might need to write a filter here to dynamically replace filepaths to font files
+        // If a reference is needed, this has been done on a Well+Good project
+        printf('<style type="text/css" id="main-style">%s</style>', $file_content);
+      }
+    } else {
+      $theme     = wp_get_theme();
+      $theme_ver = $theme->version;
+      $file_path = get_template_directory_uri() . $main_style_uri;
+      printf("<link rel=\"stylesheet\" href=\"%s\" id=\"thestyle\">", "$file_path?ver=$theme_ver");
     }
   }
 
   /**
-  * Load main css (rest styles) file asynchrounsly in footer
+  * Load deferred css file asynchrounsly in footer.
+  * These styles will be notated in css files as `defer` or between `defer:start` and `defer:end` comments
   */
-  public function load_rest_css() {
+  public function load_deferred_css() {
     $theme     = wp_get_theme();
     $theme_ver = $theme->version;
     if ( !IS_DEV ) {
       ?>
       <noscript id="deferred-styles">
         <link rel="stylesheet"
-            href="<?php echo esc_url( get_template_directory_uri() . '/assets/main.min.css?ver=' . $theme_ver ); ?>">
+            href="<?php echo esc_url( get_template_directory_uri() . '/assets/deferred.min.css?ver=' . $theme_ver ); ?>">
       </noscript>
       <script>
         var loadDeferredStyles = function () {
