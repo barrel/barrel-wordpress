@@ -18,10 +18,12 @@ test_grammars:
     - npm install -g standard --loglevel=warn
   script: 
     - bash private/scripts/test_grammars.sh
+  retry: 2
 test_modules:
   stage: test
   script: 
     - bash private/scripts/test_modules.sh
+  retry: 2
 multidev_deploy:
   only: 
     - /(develop|feature|bugfix|hotfix)\/?(.*)/
