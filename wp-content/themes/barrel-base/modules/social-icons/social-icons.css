@@ -1,0 +1,45 @@
+/* critical:start */
+.social-icons {
+  margin-top: 22px;
+
+  @media (--m) {
+    margin-top: 0;
+  }
+}
+
+.social-icons-list {
+  display: flex;
+  align-items: center;
+  list-style: none;
+}
+
+.social-icons-list__icon {
+  margin: 0 7px;
+
+  svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+
+    @media (--s) {
+      width: 15px;
+      height: 15px;
+    }
+
+    path {
+      fill: var(--color-primary);
+    }
+  }
+}
+
+.social-icons-list__link {
+  display: block;
+
+  &:hover {
+    svg path {
+      fill: var(--color-primary);
+    }
+  }
+}
+
+/* critical:end */

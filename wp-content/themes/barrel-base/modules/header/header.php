@@ -22,19 +22,7 @@
     ) );
   ?>
 
-  <?php if( have_rows('social_media_links', 'options') ): ?>
-    <nav>
-      <ul>
-        <?php while( have_rows('social_media_links', 'options') ): the_row(); ?>
-          <li>
-            <a href="<?php echo the_sub_field('url'); ?>" target="_blank">
-              <?php echo the_sub_field('label'); ?>
-            </a>
-          </li>
-        <?php endwhile; ?>
-      </ul>
-    </nav>
-  <?php endif; ?>
+  <?php the_module('social-icons'); ?>
 
   <?php get_search_form(); ?>
 
