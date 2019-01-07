@@ -203,7 +203,8 @@ if ( !empty( $_SERVER['PANTHEON_ENVIRONMENT'] ) && ( "cli" !== php_sapi_name() )
     }
 
     // Require HTTPS when $protocol set to https
-    if ( "https" == $protocol && $_SERVER['SERVER_PORT'] !== 443 ) {
+    if ( "https" == $protocol && ( !isset( $_SERVER['HTTP_USER_AGENT_HTTPS'] ) 
+    || $_SERVER['HTTP_USER_AGENT_HTTPS'] != 'ON' ) ) {
       header("HTTP/1.1 301 Moved Permanently");
       header("Location: $_url_redirect");
       exit();

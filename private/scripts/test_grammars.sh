@@ -41,7 +41,7 @@ fi
 echo $OK
 
 echo "${YELLOW}Changing directories, installing theme dependencies...${DEFAULT}"
-cd ./wp-content/themes/$THEME_NAME && npm i
+cd ./wp-content/themes/$THEME_NAME && npm ci --loglevel=silent
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}Dependency installation failed!${DEFAULT}"
     exit 2

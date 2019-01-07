@@ -2,7 +2,7 @@ stages:
   - test
   - deploy
   - merge_request
-image: barrelny/pantheon-ci:0.0.9
+image: barrelny/multipurpose-ci:0.0.11
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
@@ -51,4 +51,4 @@ create_merge_request:
     - /^(feature|bugfix|support)\/.*/
   when: manual
   script:
-    - ./private/scripts/merge-request.sh
+    - ./private/scripts/merge_request.sh
