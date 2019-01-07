@@ -23,6 +23,10 @@ Make sure all dependencies have been installed before moving on:
 * [Node.js](http://nodejs.org/) >= 6.9.x
 * [Lando](https://docs.devwithlando.io/tutorials/wordpress.html) >= v3.0.0-rc.1
 
+The theme makes use of the [barrel-cli](https://github.com/barrel/barrel-cli), which wraps much of the webpack and postcss functionality along with tooling for our modular development workflow.
+
+If you have an issue with setup, please open an [issue](https://github.com/barrel/barrel-cli/issues) on GitHub.
+
 ## Theme installation
 
 Install Cask using Composer from your WordPress themes directory (replace `your-theme-name` below with the name of your theme):
