@@ -1,6 +1,6 @@
-#! /bin/sh 
+#! /bin/sh
 
-# Simpler test script for running tests iteratively. 
+# Simpler test script for running tests iteratively.
 # You must have wordpress-testing and wordpress installed already.
 
 export WP_TESTS_DIR=/tmp/wordpress-testing

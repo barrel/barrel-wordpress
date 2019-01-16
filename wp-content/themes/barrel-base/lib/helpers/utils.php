@@ -1,9 +1,9 @@
-<?php 
+<?php
 /**
  * Make a URL relative
  * Taken from Soil Plugin https://github.com/roots/soil
  */
- function root_relative_url($input) {
+function root_relative_url($input) {
   $url = parse_url($input);
   if (!isset($url['host']) || !isset($url['path'])) {
     return $input;
@@ -27,7 +27,7 @@
 /**
  * Compare URL against relative URL
  */
- function url_compare($url, $rel) {
+function url_compare($url, $rel) {
   $url = trailingslashit($url);
   $rel = trailingslashit($rel);
   return ((strcasecmp($url, $rel) === 0) || root_relative_url($url) == $rel);

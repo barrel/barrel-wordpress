@@ -1,15 +1,17 @@
-/* critical:start */
 .image {
   opacity: 0;
   position: relative;
-  transition: opacity $duration--normal;
+  transition: opacity var(--duration);
 }
+
 .image--absolute {
   position: absolute;
 }
+
 .image--cover,
 .image--contain {
   position: relative;
+
   .image__img {
     position: absolute;
     top: 0;
@@ -49,5 +51,6 @@
 
 .image--loaded {
   opacity: 1;
+
+  /* defer */
 }
-/* critical:end */
