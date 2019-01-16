@@ -1,6 +1,30 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.0.1 - 2019-01-16
+### CHANGED:
+- Relocate changelog and track deferred styles 
+
+## v2.0.0 - 2019-01-16
+### CHANGED:
+- Add uploads proxy function (works with lando)
+- Add GitLab CI stage and script to create merge request (manual)
+- Add CSS linting tests (new projects only)
+- Add clone script (new projects only, project initialization)
+- Add editorconfig tests (all projects)
+- Add script to remove multidev envs (manual)
+- Fix sync into CPT UI JSON files (theme)
+- Add test to confirm JSON validity
+- Invert critical css workflow to identify "deferred" styles instead of "critical" styles
+- Add file-size threshold to control inline-css in the `<head>` tag
+- Modify and overhaul the main readme documentation
+- Add initial module for social media icons
+- Job stages has been reduced to test, deploy, and merge_request
+- Most theme test jobs have been reduced to a single job script
+- Many CI tests can be run from npm scripts
+- Fix environment clone logic on deployment script - will now only clone environment if multidev doesn't already exist
+- Add retry parameters to the test stages. Jobs will retry a maximum of 2 times
+
 ## v1.12.0 - 2018-09-27
 ### CHANGED:
 - Update Barrel CLI 
@@ -104,3 +128,4 @@ All notable changes to this project will be documented in this file.
 ## 1.0.0 - 2015-10-01
 ### CHANGED:
 - Initial base theme commit
+
