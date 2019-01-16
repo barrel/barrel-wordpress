@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.0.1 - 2019-01-16
+### CHANGED:
+- Relocate changelog and track deferred styles 
+
 ## v2.0.0 - 2019-01-16
 ### CHANGED:
 - Add uploads proxy function (works with lando)
