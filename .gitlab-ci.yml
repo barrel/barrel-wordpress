@@ -8,6 +8,8 @@ cache:
   paths:
   - wp-content/themes/$THEME_NAME/node_modules/
 test_grammars:
+  only: 
+    - /(feature|bugfix|hotfix)\/?(.*)/
   stage: test
   before_script:
     # @todo: move script to bash with proper exit
@@ -20,6 +22,8 @@ test_grammars:
     - bash private/scripts/test_grammars.sh
   retry: 2
 test_modules:
+  only: 
+    - /(feature|bugfix|hotfix)\/?(.*)/
   stage: test
   script: 
     - bash private/scripts/test_modules.sh
