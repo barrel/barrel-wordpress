@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.1.0 - 2019-01-30
+### CHANGED:
+- Switch postcss mixin dependency 
+
 ## 2.0.1 - 2019-01-16
 ### CHANGED:
 - Relocate changelog and track deferred styles 
