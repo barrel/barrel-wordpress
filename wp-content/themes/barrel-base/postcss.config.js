@@ -1,7 +1,7 @@
 const config = {
   plugins: [
     require('./tasks/postcss-module-import'),
-    require('postcss-sassy-mixins'),
+    require('postcss-mixins'),
     require('autoprefixer')({
       browsers: [
         'last 3 versions',
