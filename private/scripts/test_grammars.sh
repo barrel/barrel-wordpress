@@ -36,15 +36,23 @@ echo "${YELLOW}Performing JSON syntax check...${DEFAULT}"
 bash private/scripts/test_json.sh
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}JSON syntax check failed!${DEFAULT}"
-    exit 6
+    exit 1
 fi
 echo $OK
 
-echo "${YELLOW}Changing directories, installing theme dependencies...${DEFAULT}"
-cd ./wp-content/themes/$THEME_NAME && npm ci --loglevel=silent
+echo "${YELLOW}Changing directory to theme path...${DEFAULT}"
+cd ./wp-content/themes/$THEME_NAME
+if [[ "$?" -ne 0 ]]; then
+    echo "${RED}Theme path is invalid!${DEFAULT}"
+    exit 2
+fi
+echo $OK
+
+echo "${YELLOW}Installing theme dependencies...${DEFAULT}"
+npm ci
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}Dependency installation failed!${DEFAULT}"
-    exit 2
+    exit 3
 fi
 echo $OK
 
