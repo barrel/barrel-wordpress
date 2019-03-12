@@ -87,11 +87,16 @@ CWD=$(pwd)
 printf "\nCurrent working directory is now: ${BLUE}$CWD${DEFAULT}\n"
 
 # install dependencies from npm
-npm ci
-if [[ "$?" -ne 0 ]]; then
-    echo "${RED}Failed to install build files!${DEFAULT}"
-    exit 1
-fi
+read -r -p "Install locked dependencies? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+    printf "\nInstalling dependencies..."
+    npm ci
+    if [[ "$?" -ne 0 ]]; then
+        echo "${RED}Failed to install build files!${DEFAULT}"
+        exit 1
+    fi
+esac
 
 # check to process styles and scripts before continuing
 read -r -p "Do you want to build and commit scripts/styles? [y/N] " response
