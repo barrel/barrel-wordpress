@@ -48,9 +48,10 @@ case $i in
     shift # past argument=value
     ;;
     --help)
-    echo "Utility Usage:"
+    echo "${YELLOW}Utility Usage:"
     echo "--"
-    echo "prepare.sh -v=major|minor|patch -f=hotfix|release -s=yes|no"
+    echo "prepare.sh -v=major|minor|patch -f=hotfix|release -s=yes|no${DEFAULT}"
+    exit
     shift # past argument with no value
     ;;
     *)
