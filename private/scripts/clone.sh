@@ -68,6 +68,7 @@ if [ "$PLATFORM" == "macos" ]; then
     sed -i "" "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/modules/search-form/search-form.php
     sed -i "" "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/package.json
     sed -i "" "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/package-lock.json
+    sed -i "" "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/style.css
     sed -i "" "s/$BASE_THEME-theme/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/config.yml
 else
     sed -i "s/$BASE_THEME/$THEME_NAME/g" ./private/scripts/create_module.sh
@@ -78,5 +79,22 @@ else
     sed -i "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/modules/search-form/search-form.php
     sed -i "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/package.json
     sed -i "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/package-lock.json
+    sed -i "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/style.css
     sed -i "s/$BASE_THEME-theme/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/config.yml
 fi
+
+# replace version number of latest base theme in package.json, package-lock.json, and style.css
+BASE_THEME_VERSION="2.1.0"
+NEW_VERSION="0.0.1"
+if [ "$PLATFORM" == "macos" ]; then
+    sed -i "" "s/$BASE_THEME_VERSION/$NEW_VERSION/g" $THEMES_DIR/$THEME_NAME/package.json
+    sed -i "" "s/$BASE_THEME_VERSION/$NEW_VERSION/g" $THEMES_DIR/$THEME_NAME/package-lock.json
+    sed -i "" "s/$BASE_THEME_VERSION/$NEW_VERSION/g" $THEMES_DIR/$THEME_NAME/style.css
+else
+    sed -i "s/$BASE_THEME_VERSION/$NEW_VERSION/g" $THEMES_DIR/$THEME_NAME/package.json
+    sed -i "s/$BASE_THEME_VERSION/$NEW_VERSION/g" $THEMES_DIR/$THEME_NAME/package-lock.json
+    sed -i "s/$BASE_THEME_VERSION/$NEW_VERSION/g" $THEMES_DIR/$THEME_NAME/style.css
+fi
+
+# re-init lando
+lando init --source cwd --recipe pantheon
