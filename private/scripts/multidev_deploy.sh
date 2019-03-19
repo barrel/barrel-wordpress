@@ -70,13 +70,6 @@ then
         exit 1
     fi
     echo -ne $DONE
-
-    echo -e "${YELLOW}Activating the theme...${DEFAULT}"
-    terminus remote:wp $PANTHEON_SITE_ID.$ENV -- theme activate $THEME_NAME
-    if [[ "$?" -ne 0 ]]; then
-        exit 1
-    fi
-    echo -ne $DONE
 else
     echo -e "Looks like the $ENV environment exists.\n"
 fi
