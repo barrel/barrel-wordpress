@@ -24,6 +24,14 @@ function jquery_deregister()
 
   return true;
 }
+/**
+ * Reregister Jquery script
+ * If need to call Jquery script,  call jquery_reregister(); in class-theme-init.php
+ *  after try {
+ *     jquery_deregister();
+ *   }
+ *  catch ( Exception $ex ){}
+ */
 
 function jquery_reregister()
 {
