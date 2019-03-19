@@ -24,11 +24,13 @@ YELLOW=$(tput setaf 3 -T xterm)
 BLUE=$(tput setaf 4 -T xterm)
 OK="${GREEN}OK${DEFAULT}"
 
+ERRORS=0
+
 echo "${YELLOW}Performing PHP syntax check...${DEFAULT}"
 git diff --diff-filter=ACMR --name-only origin/master -- '*.php' | xargs -L1 php -d short_open_tag=Off -l
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}PHP syntax check failed!${DEFAULT}"
-    exit 1
+    ERRORS=$(($ERRORS+1))
 fi
 echo $OK
 
@@ -36,15 +38,23 @@ echo "${YELLOW}Performing JSON syntax check...${DEFAULT}"
 bash private/scripts/test_json.sh
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}JSON syntax check failed!${DEFAULT}"
-    exit 6
+    ERRORS=$(($ERRORS+1))
 fi
 echo $OK
 
-echo "${YELLOW}Changing directories, installing theme dependencies...${DEFAULT}"
-cd ./wp-content/themes/$THEME_NAME && npm ci --loglevel=silent
+echo "${YELLOW}Changing directory to theme path...${DEFAULT}"
+cd ./wp-content/themes/$THEME_NAME
+if [[ "$?" -ne 0 ]]; then
+    echo "${RED}Theme path is invalid!${DEFAULT}"
+    ERRORS=$(($ERRORS+1))
+fi
+echo $OK
+
+echo "${YELLOW}Installing theme dependencies...${DEFAULT}"
+npm ci
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}Dependency installation failed!${DEFAULT}"
-    exit 2
+    ERRORS=$(($ERRORS+1))
 fi
 echo $OK
 
@@ -52,7 +62,7 @@ echo "${YELLOW}Testing js against standardjs...${DEFAULT}"
 standard
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}Conformance to standardjs failed!${DEFAULT}"
-    exit 4
+    ERRORS=$(($ERRORS+1))
 fi
 echo $OK
 
@@ -60,7 +70,7 @@ echo "${YELLOW}Testing css against stylelint...${DEFAULT}"
 npm run test:css_lint
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}Conformance to stylelint failed!${DEFAULT}"
-    exit 5
+    ERRORS=$(($ERRORS+1))
 fi
 echo $OK
 
@@ -68,9 +78,15 @@ echo "${YELLOW}Testing files against editorconfig...${DEFAULT}"
 npm run test:editorconfig
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}Conformance to editorconfig failed!${DEFAULT}"
-    exit 6
+    ERRORS=$(($ERRORS+1))
 fi
 echo $OK
+
+echo "${YELLOW}Tallying sum of failures...${DEFAULT}"
+if [[ "$ERRORS" -gt "0" ]]; then 
+    echo "${RED}There were $ERRORS errors encountered! Please review the errors above.${DEFAULT}"
+    exit $ERRORS
+fi
 
 echo "${GREEN}Grammar and sanity checks complete!${DEFAULT}"
 exit 0

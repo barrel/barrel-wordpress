@@ -95,12 +95,21 @@ if [[ "$?" -ne 0 ]]; then
 fi
 echo -ne $DONE
 
-echo -e "${YELLOW}Installing theme build tools...${DEFAULT}"
-cd ./wp-content/themes/$THEME_NAME && npm i
+echo "${YELLOW}Changing directory to theme path...${DEFAULT}"
+cd ./wp-content/themes/$THEME_NAME
 if [[ "$?" -ne 0 ]]; then
-    exit 1
+    echo "${RED}Theme path is invalid!${DEFAULT}"
+    exit 2
 fi
-echo -ne $DONE
+echo $OK
+
+echo "${YELLOW}Installing theme dependencies...${DEFAULT}"
+npm ci
+if [[ "$?" -ne 0 ]]; then
+    echo "${RED}Dependency installation failed!${DEFAULT}"
+    exit 3
+fi
+echo $OK
 
 echo -e "${YELLOW}Building theme...${DEFAULT}"
 npm run build
@@ -114,6 +123,7 @@ CHANGED=$(git status --porcelain)
 if [ -n "$CHANGED" ]
 then
     echo -e "${YELLOW}Changes detected. Committing...${DEFAULT}"
+    git add --all
     git commit -am "Process scripts and styles"
     if [[ "$?" -ne 0 ]]; then
         exit 1

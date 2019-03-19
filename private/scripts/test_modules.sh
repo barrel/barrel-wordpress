@@ -15,7 +15,17 @@
 MODULE_DIRECTORY="./wp-content/themes/$THEME_NAME/modules"
 NO_MARKUP=()
 
-echo "Validating modules for theme: $THEME_NAME"
+# Terminal colors
+DEFAULT=$(tput setaf 7 -T xterm)
+RED=$(tput setaf 1 -T xterm)
+GREEN=$(tput setaf 2 -T xterm)
+YELLOW=$(tput setaf 3 -T xterm)
+BLUE=$(tput setaf 4 -T xterm)
+BOLD=$(tput bold)
+NORMAL=$(tput sgr0)
+OK="${GREEN}OK${DEFAULT}"
+
+echo "${YELLOW}Validating modules for theme: ${BOLD}$THEME_NAME${NORMAL}${DEFAULT}"
 
 # Loop through modules directory and check if each module contains a markup file
 for path in ${MODULE_DIRECTORY}/*; do
@@ -29,8 +39,14 @@ for path in ${MODULE_DIRECTORY}/*; do
 done
 
 if [ ! ${#NO_MARKUP[@]} -eq 0 ]; then
-    echo "The following module(s) do not contain a markup file. Each module should output markup."
-    printf '\n%s' "${NO_MARKUP[@]}"
+    echo ""
+    echo "The following module(s) do not contain a markup file:"
+    printf ' - %s\n' "${BOLD}${NO_MARKUP[@]}${NORMAL}"
+    echo ""
+    echo "${YELLOW}Modules that are missing markup templates (*.php, *.liquid, *.html), are likely considered a library."
+    echo "Please move libraries to ${BOLD}\`src/js/lib/\`${NORMAL}${YELLOW} for javascripts or ${BOLD}\`src/css/lib/\`${NORMAL}${YELLOW} for stylesheets.${DEFAULT}"
+    echo ""
+    echo "${RED}Each module should output markup!${DEFAULT}"
     exit 1
 else
     echo "All modules passed validation, moving on ..."

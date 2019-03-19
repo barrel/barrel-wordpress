@@ -48,9 +48,10 @@ case $i in
     shift # past argument=value
     ;;
     --help)
-    echo "Utility Usage:"
+    echo "${YELLOW}Utility Usage:"
     echo "--"
-    echo "prepare.sh -v=major|minor|patch -f=hotfix|release -s=yes|no"
+    echo "prepare.sh -v=major|minor|patch -f=hotfix|release -s=yes|no${DEFAULT}"
+    exit
     shift # past argument with no value
     ;;
     *)
@@ -86,15 +87,16 @@ cd $THEME_PATH
 CWD=$(pwd)
 printf "\nCurrent working directory is now: ${BLUE}$CWD${DEFAULT}\n"
 
-# check to process stlyes and scripts before continuing
-read -r -p "Do you want to build and commit scripts/styles? [y/N] " response
+# install dependencies from npm
+read -r -p "Install locked dependencies? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 
-    printf "\nBuilding scripts and styles..."
-    npm run build #might want to include `nmp i` here
-    printf "\nCommitting styles and scripts..."
-    git commit -am "Process scripts/styles"
-    printf "\n\n${GREEN}done.${DEFAULT}\n\n"
+    printf "\nInstalling dependencies..."
+    npm ci
+    if [[ "$?" -ne 0 ]]; then
+        echo "${RED}Failed to install build files!${DEFAULT}"
+        exit 1
+    fi
 esac
 
 # get next version with npm, unless you find a clever regex that works
@@ -113,6 +115,18 @@ ALT_NEXT_VERSION=${NEXT_VERSION:1}
 if [ "$START" == "yes" ]; then
     git flow $FLOW start $NEXT_VERSION
 fi
+
+# check to process styles and scripts before continuing
+read -r -p "Do you want to build and commit scripts/styles? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+    printf "\nBuilding scripts and styles..."
+    npm run build
+    printf "\nCommitting styles and scripts..."
+    git add --all
+    git commit -am "Process scripts/styles"
+    printf "\n\n${GREEN}done.${DEFAULT}\n\n"
+esac
 
 # Add new line to changelog
 printf "\nUsing git messages for CHANGELOG...\n"
@@ -161,7 +175,7 @@ printf "\nNext version is: ${YELLOW}"
 eval $AUTO_INC_VERSION_WITH_NPM
 printf "${DEFAULT}\n"
 
-read -r -p "Finish and commit version changes? [y/N] " response
+read -r -p "Commit versioning changes? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 
     printf "\nProceeding with package ${GREEN}$NEXT_VERSION${DEFAULT}, "
@@ -170,14 +184,19 @@ case "$response" in
 	git commit -am "Update changelog and bump versions" 
 esac
 
-printf "\nFinish up with gitflow command ${BLUE}git flow $FLOW finish $NEXT_VERSION${DEFAULT}"
-git flow $FLOW finish $NEXT_VERSION
-exit 0
-;;
-*)
-printf "\n${RED}Exiting. Goodbye.${DEFAULT}\n\n"
-git reset --hard HEAD
-exit 1
-;;
-
+read -r -p "Finish up with gitflow? [y/N]" response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+    printf "\nFinishing up with gitflow command ${BLUE}git flow $FLOW finish $NEXT_VERSION${DEFAULT}...\n"
+    export GIT_MERGE_AUTOEDIT=no
+    git flow $FLOW finish -m "Tag $NEXT_VERSION" $NEXT_VERSION
+    unset GIT_MERGE_AUTOEDIT
+    exit 0
+    ;;
+    *)
+    printf "\n${RED}Exiting. Goodbye.${DEFAULT}\n\n"
+    git reset --hard HEAD
+    exit 1
+    ;;
+esac
 exit
