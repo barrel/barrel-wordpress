@@ -99,17 +99,6 @@ case "$response" in
     fi
 esac
 
-# check to process styles and scripts before continuing
-read -r -p "Do you want to build and commit scripts/styles? [y/N] " response
-case "$response" in
-    [yY][eE][sS]|[yY]) 
-    printf "\nBuilding scripts and styles..."
-    npm run build
-    printf "\nCommitting styles and scripts..."
-    git commit -am "Process scripts/styles"
-    printf "\n\n${GREEN}done.${DEFAULT}\n\n"
-esac
-
 # get next version with npm, unless you find a clever regex that works
 NEXT_VERSION=$(eval $AUTO_INC_VERSION_WITH_NPM)
 git reset --hard HEAD
@@ -126,6 +115,18 @@ ALT_NEXT_VERSION=${NEXT_VERSION:1}
 if [ "$START" == "yes" ]; then
     git flow $FLOW start $NEXT_VERSION
 fi
+
+# check to process styles and scripts before continuing
+read -r -p "Do you want to build and commit scripts/styles? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+    printf "\nBuilding scripts and styles..."
+    npm run build
+    printf "\nCommitting styles and scripts..."
+    git add --all
+    git commit -am "Process scripts/styles"
+    printf "\n\n${GREEN}done.${DEFAULT}\n\n"
+esac
 
 # Add new line to changelog
 printf "\nUsing git messages for CHANGELOG...\n"
