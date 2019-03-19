@@ -54,5 +54,8 @@
     "tweezer.js": "^1.4.0",
     "url-loader": "^1.1.1",
     "webpack": "^4.19.1"
+  },
+  "dependencies": {
+    "lodash.throttle": "^4.1.1"
   }
 }
