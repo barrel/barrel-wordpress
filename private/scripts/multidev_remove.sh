@@ -11,11 +11,7 @@
 
 # Variables - Need to be updated per project
 # Terminal colors
-DEFAULT=$(tput setaf 7 -T xterm)
-RED=$(tput setaf 1 -T xterm)
-GREEN=$(tput setaf 2 -T xterm)
-YELLOW=$(tput setaf 3 -T xterm)
-BLUE=$(tput setaf 4 -T xterm)
+source ./private/scripts/colors.sh
 
 # CI_COMMIT_REF_NAME, defined by GitLab CI or by user
 # PANTHEON_SITE_ID, can be defined in environment variables, by flag, or by user

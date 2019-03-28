@@ -7,11 +7,7 @@
 ####################################################################
 
 # Terminal colors
-DEFAULT=$(tput setaf 7 -T xterm)
-RED=$(tput setaf 1 -T xterm)
-GREEN=$(tput setaf 2 -T xterm)
-YELLOW=$(tput setaf 3 -T xterm)
-BLUE=$(tput setaf 4 -T xterm)
+source ./private/scripts/colors.sh
 
 ## Check if module name was provided before moving on
 if [ -z ${THEME_NAME+x} ]; then

@@ -8,5 +8,5 @@ YELLOW=$(tput setaf 3 -T xterm)
 BLUE=$(tput setaf 4 -T xterm)
 BOLD=$(tput bold -T xterm)
 NORMAL=$(tput sgr0 -T xterm)
-OK="${GREEN}OK${DEFAULT}"
-DONE="${GREEN}DONE${DEFAULT}"
+OK="${GREEN}ok${DEFAULT}"
+DONE="${GREEN}done${DEFAULT}"

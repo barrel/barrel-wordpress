@@ -10,11 +10,7 @@
 ####################################################################
 
 # Terminal colors
-DEFAULT=$(tput setaf 7)
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-BLUE=$(tput setaf 4)
+source ./private/scripts/colors.sh
 
 if [[ -e "module_list.csv" ]]; then
     echo "${YELLOW}Found module list. Attempting to create modules...${DEFAULT}"

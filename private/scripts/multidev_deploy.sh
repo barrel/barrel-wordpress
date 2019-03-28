@@ -13,11 +13,7 @@
 ####################################################################
 
 # Terminal colors
-DEFAULT=$(tput setaf 7 -T xterm)
-RED=$(tput setaf 1 -T xterm)
-GREEN=$(tput setaf 2 -T xterm)
-YELLOW=$(tput setaf 3 -T xterm)
-BLUE=$(tput setaf 4 -T xterm)
+source ./private/scripts/colors.sh
 
 if [ -z ${CI_COMMIT_REF_NAME+x} ]; then
     echo -e "${BLUE}Hmm... Looks like this is not being run in GitLab CI. What's the original branch name?${DEFAULT}"
@@ -34,7 +30,6 @@ if [ -z ${THEME_NAME+x} ]; then
     read THEME_NAME
 fi
 
-DONE="${GREEN}...done${DEFAULT}\n"
 TARGET=$(echo $CI_COMMIT_REF_NAME | cut -d'/' -f2)
 ENV=$(echo ${TARGET:0:11} | tr '[:upper:]' '[:lower:]') 
 

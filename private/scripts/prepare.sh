@@ -22,11 +22,7 @@ FLOW="hotfix"
 START="no"
 
 # Terminal colors
-DEFAULT=$(tput setaf 7)
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-BLUE=$(tput setaf 4)
+source ./private/scripts/colors.sh
 
 # handle arguments
 for i in "$@"; do
@@ -48,10 +44,9 @@ case $i in
     shift # past argument=value
     ;;
     --help)
-    echo "${YELLOW}Utility Usage:"
+    echo "Utility Usage:"
     echo "--"
-    echo "prepare.sh -v=major|minor|patch -f=hotfix|release -s=yes|no${DEFAULT}"
-    exit
+    echo "prepare.sh -v=major|minor|patch -f=hotfix|release -s=yes|no"
     shift # past argument with no value
     ;;
     *)
