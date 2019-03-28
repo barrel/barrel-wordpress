@@ -55,7 +55,7 @@ echo "Copying theme files..."
 cp -R $THEMES_DIR/$BASE_THEME $THEMES_DIR/$THEME_NAME
 
 # remove lando config 
-echo "Removing lando config, please re-run 'lando init' when connecting with Pantheon..."
+echo "Removing lando config, please re-run 'lando init --source cwd --recipe pantheon' when connecting with Pantheon..."
 rm .lando.yml
 
 # replace barrel-base
