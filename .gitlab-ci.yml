@@ -46,6 +46,11 @@ multidev_deploy:
   <<: *IMPORT_GIT
   script:
     - bash private/scripts/multidev_deploy.sh
+    - bash private/scripts/gitlab/set_env_url.sh    
+  environment:
+    name: multidev/${CI_BUILD_REF_SLUG}
+    on_stop: multidev_remove
+
 multidev_remove:
   stage: deploy
   only:
@@ -54,6 +59,10 @@ multidev_remove:
   <<: *IMPORT_GIT
   script:
     - bash private/scripts/multidev_remove.sh
+  environment:
+    name: multidev/${CI_BUILD_REF_SLUG}
+    action: stop
+
 create_merge_request:
   stage: merge_request
   only:
