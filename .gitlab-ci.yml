@@ -2,14 +2,24 @@ stages:
   - test
   - deploy
   - merge_request
+
+.import_git: &IMPORT_GIT
+  before_script:
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - bash private/scripts/import_git_remote.sh
+
+.branch_prefixes: &BRANCH_PREFIXES
+  only: 
+    - /(feature|bugfix|hotfix)\/?(.*)/
+
 image: barrelny/multipurpose-ci:0.0.11
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
   - wp-content/themes/$THEME_NAME/node_modules/
 test_grammars:
-  only: 
-    - /(feature|bugfix|hotfix)\/?(.*)/
+  <<: *BRANCH_PREFIXES
   stage: test
   before_script:
     # @todo: move script to bash with proper exit
@@ -22,31 +32,26 @@ test_grammars:
     - bash private/scripts/test_grammars.sh
   retry: 2
 test_modules:
-  only: 
-    - /(feature|bugfix|hotfix)\/?(.*)/
+  <<: *BRANCH_PREFIXES
   stage: test
   script: 
     - bash private/scripts/test_modules.sh
   retry: 2
+
+# multidev
 multidev_deploy:
+  stage: deploy
   only: 
     - /(develop|feature|bugfix|hotfix)\/?(.*)/
-  stage: deploy
-  before_script:
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bash private/scripts/import_git_remote.sh
+  <<: *IMPORT_GIT
   script:
     - bash private/scripts/multidev_deploy.sh
 multidev_remove:
-  only:
-    - /^(feature|bugfix|support)\/.*/
   stage: deploy
+  only:
+    - /^(feature|bugfix|hotfix)\/.*/
   when: manual
-  before_script:
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bash private/scripts/import_git_remote.sh
+  <<: *IMPORT_GIT
   script:
     - bash private/scripts/multidev_remove.sh
 create_merge_request:
