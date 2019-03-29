@@ -14,10 +14,10 @@ stages:
     - /(feature|bugfix|hotfix)\/?(.*)/
 
 image: barrelny/multipurpose-ci:0.0.11
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-  - wp-content/themes/$THEME_NAME/node_modules/
+# cache:
+#   key: ${CI_COMMIT_REF_SLUG}
+#   paths:
+#   - wp-content/themes/$THEME_NAME/node_modules/
 test_grammars:
   <<: *BRANCH_PREFIXES
   stage: test
