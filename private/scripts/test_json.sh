@@ -16,14 +16,19 @@ if [ -z ${THEME_NAME+x} ]; then
 fi
 
 INVALID_FILES=""
-THEME_LOCATION="wp-content/themes/$THEME_NAME"
+THEME_LOCATION="./wp-content/themes/$THEME_NAME"
 
-printf "Switching to the theme directory in $THEME_LOCATION..\n"
+echo "${YELLOW}Changing directory to theme path: $THEME_LOCATION/ ${DEFAULT}"
 cd $THEME_LOCATION
+if [[ "$?" -ne 0 ]]; then
+    echo "${RED}Theme path is invalid!${DEFAULT}"
+    exit 2
+fi
+echo $OK
 
-printf "Validating json files in the $THEME_NAME theme\n"
+echo "${YELLOW}Validating json files in the $THEME_NAME theme${DEFAULT}"
 while read -r line; do
-    echo "Testing $line..."
+    echo "Testing $line"
     php -r "if ( ! json_decode(file_get_contents('$line')) ) { exit(1); }"
     if [ $? -ne 0 ]; then
         INVALID_FILES+="$line\n"
@@ -31,10 +36,10 @@ while read -r line; do
 done <<< "$(find . -type f -name '*.json' -not -path './node_modules/*')"
 
 if [ -z "$INVALID_FILES" ]; then
-    echo "${GREEN}All JSON files look ok. Moving on ...${DEFAULT}"
+    echo "${GREEN}All JSON files look ok.${DEFAULT}"
     exit
 else
-    printf "\n${RED}JSON Syntax errors were found in the ${THEME_NAME} theme. Please check the syntax of the following files and fix any errors.${DEFAULT}\n"
-    printf "\nINVALID JSON FILES:\n${INVALID_FILES}"
+    echo "${RED}JSON Syntax errors were found in the $THEME_NAME theme. Please check the syntax of the following files and fix any errors.${DEFAULT}\n"
+    echo "INVALID JSON FILES:${INVALID_FILES}"
     exit 1;
 fi
