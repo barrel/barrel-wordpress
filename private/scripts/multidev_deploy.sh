@@ -52,36 +52,36 @@ else
     DATA_ENVIRONMENT="dev"
 fi
 
-echo -e "Looks like the most recent data can be found in the <$DATA_ENVIRONMENT> environment.\n"
-echo -e "${YELLOW}Checking if ENV '$ENV' exists...${DEFAULT}"
+echo "${YELLOW}Looks like the most recent data can be found in the <$DATA_ENVIRONMENT> environment.${DEFAULT}"
+echo "${YELLOW}Checking if ENV '$ENV' exists...${DEFAULT}"
 
 # note potential false-positive if $PANTHEON_SITE_ID|$ENV is !defined
 if [[ "$MATCH_EXISTS" -ne 0 ]] 
 then 
-    echo -e "Multidev not found.\n"
-    echo -e "${YELLOW}Creating $ENV from the <$DATA_ENVIRONMENT> environment...${DEFAULT}"
+    echo "${RED}Multidev not found.${DEFAULT}"
+    echo "${YELLOW}Creating $ENV from the <$DATA_ENVIRONMENT> environment...${DEFAULT}"
     terminus multidev:create $PANTHEON_SITE_ID.$DATA_ENVIRONMENT $ENV
     if [[ "$?" -ne 0 ]]; then
         exit 1
     fi
-    echo -ne $DONE
+    echo $DONE
 else
-    echo -e "Looks like the $ENV environment exists.\n"
+    echo "${YELLOW}Looks like the $ENV environment exists.${DEFAULT}"
 fi
 
-echo -e "${YELLOW}Setting Pantheon '$ENV' to git mode...${DEFAULT}"
+echo "${YELLOW}Setting Pantheon '$ENV' to git mode...${DEFAULT}"
 terminus connection:set $PANTHEON_SITE_ID.$ENV git
 if [[ "$?" -ne 0 ]]; then
     exit 1
 fi
-echo -ne $DONE
+echo $DONE
 
-echo -e "${YELLOW}Pushing to '$ENV' on Pantheon...${DEFAULT}"
+echo "${YELLOW}Pushing to '$ENV' on Pantheon...${DEFAULT}"
 git push -f pantheon HEAD:$ENV
 if [[ "$?" -ne 0 ]]; then
     exit 1
 fi
-echo -ne $DONE
+echo $DONE
 
 echo "${YELLOW}Changing directory to theme path...${DEFAULT}"
 cd ./wp-content/themes/$THEME_NAME
@@ -99,12 +99,12 @@ if [[ "$?" -ne 0 ]]; then
 fi
 echo $OK
 
-echo -e "${YELLOW}Building theme...${DEFAULT}"
+echo "${YELLOW}Building theme...${DEFAULT}"
 npm run build
 if [[ "$?" -ne 0 ]]; then
     exit 1
 fi
-echo -ne $DONE
+echo $DONE
 
 # Just checking if there are changes, surely there's more to consider
 CHANGED=$(git status --porcelain)
@@ -122,8 +122,8 @@ then
     if [[ "$?" -ne 0 ]]; then
         exit 1
     fi
-    echo -ne $DONE
+    echo $DONE
 else
 	echo "${YELLOW}No changes...${DEFAULT}"
-    echo -ne $DONE
+    echo $DONE
 fi
