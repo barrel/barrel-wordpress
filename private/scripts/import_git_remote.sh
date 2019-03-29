@@ -34,6 +34,12 @@ then
 		exit 1
 	fi
 else
-	echo "${YELLOW}Found Pantheon git remote...${DEFAULT}"
+	echo "Found Pantheon git remote. Testing to make sure Pantheon Repository URL is correct..."
+	git remote -v | grep $REMOTE
+	if test $? != 0
+	then
+		echo "Hmm, looks like the pantheon remote url doesn't match. Updating with set-url now..."
+		git remote set-url pantheon $REMOTE
+	fi
 fi
 echo $DONE
