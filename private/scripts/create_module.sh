@@ -19,11 +19,7 @@
 MODULE_PATH="./modules"
 
 # Terminal colors
-DEFAULT=$(tput setaf 7)
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-BLUE=$(tput setaf 4)
+source ./private/scripts/colors.sh
 
 # handle arguments
 for i in "$@"; do

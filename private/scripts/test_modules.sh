@@ -16,14 +16,7 @@ MODULE_DIRECTORY="./wp-content/themes/$THEME_NAME/modules"
 NO_MARKUP=()
 
 # Terminal colors
-DEFAULT=$(tput setaf 7 -T xterm)
-RED=$(tput setaf 1 -T xterm)
-GREEN=$(tput setaf 2 -T xterm)
-YELLOW=$(tput setaf 3 -T xterm)
-BLUE=$(tput setaf 4 -T xterm)
-BOLD=$(tput bold)
-NORMAL=$(tput sgr0)
-OK="${GREEN}OK${DEFAULT}"
+source ./private/scripts/colors.sh
 
 echo "${YELLOW}Validating modules for theme: ${BOLD}$THEME_NAME${NORMAL}${DEFAULT}"
 
