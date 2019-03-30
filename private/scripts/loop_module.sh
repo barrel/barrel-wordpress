@@ -9,8 +9,10 @@
 ## npm run create-modules
 ####################################################################
 
+SCRIPT_PATH="`dirname \"$0\"`"
+
 # Terminal colors
-source ./private/scripts/colors.sh
+source $SCRIPT_PATH/colors.sh
 
 if [[ -e "module_list.csv" ]]; then
     echo "${YELLOW}Found module list. Attempting to create modules...${DEFAULT}"

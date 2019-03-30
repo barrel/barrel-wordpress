@@ -10,12 +10,13 @@
 ####################################################################
 
 # Variables - Need to be updated per project
-# Terminal colors
-source ./private/scripts/colors.sh
-
 # CI_COMMIT_REF_NAME, defined by GitLab CI or by user
 # PANTHEON_SITE_ID, can be defined in environment variables, by flag, or by user
 # ENVIRONMENT, can be defined with a flag, by user, or automatically
+SCRIPT_PATH="`dirname \"$0\"`"
+
+# Terminal colors
+source $SCRIPT_PATH/colors.sh
 
 if [ -z ${CI_COMMIT_REF_NAME+x} ]; then
     echo "${YELLOW}Hmm... Looks like this is not being run in GitLab CI, what's the original branch name?${DEFAULT}"

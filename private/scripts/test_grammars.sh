@@ -16,10 +16,13 @@
 ## - $THEME_NAME (`export THEME_NAME="theme-name"`)
 ####################################################################
 
-# Terminal colors
-source ./private/scripts/colors.sh
-
 ERRORS=0
+ROOT_PATH=$(git rev-parse --show-toplevel)
+SCRIPT_PATH="`dirname \"$0\"`"
+
+# Terminal colors
+source $SCRIPT_PATH/colors.sh
+cd $ROOT_PATH
 
 echo "${YELLOW}Performing PHP syntax check...${DEFAULT}"
 git diff --diff-filter=ACMR --name-only origin/master -- '*.php' | xargs -L1 php -d short_open_tag=Off -l

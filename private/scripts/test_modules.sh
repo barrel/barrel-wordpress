@@ -14,11 +14,12 @@
 # Variables
 MODULE_DIRECTORY="./wp-content/themes/$THEME_NAME/modules"
 NO_MARKUP=()
+SCRIPT_PATH="`dirname \"$0\"`"
 
 # Terminal colors
-source ./private/scripts/colors.sh
+source $SCRIPT_PATH/colors.sh
 
-echo "${YELLOW}Validating modules for theme: ${BOLD}$THEME_NAME${NORMAL}${DEFAULT}"
+echo "${YELLOW}Validating modules for theme: ${BOLD}$THEME_NAME${NORMAL}"
 
 # Loop through modules directory and check if each module contains a markup file
 for path in ${MODULE_DIRECTORY}/*; do

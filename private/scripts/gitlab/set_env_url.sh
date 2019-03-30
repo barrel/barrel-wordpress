@@ -1,6 +1,9 @@
 #!/bin/bash
 
-source ./private/scripts/colors.sh
+SCRIPT_PATH="`dirname \"$0\"`"
+
+# Terminal colors
+source $SCRIPT_PATH/colors.sh
 
 # Using the API to bypass the gitlab-ci limitation.
 # Limitation prevents scripting to set dynamic env urls. 

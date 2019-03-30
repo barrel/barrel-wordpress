@@ -17,9 +17,10 @@
 
 # Variables
 MODULE_PATH="./modules"
+SCRIPT_PATH="`dirname \"$0\"`"
 
 # Terminal colors
-source ./private/scripts/colors.sh
+source $SCRIPT_PATH/colors.sh
 
 # handle arguments
 for i in "$@"; do

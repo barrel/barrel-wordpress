@@ -6,8 +6,10 @@
 ## json_decode() function of PHP. 
 ####################################################################
 
+SCRIPT_PATH="`dirname \"$0\"`"
+
 # Terminal colors
-source ./private/scripts/colors.sh
+source $SCRIPT_PATH/colors.sh
 
 ## Check if module name was provided before moving on
 if [ -z ${THEME_NAME+x} ]; then
