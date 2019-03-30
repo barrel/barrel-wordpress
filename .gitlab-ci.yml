@@ -21,13 +21,6 @@ image: barrelny/multipurpose-ci:0.0.11
 test_grammars:
   <<: *BRANCH_PREFIXES
   stage: test
-  before_script:
-    # @todo: move script to bash with proper exit
-    # @todo: install standard globally to CI image
-    # @todo: install editorconfig-checker globally to CI image
-    # @todo: install stylelint globally to CI image
-    - npm config set loglevel warn && npm set progress=false
-    - npm install -g standard --loglevel=warn
   script: 
     - bash private/scripts/test_grammars.sh
   retry: 2
