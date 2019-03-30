@@ -1,28 +1,43 @@
 #!/bin/bash
 
+# THIS IS A WIP ATTEMPT TO JUMPSTART DEVELOPMENT
+# If you have any problems, open a merge request
+# or submit an issue to the barrel-wordpress.git
+
 SCRIPT_PATH="`dirname \"$0\"`"
 
 source $SCRIPT_PATH/colors.sh
 
 echo "${YELLOW}Hello, $USER. We're going to get you ready for dev...${DEFAULT}"
 
-echo "${YELLOW}We expect you to have lando installed.${DEFAULT}"
+echo "${YELLOW}We expect you to have lando and gitflow-avh installed.${DEFAULT}"
 
-LANDO_PATH=$(which lando)
+# lando    3.0.0-rc.9
+# terminus 2.0.0
+# git-flow 1.12.2 (AVH Edition)
 
-if [[ "/usr/local/bin/lando" == "$LANDO_PATH" ]]; then
+# check for dependencies
+if hash lando 2>/dev/null; then
   echo "${YELLOW}We found lando, starting landing...${DEFAULT}"
-  #lando start
+  lando start &>/dev/null &
 else
-  echo "${RED}Lando was not detected in the expected path (MacOS), please install.${DEFAULT}"
+  echo "${RED}Lando was not detected, please install lando.${DEFAULT}"
   echo "${YELLOW}Please download Lando (https://docs.devwithlando.io/) or setup your own local environment.${DEFAULT}"
   exit 1
 fi
 
-#lando pull
+# init git flow
+if hash git-flow 2>/dev/null; then
+  echo "${YELLOW}We found git-flow, initializing...${DEFAULT}"
+  git flow init
+else
+  echo "${RED}Git-Flow was not detected, please install git-flow-avh.${DEFAULT}"
+  echo "${YELLOW}Please download GitFlow AVH Edition (https://github.com/petervanderdoes/gitflow-avh/wiki/Installation/) or manually follow gitflow branching model from here.${DEFAULT}"
+fi
 
-# assuming we cloned from gitlab
+# assuming we cloned from gitlab and develop exists
 git checkout develop
+echo "${YELLOW}Now run `git flow feature start $FEATURE` to start a new feature${DEFAULT}"
 
 # define TERMINUS_TOKEN
 if [ -z ${TERMINUS_TOKEN+x} ]; then
