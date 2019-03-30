@@ -8,7 +8,7 @@
     "dependencies": "brrl-install",
     "create-module": "sh ../../../private/scripts/create_module.sh",
     "remove-multidev": "sh ../../../private/scripts/multidev_remove.sh",
-    "test": "npm run test:css_lint && npm run test:js_lint && npm run test:editorconfig && npm run test:json_lint",
+    "test": "sh ../../../private/scripts/test_grammars.sh",
     "test:editorconfig": "editorconfig-checker ./**/*",
     "test:js_lint": "standard",
     "test:css_lint": "stylelint src/css/*.css modules/**/*.css",
