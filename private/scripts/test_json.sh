@@ -7,24 +7,28 @@
 ####################################################################
 
 SCRIPT_PATH="`dirname \"$0\"`"
+INVALID_FILES=""
 
 # Terminal colors
 source $SCRIPT_PATH/colors.sh
 
 ## Check if module name was provided before moving on
 if [ -z ${THEME_NAME+x} ]; then
-    echo "${YELLOW}Hmm... Looks like you didn't set a theme name yet. What theme are we evaluating?${DEFAULT}"
+    echo "${BLUE}Hmm... Something is missing. What is the Theme Name?${DEFAULT}"
     read THEME_NAME
 fi
 
-INVALID_FILES=""
-THEME_LOCATION="./wp-content/themes/$THEME_NAME"
+THEME_LOCATION="wp-content/themes/$THEME_NAME"
 
-echo "${YELLOW}Changing directory to theme path: $THEME_LOCATION/ ${DEFAULT}"
-cd $THEME_LOCATION
-if [[ "$?" -ne 0 ]]; then
-    echo "${RED}Theme path is invalid!${DEFAULT}"
-    exit 2
+if [[ `pwd` == *"$THEME_LOCATION"* ]]; then
+    echo "${YELLOW}Theme path detected!${DEFAULT}"
+else
+    echo "${YELLOW}Changing directory to theme path: $THEME_LOCATION/ ${DEFAULT}"
+    cd $THEME_LOCATION
+    if [[ "$?" -ne 0 ]]; then
+        echo "${RED}Theme path is invalid!${DEFAULT}"
+        exit 2
+    fi
 fi
 echo $OK
 
