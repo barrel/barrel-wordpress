@@ -17,6 +17,7 @@ GITLAB_API_URL="https://gitlab.com/api/v4/projects"
 ENVIRONMENT_REQ_HEADER="PRIVATE-TOKEN: $GITLAB_PRIVATE_TOKEN"
 ENV_ID_REQ_URL="$GITLAB_API_URL/$CI_PROJECT_ID/environments"
 JSON=$(curl -s --header "$ENVIRONMENT_REQ_HEADER" "$ENV_ID_REQ_URL")
+echo $JSON
 PARSE_JSON='$r = json_decode(fgets(STDIN)); foreach ($r as $e) if ($e->name == "'$CI_ENVIRONMENT_NAME'") { echo $e->id; break;}'
 CI_ENVIRONMENT_ID=$(echo $JSON | php -r "$PARSE_JSON")
 ENV_SET_URL="$GITLAB_API_URL/$CI_PROJECT_ID/environments/$CI_ENVIRONMENT_ID"
