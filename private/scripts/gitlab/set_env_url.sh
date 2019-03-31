@@ -17,13 +17,12 @@ GITLAB_API_URL="https://gitlab.com/api/v4/projects"
 ENVIRONMENT_REQ_HEADER="PRIVATE-TOKEN: $GITLAB_PRIVATE_TOKEN"
 ENV_ID_REQ_URL="$GITLAB_API_URL/$CI_PROJECT_ID/environments"
 JSON=$(curl -s --header "$ENVIRONMENT_REQ_HEADER" "$ENV_ID_REQ_URL")
-echo $JSON
-PARSE_JSON='$r = json_decode(fgets(STDIN)); foreach ($r as $e) if ($e->name == "'$CI_ENVIRONMENT_NAME'") { echo $e->id; break;}'
-CI_ENVIRONMENT_ID=$(echo $JSON | php -r "$PARSE_JSON")
+CI_ENVIRONMENT_ID=$(echo $JSON | jq '.[]  | select(.name == "$CI_ENVIRONMENT_NAME") | .id')
 ENV_SET_URL="$GITLAB_API_URL/$CI_PROJECT_ID/environments/$CI_ENVIRONMENT_ID"
 
 echo "${YELLOW}Setting the environment URL dynamically...${DEFAULT}"
-curl -s --request PUT --data "external_url=$ENVURL" --header "$ENVIRONMENT_REQ_HEADER" "$ENV_SET_URL"
+RESULT_JSON=$(curl -s --request PUT --data "external_url=$ENVURL" --header "$ENVIRONMENT_REQ_HEADER" "$ENV_SET_URL")
+echo $RESULT_JSON | jq '.'
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}Setting the environment URL failed!${DEFAULT}"
     exit 1
