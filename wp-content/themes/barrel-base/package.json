@@ -7,6 +7,7 @@
     "build:lazy-css": "postcss src/css/main.css -o assets/deferred.min.css --config tasks/",
     "dependencies": "brrl-install",
     "create-module": "bash ../../../private/scripts/create_module.sh",
+    "import-module": "bash ../../../private/scripts/import_module.sh",
     "remove-multidev": "bash ../../../private/scripts/multidev_remove.sh",
     "test": "bash ../../../private/scripts/test_grammars.sh",
     "test:editorconfig": "editorconfig-checker ./**/*",
