@@ -17,7 +17,7 @@ GITLAB_API_URL="https://gitlab.com/api/v4/projects"
 ENVIRONMENT_REQ_HEADER="PRIVATE-TOKEN: $GITLAB_PRIVATE_TOKEN"
 ENV_ID_REQ_URL="$GITLAB_API_URL/$CI_PROJECT_ID/environments"
 JSON=$(curl -s --header "$ENVIRONMENT_REQ_HEADER" "$ENV_ID_REQ_URL")
-CI_ENVIRONMENT_ID=$(echo $JSON | jq '.[]  | select(.name == "$CI_ENVIRONMENT_NAME") | .id')
+CI_ENVIRONMENT_ID=$(echo $JSON | jq -r '.[]  | select(.name == "$CI_ENVIRONMENT_NAME") | .id')
 ENV_SET_URL="$GITLAB_API_URL/$CI_PROJECT_ID/environments/$CI_ENVIRONMENT_ID"
 
 echo "${YELLOW}Setting the environment URL dynamically...${DEFAULT}"
