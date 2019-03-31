@@ -13,7 +13,7 @@ stages:
   only: 
     - /(feature|bugfix|hotfix)\/?(.*)/
 
-image: barrelny/multipurpose-ci:0.0.11
+image: barrelny/multipurpose-ci:0.0.13
 # cache:
 #   key: ${CI_COMMIT_REF_SLUG}
 #   paths:
