@@ -16,10 +16,13 @@
 ## - $THEME_NAME (`export THEME_NAME="theme-name"`)
 ####################################################################
 
-# Terminal colors
-source ./private/scripts/colors.sh
-
 ERRORS=0
+ROOT_PATH=$(git rev-parse --show-toplevel)
+SCRIPT_PATH="`dirname \"$0\"`"
+
+# Terminal colors
+source $SCRIPT_PATH/colors.sh
+cd $ROOT_PATH
 
 echo "${YELLOW}Performing PHP syntax check...${DEFAULT}"
 git diff --diff-filter=ACMR --name-only origin/master -- '*.php' | xargs -L1 php -d short_open_tag=Off -l
@@ -29,18 +32,29 @@ if [[ "$?" -ne 0 ]]; then
 fi
 echo $OK
 
-echo "${YELLOW}Performing JSON syntax check...${DEFAULT}"
-bash private/scripts/test_json.sh
-if [[ "$?" -ne 0 ]]; then
-    echo "${RED}JSON syntax check failed!${DEFAULT}"
-    ERRORS=$(($ERRORS+1))
+if [ -z ${THEME_NAME+x} ]; then
+    echo "${BLUE}Hmm... Something is missing. What is the Theme Name?${DEFAULT}"
+    read THEME_NAME
+    export THEME_NAME="$THEME_NAME"
+fi
+THEME_LOCATION="wp-content/themes/$THEME_NAME"
+
+if [[ `pwd` == *"$THEME_LOCATION"* ]]; then
+    echo "${YELLOW}Theme path detected!${DEFAULT}"
+else
+    echo "${YELLOW}Changing directory to theme path: $THEME_LOCATION/ ${DEFAULT}"
+    cd $THEME_LOCATION
+    if [[ "$?" -ne 0 ]]; then
+        echo "${RED}Theme path is invalid!${DEFAULT}"
+        ERRORS=$(($ERRORS+1))
+    fi
 fi
 echo $OK
 
-echo "${YELLOW}Changing directory to theme path...${DEFAULT}"
-cd ./wp-content/themes/$THEME_NAME
+echo "${YELLOW}Performing JSON syntax check...${DEFAULT}"
+npm run test:json_lint
 if [[ "$?" -ne 0 ]]; then
-    echo "${RED}Theme path is invalid!${DEFAULT}"
+    echo "${RED}JSON syntax check failed!${DEFAULT}"
     ERRORS=$(($ERRORS+1))
 fi
 echo $OK
@@ -54,7 +68,7 @@ fi
 echo $OK
 
 echo "${YELLOW}Testing js against standardjs...${DEFAULT}"
-standard
+npm run test:js_lint
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}Conformance to standardjs failed!${DEFAULT}"
     ERRORS=$(($ERRORS+1))

@@ -1,6 +1,8 @@
 #!/bin/bash
 
-source ./private/scripts/colors.sh
+SCRIPT_PATH="`dirname \"$0\"`"
+
+source $SCRIPT_PATH/colors.sh
 
 echo "${YELLOW}Verifying git user details...${DEFAULT}"
 git config --global user.email

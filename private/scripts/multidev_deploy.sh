@@ -12,8 +12,10 @@
 ## - $ENV, defined automatically
 ####################################################################
 
+SCRIPT_PATH="`dirname \"$0\"`"
+
 # Terminal colors
-source ./private/scripts/colors.sh
+source $SCRIPT_PATH/colors.sh
 
 if [ -z ${CI_COMMIT_REF_NAME+x} ]; then
     echo -e "${BLUE}Hmm... Looks like this is not being run in GitLab CI. What's the original branch name?${DEFAULT}"
