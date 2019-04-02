@@ -1,5 +1,16 @@
 #!/bin/bash
 
+####################################################################
+## This script is responsible for importing a git remote specific
+## to deploying on Pantheon and setting up the default machine user.
+## The private key is injected using the $SSH_PRIVATE_KEY env var.
+##
+## Required Environment Variables:
+## - $SSH_PRIVATE_KEY
+## - $TERMINUS_TOKEN
+## - $PANTHEON_SITE_ID
+####################################################################
+
 SCRIPT_PATH="`dirname \"$0\"`"
 
 source $SCRIPT_PATH/colors.sh
