@@ -142,7 +142,7 @@ if [ ! -d "$MODULE_ROOT_PATH" ]; then
     fi
 else
     cd $MODULE_ROOT_PATH
-    git fetch origin && pull origin develop
+    git fetch origin && git pull origin develop
 fi
 
 ## Check if module name was provided before moving on

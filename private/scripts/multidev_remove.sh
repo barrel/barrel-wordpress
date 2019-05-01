@@ -23,7 +23,8 @@ if [ -z ${CI_COMMIT_REF_NAME+x} ]; then
     read CI_COMMIT_REF_NAME
 fi
 TARGET=$(echo $CI_COMMIT_REF_NAME | cut -d'/' -f2)
-ENVIRONMENT=$(echo ${TARGET:0:11} | tr '[:upper:]' '[:lower:]') 
+ENV=$(echo ${TARGET:0:11} | tr '[:upper:]' '[:lower:]') 
+ENVIRONMENT="${ENV//-}"
 
 # Parameters 
 for i in "$@"; do
@@ -37,13 +38,14 @@ case $i in
     shift # past argument=value
     ;;
     --help)
-    echo "Utility Usage:"
+    echo "${YELLOW}Utility Usage:"
     echo "--"
     echo "This script can be run from within the theme using npm"
     echo "npm run remove-multidev"
-    echo "--\n"
+    echo "--"
     echo "Arguments:"
-    echo "-m | --multidev - Multidev name: -n=the-module"
+    echo "-m | --multidev - Multidev name: -n=the-module${DEFAULT}"
+    exit 0
     shift # past argument with no value
     ;;
     *)
