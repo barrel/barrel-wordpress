@@ -38,7 +38,7 @@ ENVIRONMENT="${ENV//-}"
 
 echo -e "${YELLOW}Checking which database should be used...${DEFAULT}"
 
-MATCH=$(terminus multidev:list --format=list --fields=id $PANTHEON_SITE_ID | grep $ENV)
+MATCH=$(terminus multidev:list --format=list --fields=id $PANTHEON_SITE_ID | grep $ENVIRONMENT)
 MATCH_EXISTS="$?"
 
 LIVE_TAG=$(git ls-remote --tags pantheon | grep "pantheon_live_")
