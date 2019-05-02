@@ -9,7 +9,7 @@
 ## - $CI_COMMIT_REF_NAME, defined by GitLab CI or by user
 ## - $PANTHEON_SITE_ID, defined in environment variables or by user
 ## - $THEME_NAME, defined by environment variables
-## - $ENV, defined automatically
+## - $ENVIRONMENT, defined automatically
 ####################################################################
 
 SCRIPT_PATH="`dirname \"$0\"`"
@@ -34,6 +34,7 @@ fi
 
 TARGET=$(echo $CI_COMMIT_REF_NAME | cut -d'/' -f2)
 ENV=$(echo ${TARGET:0:11} | tr '[:upper:]' '[:lower:]') 
+ENVIRONMENT="${ENV//-}"
 
 echo -e "${YELLOW}Checking which database should be used...${DEFAULT}"
 
@@ -55,31 +56,31 @@ else
 fi
 
 echo "${YELLOW}Looks like the most recent data can be found in the <$DATA_ENVIRONMENT> environment.${DEFAULT}"
-echo "${YELLOW}Checking if ENV '$ENV' exists...${DEFAULT}"
+echo "${YELLOW}Checking if ENV '$ENVIRONMENT' exists...${DEFAULT}"
 
-# note potential false-positive if $PANTHEON_SITE_ID|$ENV is !defined
+# note potential false-positive if $PANTHEON_SITE_ID|$ENVIRONMENT is !defined
 if [[ "$MATCH_EXISTS" -ne 0 ]] 
 then 
     echo "${RED}Multidev not found.${DEFAULT}"
-    echo "${YELLOW}Creating $ENV from the <$DATA_ENVIRONMENT> environment...${DEFAULT}"
-    terminus multidev:create $PANTHEON_SITE_ID.$DATA_ENVIRONMENT $ENV
+    echo "${YELLOW}Creating $ENVIRONMENT from the <$DATA_ENVIRONMENT> environment...${DEFAULT}"
+    terminus multidev:create $PANTHEON_SITE_ID.$DATA_ENVIRONMENT $ENVIRONMENT
     if [[ "$?" -ne 0 ]]; then
         exit 1
     fi
     echo $DONE
 else
-    echo "${YELLOW}Looks like the $ENV environment exists.${DEFAULT}"
+    echo "${YELLOW}Looks like the $ENVIRONMENT environment exists.${DEFAULT}"
 fi
 
-echo "${YELLOW}Setting Pantheon '$ENV' to git mode...${DEFAULT}"
-terminus connection:set $PANTHEON_SITE_ID.$ENV git
+echo "${YELLOW}Setting Pantheon '$ENVIRONMENT' to git mode...${DEFAULT}"
+terminus connection:set $PANTHEON_SITE_ID.$ENVIRONMENT git
 if [[ "$?" -ne 0 ]]; then
     exit 1
 fi
 echo $DONE
 
-echo "${YELLOW}Pushing to '$ENV' on Pantheon...${DEFAULT}"
-git push -f pantheon HEAD:$ENV
+echo "${YELLOW}Pushing to '$ENVIRONMENT' on Pantheon...${DEFAULT}"
+git push -f pantheon HEAD:$ENVIRONMENT
 if [[ "$?" -ne 0 ]]; then
     exit 1
 fi
@@ -120,7 +121,7 @@ then
     fi
 
     echo -e "${YELLOW}Pushing...${DEFAULT}"
-    git push pantheon HEAD:$ENV --verbose
+    git push pantheon HEAD:$ENVIRONMENT --verbose
     if [[ "$?" -ne 0 ]]; then
         exit 1
     fi
