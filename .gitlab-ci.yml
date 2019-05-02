@@ -23,13 +23,11 @@ test_grammars:
   stage: test
   script: 
     - bash private/scripts/test_grammars.sh
-  retry: 2
 test_modules:
   <<: *BRANCH_PREFIXES
   stage: test
   script: 
     - bash private/scripts/test_modules.sh
-  retry: 2
 
 # multidev
 multidev_deploy:
