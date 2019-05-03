@@ -6,7 +6,7 @@
  */
 
 /**
- * WPSEO_Image_Utils
+ * WPSEO_Image_Utils.
  */
 class WPSEO_Image_Utils {
 
@@ -18,11 +18,14 @@ class WPSEO_Image_Utils {
 	 * @return int The found attachment ID, or 0 if none was found.
 	 */
 	public static function get_attachment_by_url( $url ) {
-		// Because get_attachment_by_url won't work on resized versions of images, we strip out the size part of an image URL.
+		/*
+		 * As get_attachment_by_url won't work on resized versions of images,
+		 * we strip out the size part of an image URL.
+		 */
 		$url = preg_replace( '/(.*)-\d+x\d+\.(jpg|png|gif)$/', '$1.$2', $url );
 
 		if ( function_exists( 'wpcom_vip_attachment_url_to_postid' ) ) {
-			// @codeCoverageIgnoreStart -- we can't test this properly.
+			// @codeCoverageIgnoreStart -- We can't test this properly.
 			return (int) wpcom_vip_attachment_url_to_postid( $url );
 			// @codeCoverageIgnoreEnd -- The rest we _can_ test.
 		}
@@ -40,7 +43,7 @@ class WPSEO_Image_Utils {
 	protected static function attachment_url_to_postid( $url ) {
 		$cache_key = sprintf( 'yoast_attachment_url_post_id_%s', md5( $url ) );
 
-		// Set the ID based on the hashed url in the cache.
+		// Set the ID based on the hashed URL in the cache.
 		$id = wp_cache_get( $cache_key );
 
 		if ( $id === 'not_found' ) {
@@ -56,12 +59,12 @@ class WPSEO_Image_Utils {
 		$id = attachment_url_to_postid( $url );
 
 		if ( empty( $id ) ) {
-			wp_cache_set( $cache_key, 'not_found', '', ( 12 * HOUR_IN_SECONDS + mt_rand( 0, ( 4 * HOUR_IN_SECONDS ) ) ) );
+			wp_cache_set( $cache_key, 'not_found', '', ( 12 * HOUR_IN_SECONDS + wp_rand( 0, ( 4 * HOUR_IN_SECONDS ) ) ) );
 			return 0;
 		}
 
 		// We have the Post ID, but it's not in the cache yet. We do that here and return.
-		wp_cache_set( $cache_key, $id, '', ( 24 * HOUR_IN_SECONDS + mt_rand( 0, ( 12 * HOUR_IN_SECONDS ) ) ) );
+		wp_cache_set( $cache_key, $id, '', ( 24 * HOUR_IN_SECONDS + wp_rand( 0, ( 12 * HOUR_IN_SECONDS ) ) ) );
 		return $id;
 	}
 
@@ -74,12 +77,13 @@ class WPSEO_Image_Utils {
 	 * @return false|array $image {
 	 *     Array of image data
 	 *
-	 *     @type string $alt    Image's alt text.
-	 *     @type string $alt    Image's alt text.
-	 *     @type int    $width  Width of image.
-	 *     @type int    $height Height of image.
-	 *     @type string $type   Image's MIME type.
-	 *     @type string $url    Image's URL.
+	 *     @type string $alt      Image's alt text.
+	 *     @type string $alt      Image's alt text.
+	 *     @type int    $width    Width of image.
+	 *     @type int    $height   Height of image.
+	 *     @type string $type     Image's MIME type.
+	 *     @type string $url      Image's URL.
+	 *     @type int    $filesize The file size in bytes, if already set.
 	 * }
 	 */
 	public static function get_data( $image, $attachment_id ) {
@@ -101,7 +105,7 @@ class WPSEO_Image_Utils {
 		}
 
 		// Keep only the keys we need, and nothing else.
-		return array_intersect_key( $image, array_flip( array( 'id', 'alt', 'path', 'width', 'height', 'pixels', 'type', 'size', 'url' ) ) );
+		return array_intersect_key( $image, array_flip( array( 'id', 'alt', 'path', 'width', 'height', 'pixels', 'type', 'size', 'url', 'filesize' ) ) );
 	}
 
 	/**
@@ -232,7 +236,7 @@ class WPSEO_Image_Utils {
 		}
 
 		// If the file size for the file is over our limit, we're going to go for a smaller version.
-		// @todo save the filesize to the image metadata.
+		// @todo Save the filesize to the image metadata.
 		// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged -- If file size doesn't properly return, we'll not fail.
 		return @filesize( self::get_absolute_path( $image['path'] ) );
 	}
@@ -262,7 +266,7 @@ class WPSEO_Image_Utils {
 	/**
 	 * Check original size of image. If original image is too small, return false, else return true.
 	 *
-	 * Filters a list of variations by a certain set of usable dimensions
+	 * Filters a list of variations by a certain set of usable dimensions.
 	 *
 	 * @param array $usable_dimensions {
 	 *    The parameters to check against.
