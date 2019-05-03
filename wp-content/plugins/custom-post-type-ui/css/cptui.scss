@@ -1,4 +1,4 @@
-$min-tablet: "screen and (min-width: 768px)";
+$min-tablet: "screen and (min-width: 769px)";
 $max-tablet: "screen and (max-width: 768px)";
 
 .posttypesui, .taxonomiesui {
@@ -35,7 +35,7 @@ $max-tablet: "screen and (max-width: 768px)";
 		margin: 12px 4px 12px 0;
 		width: auto;
 	}
-	td.outter {
+	td.outer {
 		vertical-align: top;
 		width: 50%;
 	}
@@ -55,11 +55,20 @@ $max-tablet: "screen and (max-width: 768px)";
 		margin-top: 15px;
 	}
 
-	#slugchanged {
+	#slugchanged, #slugexists {
 		color: red;
 		font-weight: bold;
 		&.hidemessage {
 			display: none;
+		}
+	}
+}
+.cpt-ui_page_cptui_tools {
+	.cptui-table {
+		.outer {
+			p {
+				padding: 0 4px;
+			}
 		}
 	}
 }
@@ -330,15 +339,14 @@ $max-tablet: "screen and (max-width: 768px)";
 		-ms-flex-item-align: auto;
 		align-self: auto;
 	}
-
 	p {
-		padding: 0 5px;
-		&:nth-child(1) {
-		  padding-left: 0px;
-		}
-		&:nth-child(4) {
-		  padding-right: 0px;
-		}
+	  padding: 0 5px;
+	  &:nth-child(1) {
+		padding-left: 0px;
+	  }
+	  &:nth-child(4) {
+		padding-right: 0px;
+	  }
 	}
 }
 .no-js {
@@ -381,9 +389,9 @@ $max-tablet: "screen and (max-width: 768px)";
 
 @media #{$max-tablet} {
   .cptui-table {
-		#description {
-		  width: 100%;
-		}
+	#description {
+	  width: 100%;
+	}
   }
   .wdspromos-about {
 	flex-wrap: wrap;
@@ -396,5 +404,14 @@ $max-tablet: "screen and (max-width: 768px)";
 		padding-right: 5px;
 	  }
 	}
+  }
+  .cptui-table {
+	td.outer {
+	  width: 100%;
+	}
+  }
+  #cptui-audit-textarea,
+  #cptui_debug_info_email {
+	width: 100%;
   }
 }

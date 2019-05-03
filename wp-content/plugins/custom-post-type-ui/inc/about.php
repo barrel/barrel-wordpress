@@ -6,12 +6,33 @@
  * @subpackage About
  * @author WebDevStudios
  * @since 1.3.0
+ * @license GPL-2.0+
  */
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+/**
+ * Enqueue our Custom Post Type UI assets.
+ *
+ * @since 1.6.0
+ */
+function cptui_about_assets() {
+	$current_screen = get_current_screen();
+
+	if ( ! is_object( $current_screen ) || 'toplevel_page_cptui_main_menu' !== $current_screen->base ) {
+		return;
+	}
+
+	if ( wp_doing_ajax() ) {
+		return;
+	}
+
+	wp_enqueue_style( 'cptui-css' );
+}
+add_action( 'admin_enqueue_scripts', 'cptui_about_assets' );
 
 /**
  * Display our primary menu page.
@@ -31,7 +52,7 @@ function cptui_settings() {
 		 * @since 1.0.0
 		 */
 		do_action( 'cptui_main_page_start' ); ?>
-		<h1><?php esc_html_e( 'Custom Post Type UI', 'custom-post-type-ui' ); ?> <?php echo CPTUI_VERSION; ?></h1>
+		<h1><?php esc_html_e( 'Custom Post Type UI', 'custom-post-type-ui' ); ?> <?php echo esc_html( CPTUI_VERSION ); ?></h1>
 
 		<?php
 
@@ -60,16 +81,16 @@ function cptui_settings() {
 		<div class="changelog about-integrations">
 			<div class="cptui-feature feature-section col three-col">
 				<div class="col">
-					<h2><?php esc_html_e( 'Renamed the Import/Export menu.', 'custom-post-type-ui' ); ?></h2>
-					<p><?php esc_html_e( 'As Custom Post Type UI has evolved, we have found need to rename one of the menus. The Import/Export menu has now been renamed "Tools" to better reflect the utilities provided there.', 'custom-post-type-ui' ); ?></p>
+					<h2><?php esc_html_e( 'Taxonomy support for meta_box_cb parameter', 'custom-post-type-ui' ); ?></h2>
+					<p><?php esc_html_e( 'We have added a field to provide a function callback to use for the metabox for your taxonomies. This allows you to customize and provide your own metabox output instead of using the default.', 'custom-post-type-ui' ); ?></p>
 				</div>
 				<div class="col">
-					<h2><?php esc_html_e( 'Eliminated page refresh need for importing.', 'custom-post-type-ui' ); ?></h2>
-					<p><?php esc_html_e( 'Previously we eliminated page refresh need while creating new post types and taxonomies. We noticed this did not apply when importing settings. With this latest release, we have amended the issue.', 'custom-post-type-ui' ); ?></p>
+					<h2><?php esc_html_e( 'WP-CLI Support', 'custom-post-type-ui' ); ?></h2>
+					<p><?php esc_html_e( 'We have added some initial WP-CLI support around importing and exporting your Custom Post Type UI settings. This will help with setting up your websites and provide some possible automation tools.', 'custom-post-type-ui' ); ?></p>
 				</div>
 				<div class="col last-feature">
-					<h2><?php esc_html_e( 'Multiple issue fixes.', 'custom-post-type-ui' ); ?></h2>
-					<p><?php esc_html_e( 'We have fixed the following issues in this version. Added "action" as a reserved taxonomy name. Updated `get_terms()` handling for WordPress 4.5. Fixed PHP notices related to rewrite indexes, that were present since version 1.0.6. Prevented triggering a slug conversion when tabbing through the edit screen.', 'custom-post-type-ui' ) ?></p>
+					<h2><?php esc_html_e( 'Adjusted default "Show in REST" parameter.', 'custom-post-type-ui' ); ?></h2>
+					<p><?php esc_html_e( 'Gutenberg is coming with WordPress 5.0. For post types to have "Gutenberg" support, the "Show in REST" parameter needs to be set to true. We are changing this to help ease users into better integration.', 'custom-post-type-ui' ) ?></p>
 				</div>
 			</div>
 		</div>
@@ -133,57 +154,11 @@ function cptui_about_page_newsletter() {
 	?>
 	<h3><?php esc_html_e( 'Stay informed', 'custom-post-type-ui' ); ?></h3>
 	<?php
-	cptui_about_page_newsletter_form();
+	cptui_newsletter_form();
 
 	return '';
 }
 add_action( 'cptui_main_page_before_changelog', 'cptui_about_page_newsletter' );
-
-/**
- * Outputs our newsletter signup form.
- *
- * @since 1.4.0
- *
- * @internal
- */
-function cptui_about_page_newsletter_form() {
-	?>
-	<!-- Begin MailChimp Signup Form -->
-	<link href="//cdn-images.mailchimp.com/embedcode/classic-10_7.css" rel="stylesheet" type="text/css">
-	<div id="mc_embed_signup">
-		<form action="//webdevstudios.us1.list-manage.com/subscribe/post?u=67169b098c99de702c897d63e&amp;id=9cb1c7472e" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
-			<div id="mc_embed_signup_scroll">
-
-				<p>
-					<strong><?php esc_html_e( 'Wanna make the most of WordPress? Sign up for the Pluginize newsletter and get access to discounts, plugin announcements, and more!', 'custom-post-type-ui' ); ?></strong>
-				</p>
-				<div class="mc-field-group">
-					<label for="mce-EMAIL"><?php esc_html_e( 'Email Address', 'custom-post-type-ui' ); ?></label>
-					<input tabindex="-1" type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL">
-				</div>
-				<div id="mce-responses" class="clear">
-					<div class="response" id="mce-error-response" style="display:none"></div>
-					<div class="response" id="mce-success-response" style="display:none"></div>
-				</div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-				<div style="position: absolute; left: -5000px;" aria-hidden="true">
-					<input type="text" name="b_67169b098c99de702c897d63e_9cb1c7472e" tabindex="-1" value=""></div>
-				<div class="clear">
-					<input type="submit" value="<?php esc_attr_e( 'Subscribe', 'custom-post-type-ui' ); ?>" name="subscribe" id="mc-embedded-subscribe" class="button" tabindex="-1">
-				</div>
-			</div>
-		</form>
-	</div>
-	<script type='text/javascript' src='//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js'></script>
-	<script type='text/javascript'>(function ($) {
-			window.fnames = new Array();
-			window.ftypes = new Array();
-			fnames[0] = 'EMAIL';
-			ftypes[0] = 'email';
-		}(jQuery));
-		var $mcj = jQuery.noConflict(true);</script>
-	<!--End mc_embed_signup-->
-	<?php
-}
 
 /**
  * Marks site as not new at the end of the about/main page.
