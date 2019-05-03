@@ -32,12 +32,41 @@ if [[ "$?" -ne 0 ]]; then
 fi
 echo $OK
 
-if [ -z ${THEME_NAME+x} ]; then
-    echo "${BLUE}Hmm... Something is missing. What is the Theme Name?${DEFAULT}"
-    read THEME_NAME
-    export THEME_NAME="$THEME_NAME"
+
+THEME_NAME=""
+
+# handle arguments
+for i in "$@"; do
+case $i in
+    -t=*|--themename=*)
+    THEME_NAME="${i#*=}"
+    shift # past argument=value
+    ;;
+    *)
+    echo "Unknown option: ${i#*=}"
+    # unknown option
+    ;;
+esac
+done
+
+WP_CONTENT="wp-content"
+THEMES_DIR="./$WP_CONTENT/themes"
+
+if [ "$THEME_NAME" == "" ]; then 
+    if [ -d "$WP_CONTENT" ]; then
+        # assume theme is the same as project
+        THEME_NAME=$(basename $(pwd))
+        echo "${YELLOW}Checking to see if '$THEME_NAME' exists...${DEFAULT}"
+        if ! [ -d "$THEMES_DIR/$THEME_NAME" ]; then 
+            echo "${BLUE}Hmm... Something is missing. What is the Theme Name?${DEFAULT}"
+            read THEME_NAME_UD
+            export THEME_NAME="$THEME_NAME_UD"
+        else
+            echo "${YELLOW}Theme '$THEME_NAME' exists...${DEFAULT}"
+        fi
+    fi
 fi
-THEME_LOCATION="wp-content/themes/$THEME_NAME"
+THEME_LOCATION="$THEMES_DIR/$THEME_NAME"
 
 if [[ `pwd` == *"$THEME_LOCATION"* ]]; then
     echo "${YELLOW}Theme path detected!${DEFAULT}"

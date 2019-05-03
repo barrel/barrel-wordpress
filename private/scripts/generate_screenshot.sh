@@ -10,6 +10,21 @@ SCRIPT_PATH="`dirname \"$0\"`"
 source $SCRIPT_PATH/colors.sh
 
 THEME_NAME=""
+
+# handle arguments
+for i in "$@"; do
+case $i in
+    -t=*|--themename=*)
+    THEME_NAME="${i#*=}"
+    shift # past argument=value
+    ;;
+    *)
+    echo "Unknown option: ${i#*=}"
+    # unknown option
+    ;;
+esac
+done
+
 WP_CONTENT="wp-content"
 THEMES_DIR="./$WP_CONTENT/themes"
 

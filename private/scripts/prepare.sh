@@ -16,7 +16,7 @@
 ## - Runs the finish from gitflow command
 ####################################################################
 
-THEME_NAME="barrel-base"
+THEME_NAME=""
 SEM="minor"
 FLOW="hotfix"
 START="no"
@@ -56,6 +56,24 @@ case $i in
     ;;
 esac
 done
+
+WP_CONTENT="wp-content"
+THEMES_DIR="./$WP_CONTENT/themes"
+
+if [ "$THEME_NAME" == "" ]; then 
+    if [ -d "$WP_CONTENT" ]; then
+        # assume theme is the same as project
+        THEME_NAME=$(basename $(pwd))
+        echo "${YELLOW}Checking to see if '$THEME_NAME' exists...${DEFAULT}"
+        if ! [ -d "$THEMES_DIR/$THEME_NAME" ]; then 
+            echo "${BLUE}Hmm... Something is missing. What is the Theme Name?${DEFAULT}"
+            read THEME_NAME_UD
+            export THEME_NAME="$THEME_NAME_UD"
+        else
+            echo "${YELLOW}Theme '$THEME_NAME' exists...${DEFAULT}"
+        fi
+    fi
+fi
 
 # Platform detection
 PLATFORM='unknown'
