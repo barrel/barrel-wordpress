@@ -91,7 +91,7 @@ class WPSEO_Author_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 
 		$defaults = array(
 			// @todo Re-enable after plugin requirements raised to WP 4.6 with the fix.
-			// 'who'        => 'authors', Breaks meta keys, see https://core.trac.wordpress.org/ticket/36724#ticket R.
+			// 'who'        => 'authors', Breaks meta keys, {@link https://core.trac.wordpress.org/ticket/36724#ticket} R.
 			'meta_key'   => '_yoast_wpseo_profile_updated',
 			'orderby'    => 'meta_value_num',
 			'order'      => 'DESC',
@@ -142,12 +142,12 @@ class WPSEO_Author_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 			return $links;
 		}
 
-		$users = $this->get_users( array(
+		$user_criteria = array(
 			'offset' => ( $current_page - 1 ) * $max_entries,
 			'number' => $max_entries,
-		) );
-
-		$users = $this->exclude_users( $users );
+		);
+		$users         = $this->get_users( $user_criteria );
+		$users         = $this->exclude_users( $users );
 
 		if ( empty( $users ) ) {
 			$users = array();
@@ -196,7 +196,7 @@ class WPSEO_Author_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 	 */
 	protected function update_user_meta() {
 
-		$users = get_users( array(
+		$user_criteria = array(
 			'who'        => 'authors',
 			'meta_query' => array(
 				array(
@@ -204,7 +204,8 @@ class WPSEO_Author_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 					'compare' => 'NOT EXISTS',
 				),
 			),
-		) );
+		);
+		$users         = get_users( $user_criteria );
 
 		$time = time();
 

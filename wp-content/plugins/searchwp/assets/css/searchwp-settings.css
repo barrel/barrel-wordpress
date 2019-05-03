@@ -1,11 +1,15 @@
 .searchwp-logo {
-	margin:0.7em 0.9em 0 0.2em;
-	padding:0;
-	width:32px;
-	height:32px;
-	float:left;
-	background:transparent url(../images/searchwp-logo-2x.png) 50% 50% no-repeat;
-	background-size:19px;
+	margin: 0.7em 0 0 0.2em;
+	padding: 0;
+	width: 32px;
+	height: 32px;
+	float: left;
+}
+
+.searchwp-logo svg {
+	display: block;
+	width: 32px;
+	height: 32px;
 }
 
 .searchwp-create-support-ticket {

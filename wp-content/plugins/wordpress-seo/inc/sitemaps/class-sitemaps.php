@@ -6,62 +6,91 @@
  */
 
 /**
- * Class WPSEO_Sitemaps
+ * Class WPSEO_Sitemaps.
  *
  * @todo This class could use a general description with some explanation on sitemaps. OR.
  */
 class WPSEO_Sitemaps {
 
-	/** Sitemap index identifier. */
+	/**
+	 * Sitemap index identifier.
+	 *
+	 * @var string
+	 */
 	const SITEMAP_INDEX_TYPE = '1';
 
-	/** @var string $sitemap Content of the sitemap to output. */
+	/**
+	 * Content of the sitemap to output.
+	 *
+	 * @var string
+	 */
 	protected $sitemap = '';
 
-	/** @var bool $bad_sitemap Flag to indicate if this is an invalid or empty sitemap. */
+	/**
+	 * Flag to indicate if this is an invalid or empty sitemap.
+	 *
+	 * @var bool
+	 */
 	public $bad_sitemap = false;
 
-	/** @var bool $transient Whether or not the XML sitemap was served from a transient or not. */
+	/**
+	 * Whether or not the XML sitemap was served from a transient or not.
+	 *
+	 * @var bool
+	 */
 	private $transient = false;
 
 	/**
-	 * @var string $http_protocol HTTP protocol to use in headers.
+	 * HTTP protocol to use in headers.
+	 *
 	 * @since 3.2
+	 *
+	 * @var string
 	 */
 	protected $http_protocol = 'HTTP/1.1';
 
-	/** @var int $current_page Holds the n variable. */
+	/**
+	 * Holds the n variable.
+	 *
+	 * @var int
+	 */
 	private $current_page = 1;
 
-	/** @var WPSEO_Sitemap_Timezone $timezone */
+	/**
+	 * @var WPSEO_Sitemap_Timezone
+	 */
 	private $timezone;
 
 	/**
-	 * @var WPSEO_Sitemaps_Router $router
 	 * @since 3.2
+	 *
+	 * @var WPSEO_Sitemaps_Router
 	 */
 	public $router;
 
 	/**
-	 * @var WPSEO_Sitemaps_Renderer $renderer
 	 * @since 3.2
+	 *
+	 * @var WPSEO_Sitemaps_Renderer
 	 */
 	public $renderer;
 
 	/**
-	 * @var WPSEO_Sitemaps_Cache $cache
 	 * @since 3.2
+	 *
+	 * @var WPSEO_Sitemaps_Cache
 	 */
 	public $cache;
 
 	/**
-	 * @var WPSEO_Sitemap_Provider[] $providers
 	 * @since 3.2
+	 *
+	 * @var WPSEO_Sitemap_Provider[]
 	 */
 	public $providers;
 
 	/**
-	 * Class constructor
+	 * Class constructor.
 	 */
 	public function __construct() {
 
@@ -77,7 +106,7 @@ class WPSEO_Sitemaps {
 		$this->cache    = new WPSEO_Sitemaps_Cache();
 
 		if ( ! empty( $_SERVER['SERVER_PROTOCOL'] ) ) {
-			$this->http_protocol = sanitize_text_field( $_SERVER['SERVER_PROTOCOL'] );
+			$this->http_protocol = sanitize_text_field( wp_unslash( $_SERVER['SERVER_PROTOCOL'] ) );
 		}
 	}
 
@@ -104,7 +133,7 @@ class WPSEO_Sitemaps {
 	}
 
 	/**
-	 * Check the current request URI, if we can determine it's probably an XML sitemap, kill loading the widgets
+	 * Check the current request URI, if we can determine it's probably an XML sitemap, kill loading the widgets.
 	 */
 	public function reduce_query_load() {
 
@@ -112,7 +141,7 @@ class WPSEO_Sitemaps {
 			return;
 		}
 
-		$request_uri = $_SERVER['REQUEST_URI'];
+		$request_uri = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) );
 		$extension   = substr( $request_uri, -4 );
 
 		if ( false !== stripos( $request_uri, 'sitemap' ) && in_array( $extension, array( '.xml', '.xsl' ), true ) ) {
@@ -151,7 +180,7 @@ class WPSEO_Sitemaps {
 	}
 
 	/**
-	 * Set the sitemap current page to allow creating partial sitemaps with wp-cli
+	 * Set the sitemap current page to allow creating partial sitemaps with WP-CLI
 	 * in a one-off process.
 	 *
 	 * @param integer $current_page The part that should be generated.
@@ -241,7 +270,7 @@ class WPSEO_Sitemaps {
 	}
 
 	/**
-	 * Try to get the sitemap from cache
+	 * Try to get the sitemap from cache.
 	 *
 	 * @param string $type        Sitemap type.
 	 * @param int    $page_number The page number to retrieve.
@@ -419,9 +448,15 @@ class WPSEO_Sitemaps {
 	}
 
 	/**
-	 * Make a request for the sitemap index so as to cache it before the arrival of the search engines.
+	 * Makes a request to the sitemap index to cache it before the arrival of the search engines.
+	 *
+	 * @return void
 	 */
 	public function hit_sitemap_index() {
+		if ( ! $this->cache->is_enabled() ) {
+			return;
+		}
+
 		wp_remote_get( WPSEO_Sitemaps_Router::get_base_url( 'sitemap_index.xml' ) );
 	}
 

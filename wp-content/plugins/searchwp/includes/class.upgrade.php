@@ -674,6 +674,40 @@ class SearchWPUpgrade {
 			// Set the flag to indicate that the existing engine configuration is considered legacy
 			searchwp_set_setting( 'legacy_engines', true );
 		}
+
+		if ( version_compare( $this->last_version, '3.0', '<' ) ) {
+
+			// We need is_plugin_active();
+			include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+
+			// back up the settings
+			searchwp_add_settings_backup();
+
+			// If certain (now deprecated) extensions are active, we need to set that setting to match.
+			if ( is_plugin_active( 'searchwp-like/searchwp-like.php' ) || is_plugin_active( 'searchwp-fuzzy-matches/searchwp-fuzzy.php' ) ) {
+				$existing_settings = searchwp_get_option( 'advanced' );
+
+				if ( ! is_array( $existing_settings ) ) {
+					$existing_settings = array();
+				}
+
+				$existing_settings['partial_matches'] = true;
+
+				searchwp_update_option( 'advanced', $existing_settings );
+			}
+
+			if ( is_plugin_active( 'searchwp-term-highlight/searchwp-term-highlight.php' ) ) {
+				$existing_settings = searchwp_get_option( 'advanced' );
+
+				if ( ! is_array( $existing_settings ) ) {
+					$existing_settings = array();
+				}
+
+				$existing_settings['highlight_terms'] = true;
+
+				searchwp_update_option( 'advanced', $existing_settings );
+			}
+		}
 	}
 
 }

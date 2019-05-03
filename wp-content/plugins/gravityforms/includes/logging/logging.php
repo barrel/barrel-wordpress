@@ -520,7 +520,7 @@ class GFLogging extends GFAddOn {
 					unlink( $file ); // Delete file.
 				}
 			}
-			rmdir( $dir );
+			@rmdir( $dir );
 		}
 
 	}
@@ -571,7 +571,7 @@ class GFLogging extends GFAddOn {
 
 		if ( ! file_exists( $log_dir ) ) {
 			wp_mkdir_p( $log_dir );
-			touch( $log_dir . 'index.html' );
+			@touch( $log_dir . 'index.html' );
 		}
 
 		$plugin_setting = $this->get_plugin_setting( $plugin_name );
@@ -854,13 +854,15 @@ class GFLogging extends GFAddOn {
 
 		if ( is_multisite() ) {
 
-			// Get network sites.
-			$sites = wp_get_sites();
+			// Get network sites. get_sites() is available with WP 4.6+.
+			$sites = function_exists( 'get_sites' ) ? get_sites() : wp_get_sites();
 
 			foreach ( $sites as $site ) {
 
+				$blog_id = $site instanceof WP_Site ? $site->blog_id : $site['blog_id'];
+
 				// Get old settings.
-				$old_settings = get_blog_option( $site['blog_id'], 'gf_logging_settings', array() );
+				$old_settings = get_blog_option( $blog_id, 'gf_logging_settings', array() );
 
 				// If old settings don't exist, exit.
 				if ( ! $old_settings ) {
@@ -879,10 +881,10 @@ class GFLogging extends GFAddOn {
 				}
 
 				// Save new settings.
-				update_blog_option( $site['blog_id'], 'gravityformsaddon_' . $this->_slug . '_settings', $new_settings );
+				update_blog_option( $blog_id, 'gravityformsaddon_' . $this->_slug . '_settings', $new_settings );
 
 				// Delete old settings.
-				delete_blog_option( $site['blog_id'], 'gf_logging_settings' );
+				delete_blog_option( $blog_id, 'gf_logging_settings' );
 
 			}
 
@@ -964,6 +966,31 @@ class GFLogging extends GFAddOn {
 	public function load_text_domain() {
 		GFCommon::load_gf_text_domain();
 	}
+
+	/**
+	 * Register Gravity Forms capabilities with Gravity Forms group in User Role Editor plugin.
+	 *
+	 * @since  2.4
+	 *
+	 * @param array  $groups Current capability groups.
+	 * @param string $cap_id Capability identifier.
+	 *
+	 * @return array
+	 */
+	public function filter_ure_custom_capability_groups( $groups = array(), $cap_id = '' ) {
+
+		// Get Add-On capabilities.
+		$caps = $this->_capabilities;
+
+		// If capability belongs to Add-On, register it to group.
+		if ( in_array( $cap_id, $caps, true ) ) {
+			$groups[] = 'gravityforms';
+		}
+
+		return $groups;
+
+	}
+
 }
 
 /**

@@ -25,7 +25,7 @@ class WPSEO_Admin_Init {
 	private $asset_manager;
 
 	/**
-	 * Class constructor
+	 * Class constructor.
 	 */
 	public function __construct() {
 		$GLOBALS['wpseo_admin'] = new WPSEO_Admin();
@@ -48,6 +48,8 @@ class WPSEO_Admin_Init {
 		add_action( 'admin_init', array( $this, 'show_hook_deprecation_warnings' ) );
 		add_action( 'admin_init', array( 'WPSEO_Plugin_Conflict', 'hook_check_for_plugin_conflicts' ) );
 		add_action( 'admin_init', array( $this, 'handle_notifications' ), 15 );
+		add_action( 'admin_notices', array( $this, 'permalink_settings_notice' ) );
+		add_action( 'admin_enqueue_scripts', array( $this->asset_manager, 'register_wp_assets' ), PHP_INT_MAX );
 
 		$listeners   = array();
 		$listeners[] = new WPSEO_Post_Type_Archive_Notification_Handler();
@@ -91,28 +93,13 @@ class WPSEO_Admin_Init {
 	}
 
 	/**
-	 * Helper to verify if the current user has already seen the about page for the current version
-	 *
-	 * @return bool
-	 */
-	private function seen_about() {
-		$seen_about_version = substr( get_user_meta( get_current_user_id(), 'wpseo_seen_about_version', true ), 0, 3 );
-		$last_minor_version = substr( WPSEO_VERSION, 0, 3 );
-
-		return version_compare( $seen_about_version, $last_minor_version, '>=' );
-	}
-
-	/**
-	 * Notify about the default tagline if the user hasn't changed it
+	 * Notify about the default tagline if the user hasn't changed it.
 	 */
 	public function tagline_notice() {
-
-		$current_url   = ( is_ssl() ? 'https://' : 'http://' );
-		$current_url  .= sanitize_text_field( $_SERVER['SERVER_NAME'] ) . sanitize_text_field( $_SERVER['REQUEST_URI'] );
-		$customize_url = add_query_arg( array(
+		$query_args    = array(
 			'autofocus[control]' => 'blogdescription',
-			'url'                => urlencode( $current_url ),
-		), wp_customize_url() );
+		);
+		$customize_url = add_query_arg( $query_args, wp_customize_url() );
 
 		$info_message = sprintf(
 			/* translators: 1: link open tag; 2: link close tag. */
@@ -130,16 +117,11 @@ class WPSEO_Admin_Init {
 		$tagline_notification = new Yoast_Notification( $info_message, $notification_options );
 
 		$notification_center = Yoast_Notification_Center::get();
-		if ( $this->has_default_tagline() ) {
-			$notification_center->add_notification( $tagline_notification );
-		}
-		else {
-			$notification_center->remove_notification( $tagline_notification );
-		}
+		$notification_center->remove_notification( $tagline_notification );
 	}
 
 	/**
-	 * Add an alert if the blog is not publicly visible
+	 * Add an alert if the blog is not publicly visible.
 	 */
 	public function blog_public_notice() {
 
@@ -170,7 +152,7 @@ class WPSEO_Admin_Init {
 	}
 
 	/**
-	 * Display notice to disable comment pagination
+	 * Display notice to disable comment pagination.
 	 */
 	public function page_comments_notice() {
 
@@ -202,7 +184,7 @@ class WPSEO_Admin_Init {
 	}
 
 	/**
-	 * Returns whether or not the site has the default tagline
+	 * Returns whether or not the site has the default tagline.
 	 *
 	 * @return bool
 	 */
@@ -212,13 +194,13 @@ class WPSEO_Admin_Init {
 
 		// We are checking against the WordPress internal translation.
 		// @codingStandardsIgnoreLine
-		$translated_blog_description = __( 'Just another WordPress site' );
+		$translated_blog_description = __( 'Just another WordPress site', 'default' );
 
 		return $translated_blog_description === $blog_description || $default_blog_description === $blog_description;
 	}
 
 	/**
-	 * Show alert when the permalink doesn't contain %postname%
+	 * Show alert when the permalink doesn't contain %postname%.
 	 */
 	public function permalink_notice() {
 
@@ -250,7 +232,7 @@ class WPSEO_Admin_Init {
 	}
 
 	/**
-	 * Are page comments enabled
+	 * Are page comments enabled.
 	 *
 	 * @return bool
 	 */
@@ -276,7 +258,7 @@ class WPSEO_Admin_Init {
 	}
 
 	/**
-	 * Build compatibility problem notification
+	 * Build compatibility problem notification.
 	 *
 	 * @return Yoast_Notification
 	 */
@@ -375,7 +357,7 @@ class WPSEO_Admin_Init {
 	}
 
 	/**
-	 * Build Yoast SEO compatibility problem notification
+	 * Build Yoast SEO compatibility problem notification.
 	 *
 	 * @param string $name   The plugin name to use for the unique ID.
 	 * @param array  $plugin The plugin to retrieve the data from.
@@ -450,7 +432,7 @@ class WPSEO_Admin_Init {
 	}
 
 	/**
-	 * Check if the user has dismissed the given notice (by $notice_name)
+	 * Check if the user has dismissed the given notice (by $notice_name).
 	 *
 	 * @param string $notice_name The name of the notice that might be dismissed.
 	 *
@@ -567,7 +549,8 @@ class WPSEO_Admin_Init {
 				'textdomain'  => 'wordpress-seo',
 				'plugin_name' => 'Yoast SEO',
 				'hook'        => 'wpseo_admin_promo_footer',
-			), false
+			),
+			false
 		);
 
 		$message = $i18n_module->get_promo_message();
@@ -596,7 +579,7 @@ class WPSEO_Admin_Init {
 	}
 
 	/**
-	 * See if we should start our XML Sitemaps Admin class
+	 * See if we should start our XML Sitemaps Admin class.
 	 */
 	private function load_xml_sitemaps_admin() {
 		if ( WPSEO_Options::get( 'enable_xml_sitemap', false ) ) {
@@ -605,7 +588,7 @@ class WPSEO_Admin_Init {
 	}
 
 	/**
-	 * Check if the site is set to be publicly visible
+	 * Check if the site is set to be publicly visible.
 	 *
 	 * @return bool
 	 */
@@ -620,49 +603,29 @@ class WPSEO_Admin_Init {
 		global $wp_filter;
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-			return false;
+			return;
 		}
 
 		// WordPress hooks that have been deprecated since a Yoast SEO version.
 		$deprecated_filters = array(
-			'wpseo_metadesc_length'            => array(
-				'version'     => '3.0',
-				'alternative' => 'javascript',
-			),
-			'wpseo_metadesc_length_reason'     => array(
-				'version'     => '3.0',
-				'alternative' => 'javascript',
-			),
-			'wpseo_body_length_score'          => array(
-				'version'     => '3.0',
-				'alternative' => 'javascript',
-			),
-			'wpseo_linkdex_results'            => array(
-				'version'     => '3.0',
-				'alternative' => 'javascript',
-			),
-			'wpseo_snippet'                    => array(
-				'version'     => '3.0',
-				'alternative' => 'javascript',
-			),
-			'wp_seo_get_bc_title'              => array(
-				'version'     => '5.8',
-				'alternative' => 'wpseo_breadcrumb_single_link_info',
-			),
-			'wpseo_metakey'                    => array(
+			'wpseo_metakey' => array(
 				'version'     => '6.3',
 				'alternative' => null,
 			),
-			'wpseo_metakeywords'               => array(
+			'wpseo_metakeywords' => array(
 				'version'     => '6.3',
 				'alternative' => null,
 			),
-			'wpseo_stopwords'                  => array(
+			'wpseo_stopwords' => array(
 				'version'     => '7.0',
 				'alternative' => null,
 			),
 			'wpseo_redirect_orphan_attachment' => array(
 				'version'     => '7.0',
+				'alternative' => null,
+			),
+			'wpseo_genesis_force_adjacent_rel_home' => array(
+				'version'     => '9.4',
 				'alternative' => null,
 			),
 		);
@@ -685,22 +648,28 @@ class WPSEO_Admin_Init {
 	}
 
 	/**
-	 * Check if there is a dismiss notice action.
-	 *
-	 * @param string $notice_name The name of the notice to dismiss.
-	 *
-	 * @return bool
-	 */
-	private function dismiss_notice( $notice_name ) {
-		return filter_input( INPUT_GET, $notice_name ) === '1' && wp_verify_nonce( filter_input( INPUT_GET, 'nonce' ), $notice_name );
-	}
-
-	/**
-	 * Check if the permalink uses %postname%
+	 * Check if the permalink uses %postname%.
 	 *
 	 * @return bool
 	 */
 	private function has_postname_in_permalink() {
 		return ( false !== strpos( get_option( 'permalink_structure' ), '%postname%' ) );
+	}
+
+	/**
+	 * Shows a notice on the permalink settings page.
+	 */
+	public function permalink_settings_notice() {
+		global $pagenow;
+
+		if ( $pagenow === 'options-permalink.php' ) {
+			$warning = esc_html__( 'WARNING:', 'wordpress-seo' );
+			/* translators: %1$s and %2$s expand to <i> items to emphasize the word in the middle. */
+			$message = esc_html__( 'Changing your permalinks settings can seriously impact your search engine visibility. It should almost %1$s never %2$s be done on a live website.', 'wordpress-seo' );
+			$link    = esc_html__( 'Learn about why permalinks are important for SEO.', 'wordpress-seo' );
+			$url     = WPSEO_Shortlinker::get( 'https://yoa.st/why-permalinks/' );
+
+			echo '<div class="notice notice-warning"><p><strong>' . $warning . '</strong><br>' . sprintf( $message, '<i>', '</i>' ) . '<br><a href="' . $url . '" target="_blank">' . $link . '</a></p></div>';
+		}
 	}
 }

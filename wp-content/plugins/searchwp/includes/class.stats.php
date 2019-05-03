@@ -77,8 +77,14 @@ class SearchWP_Stats {
 		$days = absint( $args['days'] );
 		$limit = absint( $args['limit'] );
 
+		// Kind of a hacky filter to facilitate modifying the number of days on the fly
+		// Use case: in the case when Year stats are too resource intense you can disable
+		//        add_filter( 'searchwp_statistics_popular_days_365', '__return_zero' ); // Disable Popular Year searches stat
+		$days = apply_filters( 'searchwp_statistics_popular_days_' . $days, $days );
+		$days = absint( $days );
+
 		// build our query
-		$sql = "SELECT {$prefix}swp_log.query, count({$prefix}swp_log.query) AS searchcount
+		$sql = "SELECT {$prefix}swp_log.query, count({$prefix}swp_log.query) AS searchcount, md5({$prefix}swp_log.query) AS hash
 			FROM {$prefix}swp_log
 			WHERE tstamp > DATE_SUB(NOW(), INTERVAL %d DAY)
 			AND {$prefix}swp_log.event = 'search'
@@ -183,6 +189,31 @@ class SearchWP_Stats {
 	<?php }
 
 	/**
+	 * Retrieve searches over time formatted for consumption in Chart.js
+	 *
+	 * @since 3.0
+	 */
+	function searches_over_time( $days = 31, $engine = 'default', $args = array() ) {
+		$searches_per_day = $this->get_search_counts_per_day( $days, $engine, $args );
+
+		// This is technically a legacy format, we need to map it to the new format for Chart.js.
+		$searches_over_time = array(
+			'labels'   => array(),
+			'datasets' => array( array(
+				'engine' => $engine,
+				'dataset' => array()
+			) ),
+		);
+
+		foreach ( $searches_per_day as $search_day => $search_count ) {
+			$searches_over_time['labels'][] = ucfirst( strtolower( substr( $search_day, 0, 3 ) ) ) . ' ' . absint( substr( $search_day, 3 ) );
+			$searches_over_time['datasets'][0]['dataset'][] = absint( $search_count );
+		}
+
+		return $searches_over_time;
+	}
+
+	/**
 	 * Retrieve an array of search counts per day (array key is day number)
 	 *
 	 * @param int $days
@@ -190,28 +221,43 @@ class SearchWP_Stats {
 	 *
 	 * @return array|null|object
 	 */
-	function get_search_counts_per_day( $days = 30, $engine = 'default' ) {
+	function get_search_counts_per_day( $days = 31, $engine = 'default', $args = array() ) {
 		global $wpdb;
 
 		$prefix = $wpdb->prefix;
 
 		$days = absint( $days );
 
+		$sql = "
+			SELECT DAY({$prefix}swp_log.tstamp) AS day,
+				MONTH({$prefix}swp_log.tstamp) AS month,
+				count({$prefix}swp_log.tstamp) AS searches
+			FROM {$prefix}swp_log
+			WHERE tstamp > DATE_SUB(NOW(), INTERVAL %d day)
+				AND {$prefix}swp_log.event = 'search'
+				AND {$prefix}swp_log.engine = %s
+				AND {$prefix}swp_log.query <> ''";
+
+		if ( ! empty ( $args['exclude'] ) ) {
+			// add a placeholder for each value in $args['exclude']
+			$sql .= " AND md5({$prefix}swp_log.query) NOT IN ( " . implode( ', ', array_fill( 0, count( $args['exclude'] ), '%s' ) ) . " ) ";
+		}
+
+		$sql .= "
+			GROUP BY TO_DAYS({$prefix}swp_log.tstamp)
+			ORDER BY {$prefix}swp_log.tstamp DESC";
+
+		$values_to_prepare = array( $days, $engine );
+
+		if ( ! empty ( $args['exclude'] ) ) {
+			$values_to_prepare = array_merge( $values_to_prepare, $args['exclude'] );
+		}
+
 		// retrieve our counts for the past 30 days
 		$searchCounts = $wpdb->get_results(
-			$wpdb->prepare( "
-				SELECT DAY({$prefix}swp_log.tstamp) AS day,
-					MONTH({$prefix}swp_log.tstamp) AS month,
-					count({$prefix}swp_log.tstamp) AS searches
-				FROM {$prefix}swp_log
-				WHERE tstamp > DATE_SUB(NOW(), INTERVAL %d day)
-					AND {$prefix}swp_log.event = 'search'
-					AND {$prefix}swp_log.engine = %s
-					AND {$prefix}swp_log.query <> ''
-				GROUP BY TO_DAYS({$prefix}swp_log.tstamp)
-				ORDER BY {$prefix}swp_log.tstamp DESC",
-				$days,
-				$engine
+			$wpdb->prepare(
+				$sql,
+				array_values( $values_to_prepare )
 			),
 			'OBJECT_K'
 		);
@@ -360,6 +406,28 @@ class SearchWP_Stats {
 	}
 
 	/**
+	 * Retrieve the actual query from a hash
+	 *
+	 * @param $query_hash
+	 *
+	 * @since 3.0
+	 */
+	function decode_hash( $query_hash = '' ) {
+		global $wpdb;
+
+		// $query_hash must be the md5 hash of the ignored query
+		if ( ! preg_match('/^[a-f0-9]{32}$/', $query_hash ) ) {
+			return;
+		}
+
+		$prefix = $wpdb->prefix;
+
+		$ignore_sql = $wpdb->prepare( "SELECT DISTINCT {$prefix}swp_log.query AS query FROM {$prefix}swp_log WHERE md5( {$prefix}swp_log.query ) = %s", $query_hash );
+
+		return $wpdb->get_var( $ignore_sql );
+	}
+
+	/**
 	 * Add a query to the ignored queries for a specific user
 	 *
 	 * @param $query_hash
@@ -387,6 +455,38 @@ class SearchWP_Stats {
 		}
 
 		update_user_meta( absint( $user_id ), SEARCHWP_PREFIX . 'ignored_queries', $ignored_queries );
+	}
+
+	/**
+	 * Removes a query to the ignored queries for a specific user
+	 *
+	 * @param $query_hash
+	 * @param int $user_id
+	 *
+	 * @since 3.0
+	 */
+	function unignore_query( $query_hash, $user_id = 0 ) {
+		$user_id = empty( $user_id ) ? get_current_user_id() : $user_id;
+
+		// $query_hash must be the md5 hash of the ignored query
+		if ( ! preg_match('/^[a-f0-9]{32}$/', $query_hash ) ) {
+			return;
+		}
+
+		// retrieve the existing ignored queries because we're going to add this to the list
+		$ignored_queries = $this->get_ignored_queries( $user_id );
+
+		// remove unignored queries
+		$updated = false;
+		if ( isset( $ignored_queries[ $query_hash ] ) ) {
+			$updated = true;
+			unset( $ignored_queries[ $query_hash ] );
+		}
+
+		// store the update
+		if ( $updated ) {
+			update_user_meta( absint( $user_id ), SEARCHWP_PREFIX . 'ignored_queries', $ignored_queries );
+		}
 	}
 
 	/**
@@ -418,4 +518,21 @@ class SearchWP_Stats {
 		);
 	}
 
+	/**
+	 * Clears Stats Dashboard Widget transients
+	 *
+	 * @since 3.0
+	 */
+	public function clear_dashboard_stats_transients() {
+		SWP()->reset_dashboard_stats_transients();
+	}
+
+	/**
+	 * Reset (clear) statistics logs
+	 *
+	 * @since 3.0
+	 */
+	public function reset() {
+		SWP()->reset_stats();
+	}
 }

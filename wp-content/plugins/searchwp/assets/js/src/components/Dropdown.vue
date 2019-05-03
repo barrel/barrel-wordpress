@@ -1,39 +1,45 @@
 <template>
     <div class="searchwp-dropdown">
 
-        <searchwp-button
-            v-if="!showing"
-            :position="position"
-            :popover="'popover' + _uid"
-            :buttonText="buttonText"
-            @click.native.prevent/>
-
-        <popover :width="position == 'above' ? 180 : 150" :ref="'popoverRef' + _uid" :name="'popover' + _uid">
-            <ul v-if="type=='postTypes'">
-                <li v-for="unusedPostType in getUnusedPostTypes()"
-                    :key="unusedPostType.name"
-                    @click="addPostType(unusedPostType.name)">{{ unusedPostType.label }}</li>
-                <li v-if="numberOfExcludedPostTypes()" class="searchwp-excluded-types-note">{{ i18n.excluded }}: {{ numberOfExcludedPostTypes() }}</li>
-            </ul>
-            <ul v-else-if="type=='contentTypes'">
-                <li v-if="getUnusedNativeAttributes().length"
-                    @click="showDetails('native')">{{ i18n.nativeAttribute }}</li>
-                <li v-if="getUnusedTaxonomies().length"
-                    @click="showDetails('taxonomy')">{{ i18n.taxonomy }}</li>
-                <li v-if="'attachment' == postType && isWithoutCustomField('searchwp_content')"
-                    @click="addMetakeyRecord('searchwp_content', true)">{{ i18n.documentContent }}</li>
-                <li v-if="'attachment' == postType && isWithoutCustomField('searchwp_pdf_metadata')"
-                    @click="addMetakeyRecord('searchwp_pdf_metadata', true)">{{ i18n.pdfMetadata }}</li>
-                <li v-if="getUnusedMetakeys().length"
-                    @click="showDetails('meta')">{{ i18n.customField }}</li>
-            </ul>
-            <ul v-else-if="type=='rules'">
-                <li v-if="getUnusedRuleTaxonomies('exclude').length"
-                    @click="showDetails('excludeTaxonomy')">{{ i18n.excludeByTaxonomy }}</li>
-                <li v-if="getUnusedRuleTaxonomies('limit_to').length"
-                    @click="showDetails('limitToTaxonomy')">{{ i18n.limitByTaxonomy }}</li>
-            </ul>
-        </popover>
+        <v-popover offset="6" v-if="!showing">
+            <searchwp-button :label="buttonText" />
+            <template slot="popover">
+                <ul v-if="type=='postTypes'">
+                    <li v-for="unusedPostType in getUnusedPostTypes()"
+                        :key="unusedPostType.name"
+                        v-close-popover
+                        @click="addPostType(unusedPostType.name)">{{ unusedPostType.label }}</li>
+                    <li v-for="excludedPostType in excludedPostTypes" class="searchwp-excluded-types-note">
+                        {{ i18n.excluded }}: {{ excludedPostType.label }}
+                    </li>
+                </ul>
+                <ul v-else-if="type=='contentTypes'">
+                    <li v-if="getUnusedNativeAttributes().length"
+                        v-close-popover
+                        @click="showDetails('native')">{{ i18n.nativeAttribute }}</li>
+                    <li v-if="getUnusedTaxonomies().length"
+                        v-close-popover
+                        @click="showDetails('taxonomy')">{{ i18n.taxonomy }}</li>
+                    <li v-if="'attachment' == postType && isWithoutCustomField('searchwp_content')"
+                        v-close-popover
+                        @click="addMetakeyRecord('searchwp_content', true)">{{ i18n.documentContent }}</li>
+                    <li v-if="'attachment' == postType && isWithoutCustomField('searchwp_pdf_metadata')"
+                        v-close-popover
+                        @click="addMetakeyRecord('searchwp_pdf_metadata', true)">{{ i18n.pdfMetadata }}</li>
+                    <li v-if="getUnusedMetakeys().length"
+                        v-close-popover
+                        @click="showDetails('meta')">{{ i18n.customField }}</li>
+                </ul>
+                <ul v-else-if="type=='rules'">
+                    <li v-if="getUnusedRuleTaxonomies('exclude').length"
+                        v-close-popover
+                        @click="showDetails('excludeTaxonomy')">{{ i18n.excludeByTaxonomy }}</li>
+                    <li v-if="getUnusedRuleTaxonomies('limit_to').length"
+                        v-close-popover
+                        @click="showDetails('limitToTaxonomy')">{{ i18n.limitByTaxonomy }}</li>
+                </ul>
+            </template>
+        </v-popover>
 
         <div v-if="showing" class="searchwp-dropdown-choices">
 
@@ -61,7 +67,10 @@
                 v-if="showing=='meta'"
                 label="label"
                 :placeholder="i18n.chooseCustomField"
-                :options="getUnusedMetakeys()"
+                :options="getUnusedMetakeys(false, true)"
+                group-values="metakeys"
+                group-label="label"
+                :group-select="false"
                 :searchable="true"
                 :allow-empty="true"
                 :reset-after="true"
@@ -89,7 +98,7 @@
 
             <searchwp-button
                 @click.native.prevent="showing=''"
-                :buttonText="i18n.done"/>
+                :label="i18n.done"/>
 
         </div>
 
@@ -169,7 +178,7 @@ export default {
                 return !engineOptions.hasOwnProperty( ruleType + '_' + taxonomy.name);
             });
         },
-        getUnusedMetakeys( unfiltered ) {
+        getUnusedMetakeys( unfiltered, grouped ) {
             let metakeys = [];
             let availableMetakeys = this.$root.$data.objects[ this.postType ].meta_keys;
             let metakeyWeights = this.$parent.model.objects[ this.postType ].weights.cf;
@@ -197,12 +206,66 @@ export default {
                 }
             }
 
+            if (metakeys.length && grouped) {
+                metakeys = this.groupMetakeys(metakeys);
+            }
+
             return metakeys;
         },
-        showDetails( details ) {
-            // Hide the popover
-            this.$refs['popoverRef' + this._uid].visible = false;
+        groupMetakeys(metakeys) {
+            // This method formats meta keys into the appropriate groups. Added in 3.0.
+            if (!metakeys.length) {
+                return metakeys;
+            }
 
+            let globalAnyCustomFieldInUse = false;
+            let metakeyWeights = this.$parent.model.objects[ this.postType ].weights.cf;
+            if (metakeyWeights) {
+                for (var weight in metakeyWeights) {
+                    if (metakeyWeights.hasOwnProperty(weight)) {
+                        if('searchwpcfdefault'===metakeyWeights[weight].metakey){
+                            globalAnyCustomFieldInUse = true;
+                        }
+                    }
+                }
+            }
+
+            // We're giving 'Any Custom Field' preferential treatment if it's not in use.
+            let groupedKeys = globalAnyCustomFieldInUse ? [] : [ 'searchwpcfdefault' ];
+
+            // The default is going to be the meta groups themselves.
+            // Again we're giving 'Any Custom Field' preferential treatment if it's not in use.
+            let grouped = globalAnyCustomFieldInUse ? [] : [{
+                label: 'Global',
+                metakeys: [{
+                    name: 'searchwpcfdefault',
+                    label: this.i18n.anyCustomField + ' ★',
+                    name: 'searchwpcfdefault'
+                }]
+            }];
+
+            for (var metaGroupIndex in this.metaGroups) {
+                if (this.metaGroups.hasOwnProperty(metaGroupIndex)) {
+                    let metaGroup = this.metaGroups[metaGroupIndex];
+                    grouped.push({
+                        label: metaGroup.label,
+                        metakeys: metaGroup.metakeys.map(metakey => ({ name: metakey, label: metakey, value: metakey}))
+                    });
+
+                    // Mark these keys as grouped/used.
+                    groupedKeys = groupedKeys.concat(metaGroup.metakeys);
+                }
+            }
+
+            // We're going to put into the Core group every key that has NOT been used in a custom group.
+            grouped.push({
+                label: 'Core',
+                metakeys: metakeys.filter(metakey => groupedKeys.indexOf(metakey.name) < 0)
+            });
+
+            return grouped;
+        },
+        showDetails( details ) {
             // Show the multiselect
             this.showing = details;
         },
@@ -262,14 +325,9 @@ export default {
             }
         },
         addPostType( postType ) {
-            this.$refs['popoverRef' + this._uid].visible = false;
             Vue.set(this.$parent.model.objects[ postType ], 'enabled', true);
         },
         addMetakeyRecord( metakey, passive ) {
-            if (passive) {
-                this.$refs['popoverRef' + this._uid].visible = false;
-            }
-
             let modelKeyHash = 'swppv' + md5( this.postType + metakey);
 
             if (!this.$parent.model.objects[ this.postType ].weights.cf) {
@@ -295,6 +353,41 @@ export default {
             }
         }
     },
+    computed: {
+        excludedPostTypes: function() {
+            return this.$root.misc.excluded_from_search;
+        },
+        metaGroups: function() {
+            let source = this.$root.objects[ this.postType ].meta_groups;
+            let metakeyWeights = this.$parent.model.objects[ this.postType ].weights.cf;
+
+            if (!metakeyWeights) {
+                return source;
+            }
+
+            let keysInUse = [];
+            for (var weight in metakeyWeights) {
+                if (metakeyWeights.hasOwnProperty(weight)) {
+                    keysInUse.push(metakeyWeights[weight].metakey);
+                }
+            }
+
+            // Filter out any meta group key that's been used.
+            let metaGroups = {}
+
+            for (var groupIndex in source) {
+                if (source.hasOwnProperty(groupIndex)) {
+                    let group = source[groupIndex];
+                    metaGroups[groupIndex] = {
+                        label: group.label,
+                        metakeys: group.metakeys.filter(metakey => keysInUse.indexOf(metakey) < 0)
+                    };
+                }
+            }
+
+            return metaGroups;
+        }
+    },
     data: function() {
         return {
             showing: '',
@@ -311,6 +404,7 @@ export default {
                 done: _SEARCHWP_VARS.i18n.done,
                 excludeByTaxonomy: _SEARCHWP_VARS.i18n.exclude_by_taxonomy,
                 excluded: _SEARCHWP_VARS.i18n.excluded,
+                excludedFromSearch: _SEARCHWP_VARS.i18n.excluded_from_search,
                 limitByTaxonomy: _SEARCHWP_VARS.i18n.limit_by_taxonomy,
                 pdfMetadata: _SEARCHWP_VARS.i18n.pdf_metadata,
                 nativeAttribute: _SEARCHWP_VARS.i18n.native_attribute,
@@ -354,7 +448,21 @@ export default {
     .searchwp-dropdown-choices {
         display: flex;
         align-items: center;
-        padding-top: 0.6em; // Position the dropdown in the same spot as the button
+    }
+
+    .searchwp-excluded-types-note {
+        cursor: default !important;
+        color: rgba( 255, 255, 255, 0.55 );
+        margin-top: 0.5em;
+        padding-top: 0.6em;
+
+        &:hover {
+            background: transparent !important;
+        }
+
+        &:first-of-type {
+            border-top: 1px solid rgba( 255, 255, 255, 0.25 );
+        }
     }
 
     .vue-popover {
@@ -363,6 +471,12 @@ export default {
         border-radius: 3px;
         margin-top: -6px;
         padding: 0;
+
+        transform: translateX(-182px) translateY(-150px); // Offset because component positioning is off.
+
+        &.dropdown-position-top {
+            transform: translateX(-197px) translateY(-225px); // Offset because component positioning is off.
+        }
 
         a {
             color: #fff;
@@ -412,15 +526,16 @@ export default {
 
     .wp-core-ui {
 
-        .searchwp-dropdown {
+        .searchwp-dropdown-choices {
 
-            div {
-
-                .searchwp-button {
-                    margin: 0 0 0 1em;
-                }
+            .searchwp-button {
+                margin: 0 0 0 1em;
             }
         }
+    }
+
+    .searchwp-engine-post-type__details .searchwp-dropdown {
+        padding-top: 1.25em;
     }
 
     // Multiselect component overrides
@@ -463,6 +578,7 @@ export default {
         line-height: 22px;
         width: auto;
         background-color: transparent;
+        font-size: 1em;
     }
 
     .multiselect__element {
@@ -506,8 +622,9 @@ export default {
         font-size: 13px;
         padding: 4px 26px 4px 7px;
         border-radius: 3px;
+        margin-top: 2px;
         margin-right: 5px;
-        margin-bottom: 4px;
+        margin-bottom: 2px;
     }
 
     .multiselect__tag-icon {
@@ -523,5 +640,9 @@ export default {
     .multiselect__tag-icon:focus,
     .multiselect__tag-icon:hover {
         background: #159FD2;
+    }
+
+    .multiselect__content-wrapper {
+        box-shadow: 0 2px 3px 0 rgba(44,44,44,0.2);
     }
 </style>

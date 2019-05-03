@@ -62,6 +62,7 @@ if ( ! defined( 'ABSPATH' ) || ! class_exists( 'SearchWP_System_Info' ) || ! cla
 	<?php } ?>
 </div>
 
+<?php if ( 'valid' == SWP()->status ) : ?>
 <hr />
 
 <div class="searchwp-system-info">
@@ -75,3 +76,4 @@ if ( ! defined( 'ABSPATH' ) || ! class_exists( 'SearchWP_System_Info' ) || ! cla
 	$searchwp_system_info->output();
 	?>
 </div>
+<?php endif; ?>

@@ -571,9 +571,9 @@ export default {
         unusedAttributes( postType ) {
             return this.unusedNativeAttributes(postType).length || this.unusedTaxonomies(postType).length || this.unusedMetakeys(postType, true).length;
         },
-        addContentType(selectedOption) {
-            console.log(selectedOption);
-        },
+        // addContentType(selectedOption) {
+        //     // console.log(selectedOption);
+        // },
         toggleDetails(postType) {
             if (this.details.includes(postType)) {
                 this.details = this.details.filter(function (item){
@@ -940,7 +940,7 @@ export default {
 
     .searchwp-engine-actions {
         margin: 0;
-        padding: 0.5em 0 0;
+        padding: 1em 0 0;
         list-style: none;
         display: flex;
         align-items: center;

@@ -58,10 +58,11 @@ class GF_Field_Textarea extends GF_Field {
 		$class         = esc_attr( $class );
 		$disabled_text = $is_form_editor ? 'disabled="disabled"' : '';
 
-		$logic_event           = $this->get_conditional_logic_event( 'keyup' );
+		$maxlength_attribute   = is_numeric( $this->maxLength ) ? "maxlength='{$this->maxLength}'" : '';
 		$placeholder_attribute = $this->get_field_placeholder_attribute();
 		$required_attribute    = $this->isRequired ? 'aria-required="true"' : '';
 		$invalid_attribute     = $this->failed_validation ? 'aria-invalid="true"' : 'aria-invalid="false"';
+		$aria_describedby      = $this->get_aria_describedby();
 
 		$tabindex = $this->get_tabindex();
 
@@ -132,7 +133,7 @@ class GF_Field_Textarea extends GF_Field {
 				$input       = sprintf( '<div id="%s_rte_preview" class="gform-rte-preview %s" style="display:%s"></div>', $field_id, $size, $display );
 			}
 
-			$input .= "<textarea name='input_{$id}' id='{$field_id}' class='textarea {$class}' {$tabindex} {$logic_event} {$placeholder_attribute} {$required_attribute} {$invalid_attribute} {$disabled_text} {$input_style} rows='10' cols='50'>{$value}</textarea>";
+			$input .= "<textarea name='input_{$id}' id='{$field_id}' class='textarea {$class}' {$tabindex} {$aria_describedby} {$maxlength_attribute} {$placeholder_attribute} {$required_attribute} {$invalid_attribute} {$disabled_text} {$input_style} rows='10' cols='50'>{$value}</textarea>";
 
 		}
 
@@ -176,7 +177,7 @@ class GF_Field_Textarea extends GF_Field {
 			list( $search, $open_tag, $guts, $close_tag ) = $match;
 
 			$custom  = "if ( typeof current_page === 'undefined' ) { return; }\nfor( var id in tinymce.editors ) { tinymce.EditorManager.remove( tinymce.editors[id] ); }";
-			$replace = sprintf( "%s\njQuery( document ).bind( 'gform_post_render', function( event, form_id, current_page ) { \n%s\n%s } );\n%s", $open_tag, $custom, $guts, $close_tag );
+			$replace = sprintf( "%s\njQuery( document ).on( 'gform_post_render gform_post_conditional_logic', function( event, form_id, current_page ) { \n%s\n%s } );\n%s", $open_tag, $custom, $guts, $close_tag );
 			$script  = str_replace( $search, $replace, $script );
 
 		}
@@ -320,6 +321,23 @@ class GF_Field_Textarea extends GF_Field {
 	public function filter_user_option_rich_editing( $value ) {
 		return 'true';
 	}
+
+	// # FIELD FILTER UI HELPERS ---------------------------------------------------------------------------------------
+
+	/**
+	 * Returns the filter operators for the current field.
+	 *
+	 * @since 2.4
+	 *
+	 * @return array
+	 */
+	public function get_filter_operators() {
+		$operators   = parent::get_filter_operators();
+		$operators[] = 'contains';
+
+		return $operators;
+	}
+
 }
 
 GF_Fields::register( new GF_Field_Textarea() );

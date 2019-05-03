@@ -1,0 +1,13 @@
+.searchwp-spinner-message {
+	display: flex;
+	align-items: center;
+
+	.vue-simple-spinner-text {
+		flex: 1;
+		padding-left: 0.75em;
+
+		// Override component inline styles.
+		margin-top: 0 !important;
+		text-align: left !important;
+	}
+}

@@ -1,14 +1,13 @@
 === Kraken.io Image Optimizer ===
 Contributors: karim79
 Tags: anigif, compress image, exif, image optimizer, image resize, jpg, media, Optimization, optimize, optimize animated gif, optimize gif, optimize jpeg, optimize png, PageRank, PageSpeed Insights, performance, photos, png, Reduce Image Size, retina, seo, sitespeed, speed up site, svg, upload, svg, upload, gtmetrix speed test, EXIF, image resize, kraken.io, smush
-
 Requires at least: 3.0.1
-Tested up to: 4.6
+Requires PHP: 5.0.0
+Tested up to: 4.9.6
 Donate link: https://kraken.io
-Stable tag: 2.6.2
+Stable tag: 2.6.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-
 
 This plugin allows you to optimize your WordPress images through the Kraken.io API, the world's most advanced image optimization and resizing API.
 
@@ -113,6 +112,9 @@ You will need to switch the Media Library from the Grid view to the List view. I
 Kraken.io's service emphasizes finding the precise balance between image quality and file size reduction. Our API utilizes various mechanisms for ensuring that the result cannot be distinguished from the original by the human eye, even upon close inspection. If want to get the greatest possible savings without ever having to check the optimized image against the original, this is the plugin for you.
 
 == Changelog ==
+
+= 2.6.3 =
+* Verified the plugin's compatibility with PHP 7 and WordPress 4.9
 
 = 2.6.2 =
 * Fixed a rare bug which prevented filepaths containing double-forward-slashes from getting optimized.

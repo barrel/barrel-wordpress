@@ -47,10 +47,6 @@ class Pass_Action extends Red_Action {
 		return substr( $target, 0, 7 ) === 'http://' || substr( $target, 0, 8 ) === 'https://';
 	}
 
-	public function is_file( $target ) {
-		return substr( $target, 0, 7 ) === 'file://';
-	}
-
 	public function process_before( $code, $target ) {
 		// External target
 		if ( $this->is_external( $target ) ) {
@@ -58,16 +54,10 @@ class Pass_Action extends Red_Action {
 			exit();
 		}
 
-		// file:// targetw
-		if ( $this->is_file( $target ) ) {
-			if ( defined( 'REDIRECTION_SUPPORT_PASS_FILE' ) && REDIRECTION_SUPPORT_PASS_FILE ) {
-				$this->process_file( $target );
-				exit();
-			}
-
-			return;
-		}
-
 		return $this->process_internal( $target );
+	}
+
+	public function needs_target() {
+		return true;
 	}
 }

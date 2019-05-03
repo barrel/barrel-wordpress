@@ -69,6 +69,8 @@ function searchwp_maybe_nuke() {
 		delete_option( SEARCHWP_PREFIX . 'advanced' );
 		delete_option( SEARCHWP_PREFIX . 'waiting' );
 		delete_option( SEARCHWP_PREFIX . 'delta_attempts' );
+		delete_option( SEARCHWP_PREFIX . 'processing_purge_queue' );
+		delete_option( SEARCHWP_PREFIX . 'stopwords' );
 
 		// remove transients
 		delete_option( 'searchwp_transient' );

@@ -2,9 +2,9 @@
 Contributors: johnny5
 Donate link: https://redirection.me/donation/
 Tags: redirect, htaccess, 301, 404, seo, permalink, apache, nginx, post, admin
-Requires at least: 4.5
-Tested up to: 4.9.8
-Stable tag: 3.4
+Requires at least: 4.6
+Tested up to: 5.1.1
+Stable tag: 4.2.3
 Requires PHP: 5.4
 License: GPLv3
 
@@ -20,11 +20,13 @@ It has been a WordPress plugin for over 10 years and has been recommended countl
 
 Full documentation can be found at [https://redirection.me](https://redirection.me)
 
+Redirection is compatible with PHP from 5.4 and upwards (including 7.2).
+
 = Redirect manager =
 
 Create and manage redirects quickly and easily without needing Apache or Nginx knowledge. If your WordPress supports permalinks then you can use Redirection to redirect any URL.
 
-There is full support for regular expressions so you can create redirect patterns to match any number of URLs.
+There is full support for regular expressions so you can create redirect patterns to match any number of URLs. You can match query parameters and even pass them through to the target URL.
 
 The plugin can also be configured to monitor when post or page permalinks are changed and automatically create a redirect to the new URL.
 
@@ -33,11 +35,15 @@ The plugin can also be configured to monitor when post or page permalinks are ch
 In addition to straightforward URL matching you can redirect based on other conditions:
 
 - Login status - redirect only if the user is logged in or logged out
+- WordPress capability - redirect if the user is able to perform a certain capability
 - Browser - redirect if the user is using a certain browser
 - Referrer - redirect if the user visited the link from another page
 - Cookies - redirect if a particular cookie is set
 - HTTP headers - redirect based on a HTTP header
 - Custom filter - redirect based on your own WordPress filter
+- IP address - redirect if the client IP address matches
+- Server - redirect another domain if also hosted on this server
+- Page type - redirect if the current page is a 404
 
 = Full logging =
 
@@ -47,9 +53,17 @@ Logs can be exported for external viewing, and can be searched and filtered for 
 
 Display geographic information about an IP address, as well as a full user agent information, to try and understand who the visitor is.
 
+You are able to disable or reduce IP collection to meet the legal requirements of your geographic region.
+
 = Track 404 errors =
 
 Redirection will keep track of all 404 errors that occur on your site, allowing you to track down and fix problems.
+
+Errors can be grouped to show where you should focus your attention, and can be redirected in bulk.
+
+= Query parameter handling =
+
+You can match query parameters exactly, ignore them, and even pass them through to your target.
 
 = Apache & Nginx support =
 
@@ -134,7 +148,130 @@ The plugin works in a similar manner to how WordPress handles permalinks and sho
 * Switches to the WordPress REST API
 * Permissions changed from 'administrator' role to 'manage_options' capability
 
+= 3.6.1 =
+* Note Redirection will not work with PHP < 5.4 after 3.6 - please upgrade your PHP
+
+= 3.7 =
+* Requires minimum PHP 5.4. Do not upgrade if you are still using PHP < 5.4
+
+= 4.0 =
+* Alters database to support case insensitivity, trailing slashes, and query params. Please backup your data
+
 == Changelog ==
+
+= 4.2.3 - 16th Apr 2019 =
+* Fix bug with old API routes breaking test
+
+= 4.2.2 - 13th Apr 2019 =
+* Improve API checking logic
+* Fix '1' being logged for pass-through redirects
+
+= 4.2.1 - 8th Apr 2019 =
+* Fix incorrect CSV download link
+
+= 4.2 - 6th Apr 2019 =
+* Add auto-complete for target URLs
+* Add manual database upgrade
+* Add support for semi-colon separated import files
+* Add user agent to 404 export
+* Add workaround for qTranslate breaking REST API
+* Improve API problem detection
+* Fix JSON import ignoring group status
+
+= 4.1.1 - 23rd Mar 2019 =
+* Remove deprecated PHP
+* Fix REST API warning
+* Improve WP CLI database output
+
+= 4.1 - 16th Mar 2019 =
+* Move 404 export option to import/export page
+* Add additional redirect suggestions
+* Add import from Rank Math
+* Fix 'force https' causing WP to redirect to admin URL when accessing www subdomain
+* Fix .htaccess import adding ^ to the source
+* Fix handling of double-slashed URLs
+* Fix WP CLI on single site
+* Add DB upgrade to catch URLs with double-slash URLs
+* Remove unnecessary escaped slashes from JSON output
+
+= 4.0.1 - 2nd Mar 2019 =
+* Improve styling of query flags
+* Match DB upgrade for new match_url to creation script
+* Fix upgrade on some hosts where plugin is auto-updated
+* Fix pagination button style in WP 5.1
+* Fix IP match when action is 'error'
+* Fix database upgrade on multisite WP CLI
+
+= 4.0 - 23rd Feb 2019 =
+* Add option for case insensitive redirects
+* Add option to ignore trailing slashes
+* Add option to copy query parameters to target URL
+* Add option to ignore query parameters
+* Add option to set defaults for case, trailing, and query settings
+* Improve upgrade for sites with missing tables
+
+= 3.7.3 - 2nd Feb 2019 =
+* Add PHP < 5.4 message on plugins page
+* Prevent upgrade message being hidden by other plugins
+* Fix warning with regex and no leading slash
+* Fix missing display of disabled redirects with a title
+* Improve upgrade for sites with a missing IP column
+* Improve API detection with plugins that use sessions
+* Improve compatibility with ModSecurity
+* Improve compatibility with custom API prefix
+* Detect site where Redirection was once installed and has settings but no database tables
+
+= 3.7.2 - 16th Jan 2019 =
+* Add further partial upgrade detection
+* Add fallback for sites with no REST API value
+
+= 3.7.1 - 13th Jan 2019 =
+* Clarify database upgrade text
+* Fix Firefox problem with multiple URLs
+* Fix 3.7 built against wrong dropzone module
+* Add DB upgrade detection for people with partial 2.4 sites
+
+= 3.7 - 12th Jan 2019 =
+* Add redirect warning for known problem redirects
+* Add new database install and upgrade process
+* Add database functions to WP CLI
+* Add introduction message when first installed
+* Drop PHP < 5.4 support. Please use version 3.6.3 if your PHP is too old
+* Improve export filename
+* Fix IPs appearing for bulk redirect
+* Fix disabled redirects appearing in htaccess
+
+= 3.6.3 - 14th November 2018 =
+* Remove potential CSRF
+
+= 3.6.2 - 10th November 2018 =
+* Add another PHP < 5.4 compat fix
+* Fix 'delete all from 404 log' when ungrouped deleting all 404s
+* Fix IDs shown in bulk add redirect
+
+= 3.6.1 - 3rd November 2018 =
+* Add another PHP < 5.4 fix. Sigh
+
+= 3.6 - 3rd November 2018 =
+* Add option to ignore 404s
+* Add option to block 404s by IP
+* Add grouping of 404s by IP and URL
+* Add bulk block or redirect a group of 404s
+* Add option to redirect on a 404
+* Better page navigation change monitoring
+* Add URL & IP match
+* Add 303 and 304 redirect codes
+* Add 400, 403, and 418 (I'm a teapot!) error codes
+* Fix server match not supporting regex properly
+* Deprecated file pass through removed
+* 'Do nothing' now stops processing further rules
+
+= 3.5 - 23rd September 2018 =
+* Add redirect checker on redirects page
+* Fix missing translations
+* Restore 4.7 backwards compatibility
+* Fix unable to delete server name in server match
+* Fix error shown when source URL is blank
 
 = 3.4.1 - 9th September 2018 =
 * Fix import of WordPress redirects
@@ -497,127 +634,18 @@ The plugin works in a similar manner to how WordPress handles permalinks and sho
 = 2.2.3 =
 * Remove debug from htaccess module
 
-= 2.2.2 =
+= < 2.2.2 =
 * Fix encoding of JS strings
-
-= 2.2.1 =
-* More Dutch translation
 * Use fgetcsv for CSV importer - better handling
 * Allow http as URL parameter
-
-= 2.2 =
-* Add Dutch translation
 * Props to Ben Noordhuis for a patch
 * WordPress 2.9+ only - cleaned up all the old cruft
 * Better new-install process
 * Upgrades from 1.0 of Redirection no longer supported
 * Optimized DB tables
-
-= 2.1.29 =
-* Fix problem with custom post types auto-redirecting (click on 'groups' and then 'modified posts' and clear any entries for '/' from your list)
-
-= 2.1.28 =
-* Brazilian Portuguese translation
-
-= 2.1.27 =
-* Arabic translation
-
-= 2.1.26 =
-* WP 3.0 compatibility
-
-= 2.1.25 =
-* Fix deep slashes
-
-= 2.1.24 =
-* Add Ukrainian translation
-* Add Polish translation
-* Database optimization
-
-= 2.1.23 =
-* Add Bahasa Indonesian translation
-* Add German translation
-* Add patch to disable logs (thanks to Simon Wheatley!)
-
-= 2.1.22 =
-* Pre WP2.8 compatibility fix
-
-= 2.1.21 =
-* Fix #620
-* Add Russian translation
-
-= 2.1.20 =
-* Fix for some users with problems deleting redirections
-
-= 2.1.19 =
-* Add Hindi translation
-* Fix some ajax
-
-= 2.1.18 =
-* Fix module deletion
-
-= 2.1.17 =
-* Log JS fixes
-
-= 2.1.16 =
-* Fix group edit and log add entry
-
-= 2.1.15 =
-* Use WP Ajax
-* Add Japanese
-
-= 2.1.14 =
-* Fix #457
-* Add #475, #427
-* Add Catalan translation.
-* WP2.8 compatibility
-
-= 2.1.13 =
-* Add Spanish and Chinese translation
-
-= 2.1.12 =
-* Add icons
-* Disable category monitoring
-
-= 2.1.11 =
-* Errors on some sites
-
-= 2.1.10 =
-* Missing localizations
-
-= 2.1.9 =
-* Fix 'you do not permissions' error on some non-English sites
-
-= 2.1.8 =
-* Fix category change 'quick edit'
-
-= 2.1.7 =
-* Fix #422, #426
-
-= 2.1.6 =
-* Redirection loops
-
-= 2.1.5 =
-* Fix #366, #371, #378, #390, #400.
-* Add #370, #357
-
-= 2.1.4 =
-* RSS feed token
-
-= 2.1.3 =
-* Re-enable import feature
-
-= 2.1.2 =
-* Minor button changes
-
-= 2.1.1 =
-* Force JS cache
-* Fix log deletion
-
-= < 2.1 =
 * Change to jQuery
 * Nonce protection
 * Disable category monitor in 2.7
-* Hebrew translation
 * Fix small issues in display with WP 2.7
 * Fix delete redirects
 * Refix log delete
@@ -628,4 +656,26 @@ The plugin works in a similar manner to how WordPress handles permalinks and sho
 * Correct DB install
 * Fix IIS problem
 * Install defaults when no existing redirection setup
-* New version
+* Fix problem with custom post types auto-redirecting (click on 'groups' and then 'modified posts' and clear any entries for '/' from your list)
+* WP 3.0 compatibility
+* Fix deep slashes
+* Database optimization
+* Add patch to disable logs (thanks to Simon Wheatley!)
+* Pre WP2.8 compatibility fix
+* Fix for some users with problems deleting redirections
+* Fix some ajax
+* Fix module deletion
+* Log JS fixes
+* Fix group edit and log add entry
+* Use WP Ajax
+* WP2.8 compatibility
+* Add icons
+* Disable category monitoring
+* Errors on some sites
+* Fix 'you do not permissions' error on some non-English sites
+* Fix category change 'quick edit'
+* Redirection loops
+* RSS feed token
+* Re-enable import feature
+* Force JS cache
+* Fix log deletion

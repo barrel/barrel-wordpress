@@ -2,7 +2,7 @@
 
 class Kraken {
     protected $auth = array();
-    public static $kraken_plugin_version = '2.6.2';
+    public static $kraken_plugin_version = '2.6.3';
 
     public function __construct($key = '', $secret = '') {
         $this->auth = array(

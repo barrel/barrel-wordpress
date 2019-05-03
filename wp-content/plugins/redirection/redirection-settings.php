@@ -3,9 +3,7 @@
 define( 'REDIRECTION_OPTION', 'redirection_options' );
 define( 'REDIRECTION_API_JSON', 0 );
 define( 'REDIRECTION_API_JSON_INDEX', 1 );
-define( 'REDIRECTION_API_ADMIN', 2 );
 define( 'REDIRECTION_API_JSON_RELATIVE', 3 );
-define( 'REDIRECTION_API_POST', 4 );
 
 function red_get_plugin_data( $plugin ) {
 	if ( ! function_exists( 'get_plugin_data' ) ) {
@@ -17,7 +15,10 @@ function red_get_plugin_data( $plugin ) {
 
 function red_get_post_types( $full = true ) {
 	$types = get_post_types( array( 'public' => true ), 'objects' );
-	$types[] = ( object )array( 'name' => 'trash', 'label' => __( 'Trash' ) );
+	$types[] = (object) array(
+		'name' => 'trash',
+		'label' => __( 'Trash' ),
+	);
 
 	$post_types = array();
 	foreach ( $types as $type ) {
@@ -35,16 +36,41 @@ function red_get_post_types( $full = true ) {
 	return apply_filters( 'redirection_post_types', $post_types );
 }
 
+function red_get_default_options() {
+	$flags = new Red_Source_Flags();
+	$defaults = [
+		'support'             => false,
+		'token'               => md5( uniqid() ),
+		'monitor_post'        => 0,   // Dont monitor posts by default
+		'monitor_types'       => array(),
+		'associated_redirect' => '',
+		'auto_target'         => '',
+		'expire_redirect'     => 7,   // Expire in 7 days
+		'expire_404'          => 7,   // Expire in 7 days
+		'modules'             => array(),
+		'newsletter'          => false,
+		'redirect_cache'      => 1,   // 1 hour
+		'ip_logging'          => 1,   // Full IP logging
+		'last_group_id'       => 0,
+		'rest_api'            => REDIRECTION_API_JSON,
+		'https'               => false,
+		'database'            => '',
+	];
+	$defaults = array_merge( $defaults, $flags->get_json() );
+
+	return apply_filters( 'red_default_options', $defaults );
+}
+
 function red_set_options( array $settings = array() ) {
 	$options = red_get_options();
 	$monitor_types = array();
 
-	if ( isset( $settings['version'] ) ) {
-		$options['version'] = $settings['version'];
+	if ( isset( $settings['database'] ) ) {
+		$options['database'] = $settings['database'];
 	}
 
 	if ( isset( $settings['rest_api'] ) && in_array( intval( $settings['rest_api'], 10 ), array( 0, 1, 2, 3, 4 ) ) ) {
-		$options['rest_api'] = intval( $settings['rest_api'] );
+		$options['rest_api'] = intval( $settings['rest_api'], 10 );
 	}
 
 	if ( isset( $settings['monitor_types'] ) && is_array( $settings['monitor_types'] ) ) {
@@ -105,7 +131,7 @@ function red_set_options( array $settings = array() ) {
 		$options['https'] = $settings['https'] ? true : false;
 	}
 
-	if ( ! isset( $settings['token'] ) || trim( $options['token'] ) === '' ) {
+	if ( isset( $settings['token'] ) && trim( $options['token'] ) === '' ) {
 		$options['token'] = md5( uniqid() );
 	}
 
@@ -144,6 +170,20 @@ function red_set_options( array $settings = array() ) {
 		$options['associated_redirect'] = '';
 	}
 
+	$flags = new Red_Source_Flags();
+	$flags_present = [];
+
+	foreach ( array_keys( $flags->get_json() ) as $flag ) {
+		if ( isset( $settings[ $flag ] ) ) {
+			$flags_present[ $flag ] = $settings[ $flag ];
+		}
+	}
+
+	if ( count( $flags_present ) > 0 ) {
+		$flags->set_flags( $flags_present );
+		$options = array_merge( $options, $flags->get_json() );
+	}
+
 	update_option( REDIRECTION_OPTION, apply_filters( 'redirection_save_options', $options ) );
 	return $options;
 }
@@ -151,27 +191,12 @@ function red_set_options( array $settings = array() ) {
 function red_get_options() {
 	$options = get_option( REDIRECTION_OPTION );
 	if ( $options === false ) {
-		$options = array();
+		// Default flags for new installs - ignore case and trailing slashes
+		$options['flags_case'] = true;
+		$options['flags_trailing'] = true;
 	}
 
-	$defaults = apply_filters( 'red_default_options', array(
-		'support'             => false,
-		'token'               => md5( uniqid() ),
-		'monitor_post'        => 0,   // Dont monitor posts by default
-		'monitor_types'       => array(),
-		'associated_redirect' => '',
-		'auto_target'         => '',
-		'expire_redirect'     => 7,   // Expire in 7 days
-		'expire_404'          => 7,   // Expire in 7 days
-		'modules'             => array(),
-		'newsletter'          => false,
-		'redirect_cache'      => 1,   // 1 hour
-		'ip_logging'          => 1,   // Full IP logging
-		'last_group_id'       => 0,
-		'rest_api'            => false,
-		'https'               => false,
-		'version'             => REDIRECTION_VERSION,
-	) );
+	$defaults = red_get_default_options();
 
 	foreach ( $defaults as $key => $value ) {
 		if ( ! isset( $options[ $key ] ) ) {
@@ -181,7 +206,19 @@ function red_get_options() {
 
 	// Back-compat. If monitor_post is set without types then it's from an older Redirection
 	if ( $options['monitor_post'] > 0 && count( $options['monitor_types'] ) === 0 ) {
-		$options['monitor_types'] = array( 'post' );
+		$options['monitor_types'] = [ 'post' ];
+	}
+
+	// Remove old options not in red_get_default_options()
+	foreach ( $options as $key => $value ) {
+		if ( ! isset( $defaults[ $key ] ) ) {
+			unset( $options[ $key ] );
+		}
+	}
+
+	// Back-compat fix
+	if ( $options['rest_api'] === false || ! in_array( $options['rest_api'], [ REDIRECTION_API_JSON, REDIRECTION_API_JSON_INDEX, REDIRECTION_API_JSON_RELATIVE ], true ) ) {
+		$options['rest_api'] = REDIRECTION_API_JSON;
 	}
 
 	return $options;
@@ -197,12 +234,12 @@ function red_get_rest_api( $type = false ) {
 
 	if ( $type === REDIRECTION_API_JSON_INDEX ) {
 		$url = home_url( '/index.php?rest_route=/' );
-	} elseif ( $type === REDIRECTION_API_ADMIN ) {
-		$url = admin_url( 'admin-ajax.php?action=red_proxy&rest_path=' );
 	} elseif ( $type === REDIRECTION_API_JSON_RELATIVE ) {
-		$url = parse_url( $url, PHP_URL_PATH );
-	} elseif ( $type === REDIRECTION_API_POST ) {
-		$url = admin_url( 'tools.php?page=redirection.php&action=red_proxy&rest_path=' );
+		$relative = wp_parse_url( $url, PHP_URL_PATH );
+
+		if ( $relative ) {
+			$url = $relative;
+		}
 	}
 
 	return $url;

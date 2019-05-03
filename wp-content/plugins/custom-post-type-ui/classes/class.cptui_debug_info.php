@@ -6,6 +6,7 @@
  * @subpackage Debugging
  * @author WebDevStudios
  * @since 1.2.0
+ * @license GPL-2.0+
  */
 
 /**
@@ -145,13 +146,13 @@ class CPTUI_Debug_Info {
 		echo "\n";
 		$cptui_post_types = cptui_get_post_type_data();
 		echo "\t\t" . 'Post Types: ' . "\n";
-		echo "\t\t" . esc_html( json_encode( $cptui_post_types ) ) . "\n";
+		echo "\t\t" . json_encode( $cptui_post_types ) . "\n";
 
 		echo "\n\n";
 
 		$cptui_taxonomies = cptui_get_taxonomy_data();
 		echo "\t\t" . 'Taxonomies: ' . "\n";
-		echo "\t\t" . esc_html( json_encode( $cptui_taxonomies ) ) . "\n";
+		echo "\t\t" . json_encode( $cptui_taxonomies ) . "\n";
 		echo "\n";
 
 		if ( has_action( 'cptui_custom_debug_info' ) ) {
@@ -229,7 +230,8 @@ class CPTUI_Debug_Info {
 		 * @param string $value Intended email subject.
 		 */
 		$subject = apply_filters( 'cptui_debug_email_subject', sprintf(
-			__( 'CPTUI debug information for %s', 'custom-post-type-ui' ),
+			// translators: Placeholder will hold site home_url.
+			__( 'Custom Post Type UI debug information for %s', 'custom-post-type-ui' ),
 			home_url( '/' )
 		) );
 

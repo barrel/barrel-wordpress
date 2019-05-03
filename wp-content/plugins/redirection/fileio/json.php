@@ -4,14 +4,12 @@ class Red_Json_File extends Red_FileIO {
 	public function force_download() {
 		parent::force_download();
 
-		$filename = 'redirection-'.date_i18n( get_option( 'date_format' ) ).'.json';
-
 		header( 'Content-Type: application/json' );
-		header( 'Content-Disposition: attachment; filename="'.$filename.'"' );
+		header( 'Content-Disposition: attachment; filename="' . $this->export_filename( 'json' ) . '"' );
 	}
 
 	public function get_data( array $items, array $groups ) {
-		$version = red_get_plugin_data( dirname( dirname( __FILE__ ) ).'/redirection.php' );
+		$version = red_get_plugin_data( dirname( dirname( __FILE__ ) ) . '/redirection.php' );
 
 		$items = array(
 			'plugin' => array(
@@ -24,7 +22,7 @@ class Red_Json_File extends Red_FileIO {
 			}, $items ),
 		);
 
-		return json_encode( $items, JSON_PRETTY_PRINT ) . PHP_EOL;
+		return wp_json_encode( $items, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . PHP_EOL;
 	}
 
 	public function load( $group, $filename, $data ) {
@@ -45,7 +43,7 @@ class Red_Json_File extends Red_FileIO {
 				$old_group_id = $group['id'];
 				unset( $group['id'] );
 
-				$group = Red_Group::create( $group['name'], $group['module_id'] );
+				$group = Red_Group::create( $group['name'], $group['module_id'], $group['enabled'] ? true : false );
 				if ( $group ) {
 					$group_map[ $old_group_id ] = $group->get_id();
 				}
