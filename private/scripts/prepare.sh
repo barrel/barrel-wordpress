@@ -194,11 +194,11 @@ case "$response" in
     [yY][eE][sS]|[yY]) 
     printf "\nProceeding with package ${GREEN}$NEXT_VERSION${DEFAULT}, "
     printf "last version was ${YELLOW}$CURR_VERSION${DEFAULT}"
+	git commit -am "Update changelog and bump versions"
     printf "\n\n${GREEN}done.${DEFAULT}\n\n"
-	git commit -am "Update changelog and bump versions" 
 esac
 
-read -r -p "Finish up with gitflow? [y/N]" response
+read -r -p "Finish up with gitflow? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 
     printf "\nFinishing up with gitflow command ${BLUE}git flow $FLOW finish $NEXT_VERSION${DEFAULT}...\n"
