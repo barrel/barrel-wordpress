@@ -1,6 +1,20 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.0.0 - 2019-05-03
+### CHANGED:
+- Update WordPress to v5.1.1
+- Add Classic Editor plugin
+- Update all pre-installed plugins
+- Update .editorconfig rule to allow json files to end with new lines
+- Modify theme directory switch and theme dependency injection blocks
+- Update package.json npm test
+- Update deploy and test scripts with better exit codes
+- Add streamlined config within `.gitlab-ci.yml`
+- Add standardized colors referenced in each script
+- Add WIP scripts: `clone`, `init`, `update-plugin`, `loop-module`, and `import-module`
+- Add `set-env-url` script to allow dynamic creation of GitLab "Environment URL" via GitLab API
+
 ## 2.1.0 - 2019-01-30
 ### CHANGED:
 - Switch postcss mixin dependency 
