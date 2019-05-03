@@ -16,11 +16,6 @@ gulp.task("dev", function() {
     // Retain filename
     .pipe(named())
 
-    // Babel
-    .pipe(babel({
-        presets: ['env']
-    }))
-
     // Webpack
     .pipe(webpackStream({
         resolve: {
@@ -28,7 +23,6 @@ gulp.task("dev", function() {
                 'vue$': 'vue/dist/vue.esm.js'
             }
         },
-        devtool: '#cheap-module-eval-source-map',
         module: {
             rules: [
                 {
@@ -36,19 +30,13 @@ gulp.task("dev", function() {
                     loader: 'vue-loader',
                     options: {}
                 }
-            ],
-            loaders: [
-                {
-                    test: /\.js$/,
-                    loader: 'babel-loader',
-                    exclude: /node_modules/,
-                    query: {
-                        cacheDirectory: true,
-                        presets: ['env']
-                    }
-                }
             ]
         }
+    }))
+
+    // Babel
+    .pipe(babel({
+        presets: ['env']
     }))
 
     // Output
@@ -63,10 +51,87 @@ gulp.task("build", function() {
     // Retain filename
     .pipe(named())
 
+    // Webpack
+    .pipe(webpackStream({
+      resolve: {
+        alias: {
+          vue$: "vue/dist/vue.min.js"
+        }
+      },
+      module: {
+        rules: [
+            {
+                test: /\.vue$/,
+                loader: "vue-loader"
+            }
+        ]
+      },
+      plugins: [
+        new webpack.DefinePlugin({
+            "process.env": {
+                NODE_ENV: '"production"'
+            }
+        }),
+        new UglifyJsPlugin({
+            sourceMap: false
+        })
+      ]
+    }))
+
     // Babel
     .pipe(babel({
         presets: ['env']
     }))
+
+    // Rename with .min
+    .pipe(rename({ extname: ".min.js" }))
+
+    // Output
+    .pipe(gulp.dest("assets/js/dist/"));
+});
+
+// Development version, including Vue devtools
+gulp.task("devAdvanced", function() {
+  return gulp
+    .src(["assets/js/src/settings-advanced.js"])
+
+    // Retain filename
+    .pipe(named())
+
+    // Webpack
+    .pipe(webpackStream({
+        resolve: {
+            alias: {
+                'vue$': 'vue/dist/vue.esm.js'
+            }
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.vue$/,
+                    loader: 'vue-loader',
+                    options: {}
+                }
+            ]
+        }
+    }))
+
+    // Babel
+    .pipe(babel({
+        presets: ['env']
+    }))
+
+    // Output
+    .pipe(gulp.dest("assets/js/dist/"));
+});
+
+// Minified version
+gulp.task("buildAdvanced", function() {
+  return gulp
+    .src(["assets/js/src/settings-advanced.js"])
+
+    // Retain filename
+    .pipe(named())
 
     // Webpack
     .pipe(webpackStream({
@@ -81,16 +146,87 @@ gulp.task("build", function() {
                 test: /\.vue$/,
                 loader: "vue-loader"
             }
-        ],
-        loaders: [
-            {
-                test: /\.js$/,
-                loader: 'babel-loader',
-                exclude: /node_modules/,
-                query: {
-                    cacheDirectory: true,
-                    presets: ['env']
+        ]
+      },
+      plugins: [
+        new webpack.DefinePlugin({
+            "process.env": {
+                NODE_ENV: '"production"'
+            }
+        }),
+        new UglifyJsPlugin({
+            sourceMap: false
+        })
+      ]
+    }))
+
+    // Babel
+    .pipe(babel({
+        presets: ['env']
+    }))
+
+    // Rename with .min
+    .pipe(rename({ extname: ".min.js" }))
+
+    // Output
+    .pipe(gulp.dest("assets/js/dist/"));
+});
+
+// Development version, including Vue devtools
+gulp.task("devStats", function() {
+  return gulp
+    .src(["assets/js/src/statistics.js"])
+
+    // Retain filename
+    .pipe(named())
+
+    // Webpack
+    .pipe(webpackStream({
+        resolve: {
+            alias: {
+                'vue$': 'vue/dist/vue.esm.js'
+            }
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.vue$/,
+                    loader: 'vue-loader',
+                    options: {}
                 }
+            ]
+        }
+    }))
+
+    // Babel
+    .pipe(babel({
+        presets: ['env']
+    }))
+
+    // Output
+    .pipe(gulp.dest("assets/js/dist/"));
+});
+
+// Minified version
+gulp.task("buildStats", function() {
+  return gulp
+    .src(["assets/js/src/statistics.js"])
+
+    // Retain filename
+    .pipe(named())
+
+    // Webpack
+    .pipe(webpackStream({
+      resolve: {
+        alias: {
+          vue$: "vue/dist/vue.min.js"
+        }
+      },
+      module: {
+        rules: [
+            {
+                test: /\.vue$/,
+                loader: "vue-loader"
             }
         ]
       },
@@ -104,6 +240,11 @@ gulp.task("build", function() {
             sourceMap: false
         })
       ]
+    }))
+
+    // Babel
+    .pipe(babel({
+        presets: ['env']
     }))
 
     // Rename with .min
@@ -121,5 +262,27 @@ gulp.task("default", function(){
         "assets/js/src/**/*.vue"
     ], function(){
         runSequence("dev", "build");
+    });
+});
+
+// Advanced settings screen
+gulp.task("advanced-settings", function(){
+    runSequence("devAdvanced", "buildAdvanced");
+    gulp.watch([
+        "assets/js/src/**/*.js",
+        "assets/js/src/**/*.vue"
+    ], function(){
+        runSequence("devAdvanced", "buildAdvanced");
+    });
+});
+
+// Advanced settings screen
+gulp.task("stats", function(){
+    runSequence("devStats", "buildStats");
+    gulp.watch([
+        "assets/js/src/**/*.js",
+        "assets/js/src/**/*.vue"
+    ], function(){
+        runSequence("devStats", "buildStats");
     });
 });

@@ -8,7 +8,7 @@
             <a :href="action.target" class="button">{{ action.text }}</a>
         </div>
         <div v-else-if="typeof action.target === 'function' && action.text.length">
-            <a href="#" @click.prevent="action.target" class="button">{{ action.text }}</a>
+            <button @click.prevent="action.target" class="button">{{ action.text }}</button>
         </div>
     </div>
 </template>
@@ -52,7 +52,7 @@ export default {
     .searchwp-message {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        // justify-content: space-between;
         margin: 5px 0 15px;
         border-left: 4px solid #00a0d2;
         background: #fff;

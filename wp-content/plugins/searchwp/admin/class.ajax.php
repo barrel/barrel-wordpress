@@ -14,20 +14,351 @@ class SearchWP_Admin_Ajax {
 	/**
 	 * SearchWP_Admin_Ajax constructor.
 	 */
-	function __construct() {}
+	public function __construct() {}
 
 	/**
 	 * Initializer
 	 */
-	function init() {
-		add_action( 'wp_ajax_searchwp_get_tax_terms',     array( $this, 'get_tax_terms' ) );
-		add_action( 'wp_ajax_searchwp_get_meta_keys',     array( $this, 'get_meta_keys' ) );
-		add_action( 'wp_ajax_searchwp_get_setting',       array( $this, 'get_setting' ) );
-		add_action( 'wp_ajax_searchwp_set_setting',       array( $this, 'set_setting' ) );
-		add_action( 'wp_ajax_searchwp_get_index_stats',   array( $this, 'get_index_stats' ) );
-		add_action( 'wp_ajax_searchwp_save_engines',      array( $this, 'save_engines' ) );
-		add_action( 'wp_ajax_searchwp_reset_index',       array( $this, 'reset_index' ) );
-		add_action( 'wp_ajax_searchwp_basic_auth',        array( $this, 'is_basic_auth_blocking' ) );
+	public function init() {
+		add_action( 'wp_ajax_searchwp_get_tax_terms',         array( $this, 'get_tax_terms' ) );
+		add_action( 'wp_ajax_searchwp_get_meta_keys',         array( $this, 'get_meta_keys' ) );
+		add_action( 'wp_ajax_searchwp_get_setting',           array( $this, 'get_setting' ) );
+		add_action( 'wp_ajax_searchwp_set_setting',           array( $this, 'set_setting' ) );
+		add_action( 'wp_ajax_searchwp_get_index_stats',       array( $this, 'get_index_stats' ) );
+		add_action( 'wp_ajax_searchwp_save_engines',          array( $this, 'save_engines' ) );
+		add_action( 'wp_ajax_searchwp_reset_index',           array( $this, 'reset_index' ) );
+		add_action( 'wp_ajax_searchwp_basic_auth',            array( $this, 'is_basic_auth_blocking' ) );
+
+		add_action( 'wp_ajax_searchwp_get_statistics',        array( $this, 'get_statistics' ) );
+		add_action( 'wp_ajax_searchwp_reset_stats',           array( $this, 'reset_stats' ) );
+		add_action( 'wp_ajax_searchwp_ignore_search',         array( $this, 'ignore_search' ) );
+		add_action( 'wp_ajax_searchwp_unignore_search',       array( $this, 'unignore_search' ) );
+		add_action( 'wp_ajax_searchwp_recreate_tables',       array( $this, 'recreate_tables' ) );
+		add_action( 'wp_ajax_searchwp_update_stopwords',      array( $this, 'update_stopwords' ) );
+		add_action( 'wp_ajax_searchwp_update_synonyms',       array( $this, 'update_synonyms' ) );
+		add_action( 'wp_ajax_searchwp_wake_indexer',          array( $this, 'wake_indexer' ) );
+		add_action( 'wp_ajax_searchwp_reset_notices',         array( $this, 'reset_notices' ) );
+		add_action( 'wp_ajax_searchwp_update_setting',        array( $this, 'update_setting' ) );
+		add_action( 'wp_ajax_searchwp_config_import',         array( $this, 'config_import' ) );
+		add_action( 'wp_ajax_searchwp_stopwords_suggestions', array( $this, 'get_stopwords_suggestions' ) );
+	}
+
+	/**
+	 * Callback to retrieve stopwords suggestions
+	 *
+	 * @since 3.0
+	 */
+	public function get_stopwords_suggestions() {
+		check_ajax_referer( 'searchwp_ajax_stopwords_suggestions' );
+
+		do_action( 'searchwp_log', 'Getting stopwords suggestions (AJAX)' );
+
+		$limit = apply_filters( 'searchwp_stopwords_suggestions_limit', 20 );
+
+		$suggested_stopwords = SWP()->stopwords->get_suggested_stopwords( array(
+			'threshold' => SWP()->stopwords->get_threshold(),
+			'limit'     => absint( $limit ),
+		) );
+
+		do_action( 'searchwp_log', 'Getting stopwords suggestions (complete)' );
+
+		wp_send_json_success( $suggested_stopwords );
+	}
+
+	/**
+	 * Callback to import engine config
+	 *
+	 * @since 3.0
+	 */
+	public function config_import() {
+		check_ajax_referer( 'searchwp_ajax_config_import' );
+
+		do_action( 'searchwp_log', 'Resetting notices (AJAX)' );
+
+		$settings_to_import = isset( $_REQUEST['import'] ) ? stripslashes( $_REQUEST['import'] ) : '';
+		SWP()->import_settings( $settings_to_import ); // Expects JSON.
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Callback to update a setting
+	 *
+	 * @since 3.0
+	 */
+	public function update_setting() {
+		check_ajax_referer( 'searchwp_ajax_update_setting' );
+
+		do_action( 'searchwp_log', 'Updating setting (AJAX)' );
+
+		$setting = isset( $_REQUEST['setting'] ) ? $_REQUEST['setting'] : '';
+		$value   = isset( $_REQUEST['value'] ) ? $_REQUEST['value'] : false;
+
+		if ( 'false' == $value || empty( $value ) ) {
+			$value = false;
+		} else {
+			$value = true;
+		}
+
+		$available_toggles = searchwp_get_settings_names();
+
+		if ( ! in_array( $setting, $available_toggles, true ) ) {
+			wp_send_json_error();
+		}
+
+		// get the existing value
+		$existing_settings = searchwp_get_option( 'advanced' );
+
+		if ( ! is_array( $existing_settings ) ) {
+			$existing_settings = array();
+		}
+
+		$existing_settings[ $setting ] = $value;
+
+		searchwp_update_option( 'advanced', $existing_settings );
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Callback to reset statistics
+	 *
+	 * @since 3.0
+	 */
+	public function reset_stats() {
+		check_ajax_referer( 'searchwp_ajax_reset_stats' );
+
+		do_action( 'searchwp_log', 'Resetting stats (AJAX)' );
+
+		$stats = new SearchWP_Stats();
+		$stats->reset();
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Callback to reset notices
+	 *
+	 * @since 3.0
+	 */
+	public function reset_notices() {
+		check_ajax_referer( 'searchwp_ajax_reset_notices' );
+
+		do_action( 'searchwp_log', 'Resetting notices (AJAX)' );
+
+		$existing_dismissals = searchwp_get_setting( 'dismissed' );
+		$existing_dismissals['filter_conflicts'] = array();
+
+		searchwp_set_setting( 'dismissed', $existing_dismissals );
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Callback to wake up the indexer
+	 *
+	 * @since 3.0
+	 */
+	public function wake_indexer() {
+		check_ajax_referer( 'searchwp_ajax_wake_indexer' );
+
+		do_action( 'searchwp_log', 'Waking up the indexer (AJAX)' );
+
+		searchwp_wake_up_indexer();
+
+		SWP()->trigger_index();
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Callback to update Synonyms
+	 *
+	 * @since 3.0
+	 */
+	public function update_synonyms() {
+		check_ajax_referer( 'searchwp_ajax_update_synonyms' );
+
+		do_action( 'searchwp_log', 'Updating Synonyms (AJAX)' );
+
+		$synonyms = isset( $_REQUEST['synonyms'] ) ? stripslashes( $_REQUEST['synonyms'] ) : array();
+
+		// Update method expects an array.
+		$synonyms = json_decode( $synonyms, true );
+
+		SWP()->synonyms->update( $synonyms );
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Callback to update Stopwords
+	 *
+	 * @since 3.0
+	 */
+	public function update_stopwords() {
+		check_ajax_referer( 'searchwp_ajax_update_stopwords' );
+
+		do_action( 'searchwp_log', 'Updating Stopwords (AJAX)' );
+
+		$stopwords = isset( $_REQUEST['stopwords'] ) ? json_decode( stripslashes( $_REQUEST['stopwords'] ) ) : array();
+
+		SWP()->stopwords->update( $stopwords );
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Callback to recreate database tables
+	 *
+	 * @since 3.0
+	 */
+	public function recreate_tables() {
+		check_ajax_referer( 'searchwp_ajax_recreate_tables' );
+
+		do_action( 'searchwp_log', 'Recreating database tables (AJAX)' );
+
+		$upgrader = new SearchWPUpgrade();
+		$upgrader->create_tables();
+
+		SWP()->purge_index();
+
+		$database_tables_recreated = SWP()->custom_db_tables_exist();
+
+		if ( $database_tables_recreated ) {
+			wp_send_json_success();
+		} else {
+			wp_send_json_error( __( 'There was an error recreating the database tables', 'searchwp' ) );
+		}
+	}
+
+	/**
+	 * Callback to retrieve all statistics
+	 *
+	 * @since 3.0
+	 */
+	public function get_statistics() {
+		global $wpdb;
+
+		check_ajax_referer( 'searchwp_ajax_get_statistics' );
+
+		do_action( 'searchwp_log', 'Retrieving stats (AJAX)' );
+
+		$engine = isset( $_REQUEST['engine'] ) ? $_REQUEST['engine'] : 'default';
+
+		if ( ! SWP()->is_valid_engine( $engine ) ) {
+			wp_send_json_error( __( 'Invalid engine', 'searchwp' ) );
+		}
+
+		$stats = new SearchWP_Stats();
+
+		$ignored_queries = $stats->get_ignored_queries();
+
+		$searches_over_time_args = array( 'exclude' => $ignored_queries );
+
+		$statistics = array(
+			'searches_over_time' => $stats->searches_over_time( 30, $engine, $searches_over_time_args ),
+			'popular_today' => $stats->get_popular_searches(
+				array(
+					'days'      => 1,
+					'engine'    => $engine,
+					'exclude'   => $ignored_queries,
+				)
+			),
+			'popular_week' => $stats->get_popular_searches(
+				array(
+					'days'      => 7,
+					'engine'    => $engine,
+					'exclude'   => $ignored_queries,
+				)
+			),
+			'popular_month' => $stats->get_popular_searches(
+				array(
+					'days'      => 30,
+					'engine'    => $engine,
+					'exclude'   => $ignored_queries,
+				)
+			),
+			'popular_year' => $stats->get_popular_searches(
+				array(
+					'days'      => 365,
+					'engine'    => $engine,
+					'exclude'   => $ignored_queries,
+				)
+			),
+			'failed' => $stats->get_popular_searches(
+				array(
+					'days'      => 30,
+					'engine'    => $engine,
+					'exclude'   => $ignored_queries,
+					'min_hits'  => false,
+					'max_hits'  => 0,
+				)
+			),
+			'ignored' => array()
+		);
+
+		$ignored_hashes = $stats->get_ignored_queries();
+		if ( ! empty( $ignored_hashes ) ) {
+			$ignored_hashes = array_values( $ignored_hashes );
+
+			foreach ( $ignored_hashes as $ignored_hash ) {
+				$actual_query = $stats->decode_hash( $ignored_hash );
+
+				if ( ! empty( $actual_query ) ) {
+					$statistics['ignored'][] = array(
+						'hash'  => $ignored_hash,
+						'query' => $actual_query,
+					);
+				}
+			}
+		}
+
+		do_action( 'searchwp_log', 'Retrieving stats (end)' );
+
+		wp_send_json_success( $statistics );
+	}
+
+	/**
+	 * Callback to ignore a search
+	 *
+	 * @since 3.0
+	 */
+	public function ignore_search() {
+		check_ajax_referer( 'searchwp_ajax_ignore_search' );
+
+		$query_hash = isset( $_REQUEST['hash'] ) ? $_REQUEST['hash'] : '';
+
+		if ( ! preg_match('/^[a-f0-9]{32}$/', $query_hash ) ) {
+			wp_send_json_error( __( 'Invalid format', 'searchwp' ) );
+		}
+
+		$stats = new SearchWP_Stats();
+		$stats->ignore_query( $query_hash );
+		$stats->clear_dashboard_stats_transients();
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Callback to unignore a search
+	 *
+	 * @since 3.0
+	 */
+	public function unignore_search() {
+		check_ajax_referer( 'searchwp_ajax_unignore_search' );
+
+		$query_hash = isset( $_REQUEST['hash'] ) ? $_REQUEST['hash'] : '';
+
+		if ( ! preg_match('/^[a-f0-9]{32}$/', $query_hash ) ) {
+			wp_send_json_error( __( 'Invalid format', 'searchwp' ) );
+		}
+
+		$stats = new SearchWP_Stats();
+		$stats->unignore_query( $query_hash );
+		$stats->clear_dashboard_stats_transients();
+
+		wp_send_json_success();
 	}
 
 	/**
@@ -37,7 +368,7 @@ class SearchWP_Admin_Ajax {
 	 *
 	 * @since 2.9
 	 */
-	function enqueue_script( $script, $options = array() ) {
+	public function enqueue_script( $script, $options = array() ) {
 		$base_url = trailingslashit( SWP()->url );
 		$debug = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG === true ) || ( isset( $_GET['script_debug'] ) ) ? '' : '.min';
 
@@ -83,10 +414,10 @@ class SearchWP_Admin_Ajax {
 	 *
 	 * @since 2.9
 	 */
-	function get_vars() {
+	public function get_vars() {
 		return array(
 			'endpoint' => SWP()->endpoint,
-			'i18n' => SWP()->i18n->strings,
+			'i18n'     => SWP()->i18n->strings,
 		);
 	}
 
@@ -95,13 +426,13 @@ class SearchWP_Admin_Ajax {
 	 *
 	 * @since 2.9
 	 */
-	function reset_index() {
-		do_action( 'searchwp_log', 'AJAX: reset_index()' );
+	public function reset_index() {
 		check_ajax_referer( 'searchwp_ajax_reset_index' );
+
+		do_action( 'searchwp_log', 'AJAX: reset_index()' );
 
 		searchwp_set_setting( 'index_dirty', false );
 
-		do_action( 'searchwp_log', 'Resetting the index' );
 		SWP()->purge_index();
 
 		// Manually force these values to prevent wildly inaccurate updates
@@ -117,6 +448,8 @@ class SearchWP_Admin_Ajax {
 			SWP()->trigger_index();
 		}
 
+		do_action( 'searchwp_log', 'AJAX: reset_index() (end)' );
+
 		wp_send_json_success();
 	}
 
@@ -125,7 +458,7 @@ class SearchWP_Admin_Ajax {
 	 *
 	 * @since 2.9
 	 */
-	function get_index_stats() {
+	public function get_index_stats() {
 		$ajax = is_admin() && defined( 'DOING_AJAX' ) && DOING_AJAX;
 
 		if ( $ajax ) {
@@ -177,7 +510,7 @@ class SearchWP_Admin_Ajax {
 	 *
 	 * @since 2.9
 	 */
-	function get_setting() {
+	public function get_setting() {
 		if ( empty( $_REQUEST['setting'] ) ) {
 			wp_send_json_error();
 		}
@@ -197,7 +530,7 @@ class SearchWP_Admin_Ajax {
 	 *
 	 * @since 2.9
 	 */
-	function set_setting() {
+	public function set_setting() {
 		if ( empty( $_REQUEST['setting'] ) || ! isset( $_REQUEST['value'] ) ) {
 			wp_send_json_error();
 		}
@@ -213,9 +546,13 @@ class SearchWP_Admin_Ajax {
 			// We can remove our initial settings flag
 			searchwp_set_setting( 'initial_settings', true );
 
-			if ( $this->is_json( $value ) ) {
+			if ( version_compare( PHP_VERSION, '5.3', '>=' ) && $this->is_json( $value ) ) {
 				$value = json_decode( $value, true ); // Convert to arrays at the same time
+			} else {
+				// This is PHP 5.2 — hope for the best
+				$value = json_decode( $value, true );
 			}
+
 			$value = $this->normalize_submitted_settings( $value );
 			$value = SWP()->validate_settings(
 				array(
@@ -252,8 +589,13 @@ class SearchWP_Admin_Ajax {
 	 *
 	 * @since 2.9.0
 	 */
-	function is_json( $string ) {
+	public function is_json( $string ) {
+		if ( ! function_exists( 'json_last_error' ) ) {
+			return null;
+		}
+
 		json_decode( $string );
+
 		return ( json_last_error() == JSON_ERROR_NONE );
 	}
 
@@ -263,7 +605,7 @@ class SearchWP_Admin_Ajax {
 	 *
 	 * @since 2.9.0
 	 */
-	function normalize_submitted_settings( $data ) {
+	public function normalize_submitted_settings( $data ) {
 		foreach ( $data as $engine => $engine_settings ) {
 			foreach ( $engine_settings as $post_type => $post_type_settings ) {
 				// The model uses 'comments' but the validation callback expects 'comment'
@@ -316,7 +658,7 @@ class SearchWP_Admin_Ajax {
 	 *
 	 * @since 2.8
 	 */
-	function get_tax_terms() {
+	public function get_tax_terms() {
 		if ( empty( $_REQUEST['tax'] ) || ! taxonomy_exists( $_REQUEST['tax'] ) ) {
 			wp_send_json_error();
 		}
@@ -382,7 +724,7 @@ class SearchWP_Admin_Ajax {
 	 *
 	 * @since 2.9.0
 	 */
-	function normalize_taxonomy_options( $data, $option_prefix = '_exclude' ) {
+	public function normalize_taxonomy_options( $data, $option_prefix = '_exclude' ) {
 		foreach ( $data['engines'] as $engine_name => $engine_settings ) {
 			foreach ( $engine_settings as $engine_post_type => $engine_post_type_settings ) {
 				if ( empty( $data['objects'][ $engine_post_type ]['taxonomies'] ) ) {
@@ -434,7 +776,7 @@ class SearchWP_Admin_Ajax {
 	 *
 	 * @since 2.8
 	 */
-	function get_meta_keys() {
+	public function get_meta_keys() {
 
 		global $wpdb;
 
@@ -476,15 +818,15 @@ class SearchWP_Admin_Ajax {
 		}
 
 		$response = array(
-			'total_count'           => count( $meta_keys ),
-			'incomplete_results'    => false,
-			'items'                 => array(),
+			'total_count'        => count( $meta_keys ),
+			'incomplete_results' => false,
+			'items'              => array(),
 		);
 
 		foreach ( $meta_keys as $meta_key ) {
 			$response['items'][] = array(
-				'id'    => $meta_key,
-				'text'  => $meta_key,
+				'id'   => $meta_key,
+				'text' => $meta_key,
 			);
 		}
 
@@ -496,7 +838,7 @@ class SearchWP_Admin_Ajax {
 	/**
 	 * Generate an engine model for Vue to create supplemental engines
 	 */
-	function generate_engine_model( $data ) {
+	public function generate_engine_model( $data ) {
 		$model = array(
 			'searchwp_engine_label' => __( 'Supplemental Engine', 'searchwp' ),
 		);
@@ -511,7 +853,7 @@ class SearchWP_Admin_Ajax {
 	/**
 	 * We need to ensure that all post types are accounted for
 	 */
-	function normalize_post_types_to_objects( $data ) {
+	public function normalize_post_types_to_objects( $data ) {
 		if ( empty( $data['engines'] ) ) {
 			return $data;
 		}
@@ -656,7 +998,7 @@ class SearchWP_Admin_Ajax {
 	 *
 	 * @since 2.9.0
 	 */
-	function is_basic_auth_blocking() {
+	public function is_basic_auth_blocking() {
 		check_ajax_referer( 'searchwp_ajax_basic_auth' );
 
 		$result = false;

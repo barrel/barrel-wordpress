@@ -25,6 +25,9 @@ class SearchWP_Nags {
 
 		// call out a version of MySQL known to have bugs that are likely to affect SearchWP
 		add_action( 'searchwp_settings_after_header', array( $this, 'settings_mysql_version_nag' ) );
+
+		// Searching in admin without interception enabled
+		add_action( 'admin_footer', array( $this, 'admin_search_nag' ) );
 	}
 
 	/**
@@ -108,6 +111,27 @@ class SearchWP_Nags {
 		if ( ! $nag['dismissed'] ) : ?>
 			<div class="updated swp-progress-notes">
 				<p class="description"><?php echo wp_kses( sprintf( __( 'The SearchWP indexer runs as fast as it can without overloading your server; there are filters to customize it\'s aggressiveness. <a href="%s">Find out more &raquo;</a> <a class="swp-dismiss" href="%s">Dismiss</a>', 'searchwp' ), 'http://searchwp.com/?p=11818', esc_url( $nag['dismissal_link'] ) ) , array( 'a' => array( 'class' => array(), 'href' => array() ) ) ); ?></p>
+			</div>
+		<?php endif;
+	}
+
+	/**
+	 * Output the admin_search nag
+	 */
+	function admin_search_nag() {
+		$nag = $this->implement_nag( array(
+			'name'      => 'admin_search',
+			'nonce'     => 'swpadminsearchnag',
+		) );
+
+		$search_in_admin = apply_filters( 'searchwp_in_admin', false );
+
+		$dismiss = remove_query_arg( 'page', $nag['dismissal_link'] );
+
+		if ( is_admin() && is_search() && empty( $search_in_admin ) && ! $nag['dismissed'] ) : ?>
+			<div class="notice notice-error" style="position: relative; padding-right: 38px;">
+				<p><?php echo wp_kses( sprintf( __( 'SearchWP is NOT intercepting admin searches <a href="%s">Find out more &raquo;</a>', 'searchwp' ), 'http://searchwp.com/?p=161276' ) , array( 'a' => array( 'class' => array(), 'href' => array() ) ) ); ?></p>
+				<a style="text-decoration: none;" href="<?php echo esc_url( $dismiss ); ?>" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></a>
 			</div>
 		<?php endif;
 	}

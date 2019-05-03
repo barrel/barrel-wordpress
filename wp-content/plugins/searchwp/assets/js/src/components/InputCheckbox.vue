@@ -2,15 +2,24 @@
     <div class="searchwp-input-checkbox">
         <input
             type="checkbox"
+            :disabled="disabled"
             :id="'searchwp_input_checkbox_' + _uid"
             v-model="val"/>
-        <label :for="'searchwp_input_checkbox_' + _uid">{{ label }}</label>
+        <label v-if="tooltip.length" :for="'searchwp_input_checkbox_' + _uid">
+            <searchwp-tooltip :content="tooltip">{{ label }}</searchwp-tooltip>
+        </label>
+        <label v-else :for="'searchwp_input_checkbox_' + _uid">{{ label }}</label>
     </div>
 </template>
 
 <script>
+import Tooltip from './Tooltip.vue';
+
 export default {
     name: 'SearchwpInputCheckbox',
+    components: {
+        'searchwp-tooltip': Tooltip
+    },
     data() {
         return {
             val: this['checked'],
@@ -27,6 +36,14 @@ export default {
         label: {
             type: String,
             default: ''
+        },
+        tooltip: {
+            type: String,
+            default: ''
+        },
+        disabled: {
+            type: Boolean,
+            default: false
         }
     },
     watch: {

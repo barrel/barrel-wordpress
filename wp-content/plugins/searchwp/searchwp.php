@@ -3,12 +3,12 @@
 Plugin Name: SearchWP
 Plugin URI: https://searchwp.com/
 Description: The best WordPress search you can find
-Version: 2.9.15
+Version: 3.0.5
 Author: SearchWP, LLC
 Author URI: https://searchwp.com/
 Text Domain: searchwp
 
-Copyright 2013-2018 SearchWP, LLC
+Copyright 2013-2019 SearchWP, LLC
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SEARCHWP_VERSION', '2.9.15' );
+define( 'SEARCHWP_VERSION', '3.0.5' );
 define( 'SEARCHWP_PREFIX', 'searchwp_' );
 define( 'SEARCHWP_DBPREFIX', 'swp_' );
 define( 'SEARCHWP_EDD_STORE_URL', 'https://searchwp.com' );
@@ -50,7 +50,7 @@ include_once( dirname( __FILE__ ) . '/includes/class.stats.php' );
 
 if ( ! class_exists( 'SWP_EDD_SL_Plugin_Updater' ) ) {
 	// load our custom updater
-	include( dirname( __FILE__ ) . '/vendor/SWP_EDD_SL_Plugin_Updater.php' );
+	include( dirname( __FILE__ ) . '/lib/SWP_EDD_SL_Plugin_Updater.php' );
 }
 
 /**
@@ -189,39 +189,14 @@ class SearchWP {
 	public $original_query;
 
 	/**
-	 * @var array Common words as specified by Ando Saabas in Sphider http://www.sphider.eu/
-	 * @since 1.0
+	 * @var array Current, active stopwords
 	 */
-	public $common = array(
-		'a', 'able', 'above', 'across', 'after', 'afterwards', 'again', 'against', 'ago', 'all', 'almost', 'alone',
-		'along', 'already', 'also', 'although', 'always', 'am', 'among', 'amongst', 'amoungst', 'amount', 'an', 'and',
-		'another', 'any', 'anyhow', 'anyone', 'anything', 'anyway', 'anywhere', 'are', "aren't", 'around', 'as', 'at',
-		'back', 'be', 'became', 'because', 'become', 'becomes', 'becoming', 'been', 'before', 'beforehand', 'behind',
-		'being', 'below', 'beside', 'besides', 'between', 'beyond', 'both', 'bottom', 'but', 'by', 'call', 'can', "can't",
-		'cannot', 'cant', 'co', 'con', 'could', "couldn't", 'couldnt', 'de', 'did', 'do', 'does', "don't", 'done', 'dont',
-		'down', 'due', 'during', 'each', 'eg', 'eight', 'either', 'eleven', 'else', 'elsewhere', 'empty', 'enough', 'etc',
-		'etc.', 'even', 'ever', 'every', 'everyone', 'everything', 'everywhere', 'except', 'few', 'fifteen', 'fify',
-		'fill', 'find', 'first', 'five', 'for', 'former', 'formerly', 'forty', 'found', 'four', 'from', 'front',
-		'full', 'further', 'get', 'give', 'go', 'got', 'had', 'has', "hasn't", 'hasnt', 'have', 'he', 'hence', 'her',
-		'here', 'hereafter', 'hereby', 'herein', 'hereupon', 'hers', 'herself', 'him', 'himself', 'his', 'how', 'however',
-		'hundred', 'i', 'i.e.', 'ie', 'if', 'in', 'inc', 'inc.', 'indeed', 'into', 'is', "isn't", 'it', "it's", 'its',
-		'itself', 'just', 'keep', 'last', 'latter', 'latterly', 'least', 'less', 'let', 'like', 'likely', 'ltd', 'ltd.',
-		'made', 'many', 'may', 'maybe', 'me', 'meanwhile', 'might', 'mill', 'mine', 'more', 'moreover', 'most', 'mostly',
-		'move', 'much', 'must', 'my', 'myself', 'name', 'namely', 'neither', 'never', 'nevertheless', 'next', 'nine',
-		'no', 'no-one', 'nobody', 'none', 'noone', 'nor', 'not', 'now', 'of', 'off', 'often', 'old', 'on', 'once', 'one',
-		'only', 'onto', 'or', 'other', 'others', 'otherwise', 'our', 'ours', 'ourselves', 'out', 'over', 'own', 'per',
-		'perhaps', 'please', 'put', 'rather', 're', 'said', 'same', 'say', 'says', 'see', 'seem', 'seemed', 'seeming',
-		'seems', 'serious', 'several', 'she', "she's", 'shes', 'should', 'show', 'side', 'since', 'six', 'sixty',
-		'small', 'so', 'some', 'somehow', 'someone', 'something', 'sometime', 'sometimes', 'somewhere', 'still', 'such',
-		'take', 'ten', 'than', 'thank', 'that', 'the', 'their', 'theirs', 'them', 'themselves', 'then', 'thence',
-		'there', 'thereafter', 'thereby', 'therefore', 'therein', 'thereupon', 'these', 'they', "they're", 'theyre',
-		'third', 'this', 'those', 'though', 'three', 'through', 'throughout', 'thru', 'thus', 'time', 'times', 'tis',
-		'to', 'together', 'too', 'top', 'toward', 'towards', 'true', 'twas', 'twelve', 'twenty', 'two', 'un', 'under',
-		'until', 'up', 'upon', 'us', 'use', 'users', 'very', 'via', 'want', 'wants', 'was', 'way', 'we', 'web', 'well',
-		'were', 'what', 'whatever', 'when', 'whence', 'whenever', 'where', 'whereafter', 'whereas', 'whereby', 'wherein',
-		'whereupon', 'wherever', 'whether', 'which', 'while', 'whither', 'who', 'whoever', 'whole', 'whom', 'whose',
-		'why', 'will', 'with', 'within', 'without', 'would', 'yes', 'yet', 'you', 'your', 'yours', 'yourself', 'yourselves',
-	);
+	public $common;
+
+	/**
+	 * @var array Stopwords
+	 */
+	public $stopwords;
 
 	/**
 	 * @var array Stores valid weight types
@@ -385,6 +360,12 @@ class SearchWP {
 	 */
 	private $search_sql;
 
+	/**
+	 * @var array Synonyms
+	 * @since 3.0
+	 */
+	public $synonyms;
+
 
 	/**
 	 * Singleton
@@ -439,6 +420,7 @@ class SearchWP {
 		// includes
 		include_once( dirname( __FILE__ ) . '/includes/class.i18n.php' );
 		include_once( dirname( __FILE__ ) . '/includes/class.debug.php' );
+		include_once( dirname( __FILE__ ) . '/includes/class.stopwords.php' );
 		include_once( dirname( __FILE__ ) . '/includes/class.stemmer.php' );
 		include_once( dirname( __FILE__ ) . '/includes/class.document-parser.php' );
 		include_once( dirname( __FILE__ ) . '/includes/class.indexer.php' );
@@ -446,10 +428,15 @@ class SearchWP {
 		include_once( dirname( __FILE__ ) . '/templates/tmpl.supplemental.config.php' );
 		include_once( dirname( __FILE__ ) . '/includes/class.search.php' );
 		include_once( dirname( __FILE__ ) . '/includes/class.upgrade.php' );
+		include_once( dirname( __FILE__ ) . '/includes/class.synonyms.php' );
+		include_once( dirname( __FILE__ ) . '/includes/class.highlighter.php' );
 
 		include_once( dirname( __FILE__ ) . '/admin/class.admin-settings.php' );
 		include_once( dirname( __FILE__ ) . '/admin/class.extensions.php' );
 		include_once( dirname( __FILE__ ) . '/admin/class.nags.php' );
+
+		// Integrations.
+		include_once( dirname( __FILE__ ) . '/includes/class.acf.php' );
 
 		if ( is_admin() ) {
 			include_once( dirname( __FILE__ ) . '/admin/class.conflicts.php' );
@@ -493,9 +480,21 @@ class SearchWP {
 		$this->i18n = new SearchWP_i18n();
 		$this->i18n->init();
 
-		// implement Advanced settings and License management
-		include_once( dirname( __FILE__ ) . '/admin/settings-impl-advanced.php' );
-		include_once( dirname( __FILE__ ) . '/admin/settings-impl-license.php' );
+		// Synonyms
+		$this->synonyms = new SearchWP_Synonyms();
+		$this->synonyms->init();
+
+		// Implement advanced settings.
+		$legacy_advanced_settings = apply_filters( 'searchwp_legacy_advanced_settings', false );
+		if ( empty( $legacy_advanced_settings ) ) {
+			include_once dirname( __FILE__ ) . '/admin/settings-impl-advanced.php';
+		} else {
+			include_once dirname( __FILE__ ) . '/admin/settings-impl-advanced-legacy.php';
+		}
+
+		// Implement license management
+		include_once dirname( __FILE__ ) . '/admin/settings-impl-license.php';
+		include_once dirname( __FILE__ ) . '/includes/class.license.php';
 
 		// introduced in version 2.5.7 as per WordPress 4.2
 		$this->settings['utf8mb4'] = get_option( SEARCHWP_PREFIX . 'utf8mb4' );
@@ -641,6 +640,7 @@ class SearchWP {
 	function load() {
 		global $wp_query;
 
+		// Proceed with loading SearchWP.
 		if ( apply_filters( 'searchwp_debug', false ) ) {
 
 			$wp_upload_dir = wp_upload_dir();
@@ -681,7 +681,8 @@ class SearchWP {
 		$this->settings = SWP()->validate_settings( $this->settings );
 
 		// allow filtration of what SearchWP considers common words (i.e. ignores)
-		$this->common = apply_filters( 'searchwp_common_words', $this->common );
+		$this->stopwords = new SearchWP_Stopwords();
+		$this->common = $this->stopwords->localized();
 
 		$this->alternate_indexer = apply_filters( 'searchwp_alternate_indexer', false );
 
@@ -701,6 +702,8 @@ class SearchWP {
 
 		// reset short circuit check
 		$this->indexing = false;
+
+		do_action( 'searchwp_loaded' );
 	}
 
 	function validate_purge_queue( $purge_queue ) {
@@ -784,12 +787,18 @@ class SearchWP {
 				}
 			}
 
+			if ( is_array( $this->purgeQueue ) && ! empty( $this->purgeQueue ) ) {
+				foreach ( $this->purgeQueue as $key => $postToPurge ) {
+					if ( ! $this->is_applicable_post_status( $postToPurge ) ) {
+						do_action( 'searchwp_log', 'Prevented delta update (blacklisted post status) ' . $postToPurge );
+						unset( $this->purgeQueue[ $key ] );
+					}
+				}
+			}
+
 			// if the alternative indexer is in play, we need to process
 			// the purge queue right now instead of relying on background processing
-
-			// This has been causing issues on certain hosts so the purge queue is DISABLED (20180907)
-			// Specifically the check for the alternate indexer has been commented out so we always purge inline
-			// if ( $this->alternate_indexer ) {
+			if ( $this->alternate_indexer ) {
 
 				do_action( 'searchwp_log', 'BEGIN processing purge queue' );
 				foreach ( $this->purgeQueue as $post_to_purge ) {
@@ -803,7 +812,7 @@ class SearchWP {
 				// now that the purge queue has been processed, we need to clear it
 				// out so as to prevent the purge collection from taking place
 				$this->purgeQueue = array();
-			// }
+			}
 
 			searchwp_update_option( 'purge_queue', $this->purgeQueue );
 		}
@@ -850,22 +859,24 @@ class SearchWP {
 			return;
 		}
 
-		if ( is_admin() && current_user_can( 'edit_posts' ) ) {
-			add_action( 'save_post', array( $this, 'purge_post_via_edit' ), 999 );
+		add_action( 'save_post', array( $this, 'purge_post_via_edit' ), 999 );
+
+		if ( current_user_can( 'edit_posts' ) ) {
 			add_action( 'add_attachment', array( $this, 'purge_post_via_edit' ), 999 );
 			add_action( 'edit_attachment', array( $this, 'purge_post_via_edit' ), 999 );
-		} elseif ( is_admin() ) {
-			// do_action( 'searchwp_log', 'User cannot edit_posts, delta hooks omitted' );
 		}
 
-		if ( is_admin() && current_user_can( 'delete_posts' ) ) {
+		if ( current_user_can( 'delete_posts' ) ) {
 			add_action( 'before_delete_post', array( $this, 'purge_post_via_edit' ), 999 );
-		} elseif ( is_admin() ) {
-			// do_action( 'searchwp_log', 'User cannot delete_posts, delta hooks omitted' );
 		}
+
+		// Update the index when a new comment is posted
+		add_action( 'comment_post', array( $this, 'purge_post_via_comment_post' ), 10, 2 );
+
+		// Update the index when a comment is approved (or unapproved)
+		add_action( 'transition_comment_status', array( $this, 'purge_post_via_comment_transition' ), 10, 3 );
 
 		// we want to purge a post from the index when comments are manipulated
-		add_action( 'comment_post',   array( $this, 'purge_post_via_comment' ) );
 		add_action( 'edit_comment',   array( $this, 'purge_post_via_comment' ) );
 		add_action( 'trash_comment',  array( $this, 'purge_post_via_comment' ) );
 		add_action( 'delete_comment', array( $this, 'purge_post_via_comment' ) );
@@ -923,7 +934,7 @@ Results in this set:
 <?php
 // grab just post IDs and titles
 $postsArePosts = true;
-include_once( dirname( __FILE__ ) . '/vendor/class.consoletable.php' );
+include_once( dirname( __FILE__ ) . '/lib/class.consoletable.php' );
 $debug_table = new SearchWPConsoleTable();
 if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 	if ( is_numeric( $diagnostics['posts'][0] ) ) {
@@ -931,9 +942,9 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 		$postsArePosts = false;
 	}
 
-	$debug_table->add_header( __('Post ID', 'searchwp' ) );
-	$debug_table->add_header( __('Weight', 'searchwp' ) );
-	$debug_table->add_header( __('Title', 'searchwp' ) );
+	$debug_table->add_header( __( 'Post ID', 'searchwp' ) );
+	$debug_table->add_header( __( 'Weight', 'searchwp' ) );
+	$debug_table->add_header( __( 'Title', 'searchwp' ) );
 
 	foreach ( $diagnostics['posts'] as $key => $post ) {
 		// get the proper ID and title
@@ -947,24 +958,16 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 
 		// the search just ran so we can reference the result weights
 		$weights = $this->results_weights;
-		$post_weight = array_key_exists( $post_id, $weights ) ? absint( $weights[ $post_id ]['weight'] ) : false;
+		$post_weight = array_key_exists( $post_id, $weights ) ? absint( $weights[ $post_id ]['weight'] ) : 0;
 
 		$debug_table->add_row();
-		$debug_table->add_column( $post_id );
-		$debug_table->add_column( $post_weight );
-		$debug_table->add_column( $post_title );
-
-		// update the array key with a streamlined value
-		// $output = '[' . $post_id . ']';
-		// if ( ! empty( $post_weight ) ) {
-		// 	$output .= '(' . $post_weight . ')';
-		// }
-		// $output .= ' ' . $post_title;
-		// echo esc_html( $output ) . "\n";
+		$debug_table->add_column( absint( $post_id ) );
+		$debug_table->add_column( absint( $post_weight ) );
+		$debug_table->add_column( esc_html( strip_tags( $post_title ) ) );
 	}
 
 	echo "\n";
-	echo esc_html( strip_tags( $debug_table->get_table() ) );
+	echo $debug_table->get_table();
 	echo "\n\n";
 } else {
 	echo '[[NONE]]';
@@ -1119,8 +1122,7 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 					do_action( 'searchwp_log', '$post->ID = ' . $post->ID );
 
 					// we need to pull the purge queue manually to see if this post is currently waiting to be indexed
-					// This has been causing issues on certain hosts so the purge queue is DISABLED (20180907)
-					$tmpPurgeQueue = searchwp_get_option( 'purge_queue' ); // This will return an empty array always (20180907)
+					$tmpPurgeQueue = searchwp_get_option( 'purge_queue' );
 					if ( ! empty( $tmpPurgeQueue ) ) {
 						if ( is_array( $tmpPurgeQueue ) ) {
 							do_action( 'searchwp_log', 'Temporary purge queue: ' . implode( ', ', $tmpPurgeQueue ) );
@@ -1347,10 +1349,17 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 
 		$busy = searchwp_get_option( 'busy' );
 
-		wp_cache_delete( 'searchwp_transient', 'options' );
+		if ( false !== wp_cache_get( 'searchwp_transient', 'options' ) ) {
+			wp_cache_delete( 'searchwp_transient', 'options' );
+		}
 
 		$purge_transient = get_option( 'swppurge_transient' );
 		$purge_nonce = isset( $_REQUEST['swppurge'] ) ? sanitize_text_field( $_REQUEST['swppurge'] ) : '';
+
+		if ( isset( $_REQUEST['swppurge'] ) && $purge_transient !== $purge_nonce ) {
+			do_action( 'searchwp_log', 'Purge nonce MISMATCH' );
+			die();
+		}
 
 		// trigger background indexing
 		if ( isset( $_REQUEST['swppurge'] ) && $purge_transient === $purge_nonce ) {
@@ -1377,12 +1386,12 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 				// in the use case where the user is editing posts while the initial index is still being built
 				if ( searchwp_get_setting( 'initial_index_built' ) ) {
 					// @since 2.9.7 the index trigger was moved to later in the request
+					do_action( 'searchwp_log', 'Shutting down after purge request and index trigger' );
 					$this->trigger_index();
 				}
 			}
 
-			do_action( 'searchwp_log', 'Shutting down after purge request and index trigger' );
-			$this->shutdown( true );
+			// The indexer is running in the background, but the purge queue state is still not closed
 			die();
 		} elseif ( ! $this->paused && ! $this->indexing && ! empty( $_REQUEST['swpnonce'] ) && get_option( 'searchwp_transient' ) === sanitize_text_field( $indexnonce = searchwp_get_option( 'indexnonce' ) ) ) {
 
@@ -1419,8 +1428,16 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 			}
 		}
 
+		$processing_purge_queue = absint( get_option( SEARCHWP_PREFIX . 'processing_purge_queue' ) );
+
 		// check to see if we need to process a purgeQueue
-		if ( is_array( $toPurge ) && ! empty( $toPurge ) && false == searchwp_get_setting( 'processing_purge_queue' ) && searchwp_get_setting( 'initial_index_built' ) ) {
+		if (
+			is_array( $toPurge )
+			&& ! empty( $toPurge )
+			&& empty( $processing_purge_queue )
+			&& searchwp_get_setting( 'initial_index_built' )
+			&& ! searchwp_wp_doing_ajax() // We don't want purge requests to run during other AJAX processes
+		) {
 			do_action( 'searchwp_log', 'Delta update request: ' . implode( ', ', $toPurge ) );
 			if ( apply_filters( 'searchwp_background_deltas', true ) ) {
 				// proceed with delta update
@@ -1449,6 +1466,9 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 							do_action( 'searchwp_log', 'Resetting delta request count' );
 							searchwp_update_option( 'purge_queue_req', 0 );
 						}
+						$purge_queue_count = $processing_purge_queue + 1;
+						do_action( 'searchwp_log', 'Updating purge queue status: ' . (string) $purge_queue_count );
+						update_option( SEARCHWP_PREFIX . 'processing_purge_queue', $purge_queue_count, 'no' );
 						$this->process_updates();
 					} else {
 						$new_purge_request_count = $invalid_purge_requests + 1;
@@ -1460,13 +1480,13 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 				do_action( 'searchwp_log', 'Background delta index update prevented' );
 			}
 		} else {
-			if ( searchwp_get_setting( 'processing_purge_queue' ) ) {
+			// TODO: this is potentially never reached
+			if ( ! empty( $processing_purge_queue ) ) {
 				do_action( 'searchwp_log', 'Cleaning up after processing purge queue' );
-				searchwp_set_setting( 'processing_purge_queue', false );
+				update_option( SEARCHWP_PREFIX . 'processing_purge_queue', 0, 'no' );
 				searchwp_update_option( 'delta_attempts', 0 );
 			}
 		}
-
 	}
 
 
@@ -1476,22 +1496,17 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 	 * @since 1.6
 	 */
 	function process_updates( $conclude = false ) {
+		$processing_purge_queue = absint( get_option( SEARCHWP_PREFIX . 'processing_purge_queue' ) );
 
-		// This has been causing issues on certain hosts so the purge queue is DISABLED (20180907)
-		return;
+		if ( $processing_purge_queue > 1 ) {
+			do_action( 'searchwp_log', 'process_updates() CANCELLED, indexer busy' );
+			return;
+		}
 
-		do_action( 'searchwp_log', 'process_updates()' );
-
-		// $debugging_enabled = apply_filters( 'searchwp_debug', false );
-		// if ( $debugging_enabled ) {
-		// 	$debug = new SearchWPDebug();
-		// 	$call_trace = $debug->get_call_trace();
-		// 	do_action( 'searchwp_log', print_r( $call_trace, true ) );
-		// }
+		do_action( 'searchwp_log', 'process_updates() [' . $processing_purge_queue . ']' );
 
 		$hash = sprintf( '%.22F', microtime( true ) ); // inspired by $doing_wp_cron
 		update_option( 'swppurge_transient', $hash, 'no' );
-		searchwp_set_setting( 'processing_purge_queue', true );
 
 		$destination = esc_url( $this->endpoint . '?swppurge=' . $hash );
 
@@ -1881,9 +1896,6 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 			'args'          => $args,
 		);
 
-		do_action( 'searchwp_log', '$this->foundPosts = ' . $this->foundPosts );
-		do_action( 'searchwp_log', '$this->maxNumPages = ' . $this->maxNumPages );
-
 		$this->active = false;
 
 		$results = apply_filters( 'searchwp_results', $searchwp->posts, array(
@@ -1894,6 +1906,13 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 			'maxNumPages' => $this->maxNumPages,
 			'engine'      => $engine,
 		) );
+
+		// Allow devs ability to re-count results if they choose to manipulate them.
+		$this->foundPosts  = apply_filters( 'searchwp_results_found_posts', $this->foundPosts, $engine );
+		$this->maxNumPages = apply_filters( 'searchwp_results_max_num_pages', $this->maxNumPages, $engine );
+
+		do_action( 'searchwp_log', '$this->foundPosts = ' . $this->foundPosts );
+		do_action( 'searchwp_log', '$this->maxNumPages = ' . $this->maxNumPages );
 
 		return $results;
 	}
@@ -2112,11 +2131,16 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 						$terms = array_merge( $terms, explode( ' ', $term ) );
 					} else {
 						// proceed
-						$excludeCommon = apply_filters( 'searchwp_exclude_common', true );
+						$excludeCommon = apply_filters_deprecated( 'searchwp_exclude_common', array( true ), '3.0', 'searchwp_exclude_stopwords' );
+						$excludeCommon = apply_filters( 'searchwp_exclude_stopwords', $excludeCommon );
+
 						if ( ! is_bool( $excludeCommon ) ) {
 							$excludeCommon = true;
 						}
-						$common_words_for_engine = apply_filters( "searchwp_common_words_{$engine}", $this->common );
+
+						$common_words_for_engine = apply_filters_deprecated( "searchwp_common_words_{$engine}", array( $this->common ), '3.0', "searchwp_stopwords_{$engine}" );
+						$common_words_for_engine = apply_filters( "searchwp_stopwords_{$engine}", $common_words_for_engine );
+
 						if ( ( $excludeCommon && ! in_array( $term, $common_words_for_engine ) ) || ! $excludeCommon ) {
 							$minLength = absint( apply_filters( 'searchwp_minimum_word_length', 3 ) );
 							if ( $minLength <= strlen( $term ) ) {
@@ -2125,7 +2149,7 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 								$this->register_search_query_modification( 'min_word_length' );
 							}
 						} else {
-							$this->register_search_query_modification( 'common_word' );
+							$this->register_search_query_modification( 'stopword' );
 						}
 					}
 				}
@@ -2322,9 +2346,9 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 					'class' => 'searchwp-admin-bar-warning',
 				),
 			),
-			'common_word' => array(
-				'title' => __( 'Common word (stopword) removed', 'searchwp' ),
-				'href' => 'https://searchwp.com/?p=6608',
+			'stopword' => array(
+				'title' => __( 'Stopword removed', 'searchwp' ),
+				'href' => 'https://searchwp.com/?p=163991',
 				'meta' => array(
 					'class' => 'searchwp-admin-bar-warning',
 				),
@@ -2675,6 +2699,10 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 				'engine'        => 'default',
 			) );
 
+			// Allow devs ability to re-count results if they choose to manipulate them.
+			$wp_query->found_posts   = apply_filters( 'searchwp_results_found_posts', $wp_query->found_posts, 'default' );
+			$wp_query->max_num_pages = apply_filters( 'searchwp_results_max_num_pages', $wp_query->max_num_pages, 'default' );
+
 			$wp_query->posts = $posts;
 			$wp_query->post_count = $wp_query->found_posts;
 
@@ -2833,7 +2861,13 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 	 * @since 1.0
 	 */
 	function stats_page() {
-		include( dirname( __FILE__ ) . '/admin/stats.php' );
+		$show_legacy = apply_filters( 'searchwp_legacy_stats', false );
+
+		if ( empty( $show_legacy ) ) {
+			include( dirname( __FILE__ ) . '/admin/stats.php' );
+		} else {
+			include( dirname( __FILE__ ) . '/admin/stats-legacy.php' );
+		}
 	}
 
 
@@ -2861,15 +2895,19 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 		}
 
 		$this->reset_dashboard_stats_transients();
+
+		// Because we track hashes of ignored queries these need to be reset too.
 		searchwp_set_setting( 'ignored_queries', array() );
 	}
 
 	/**
 	 * Delete the transient that stores Dashboard stats
+	 *
 	 * @since 2.5.5
+	 *
 	 * @return void
 	 */
-	private function reset_dashboard_stats_transients() {
+	public function reset_dashboard_stats_transients() {
 		// also remove the transients for Dashboard Widget
 		foreach ( $this->settings['engines'] as $engine => $engineSettings ) {
 			$transient_today_key = 'swp_stats_' . md5( 'searchwp_widget_stats_today_' . $engine );
@@ -2924,6 +2962,7 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 		searchwp_set_setting( 'notices', array() );
 		searchwp_set_setting( 'valid_db_environment', false );
 		searchwp_delete_option( 'indexnonce' );
+		searchwp_update_option( 'purge_queue', array() );
 
 		delete_option( 'searchwp_transient' );
 		delete_option( 'swppurge_transient' );
@@ -3755,6 +3794,33 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 		<input type="text" name="<?php echo esc_attr( SEARCHWP_PREFIX ); ?>settings" id="<?php echo esc_attr( SEARCHWP_PREFIX ); ?>settings" value="SearchWP" /><?php
 	}
 
+	/**
+	 * Determines whether a post status is applicable
+	 *
+	 * @param int $post_id The post ID to check
+	 *
+	 * @since 2.9.17
+	 */
+	function is_applicable_post_status( $post_id ) {
+
+		// We need to loop through all engines and retrieve all potential post statuses because this
+		// post could be a result in any engine
+		$post_status_whitelist = array();
+
+		foreach ( $this->settings['engines'] as $engine => $post_types ) {
+			$post_status_whitelist = array_merge(
+				$post_status_whitelist,
+				(array) apply_filters( 'searchwp_post_statuses', array( 'publish' ), $engine )
+			);
+		}
+
+		$post_status_whitelist = array_unique( $post_status_whitelist );
+
+		$post_status = get_post_status( $post_id );
+
+		return in_array( $post_status, $post_status_whitelist );
+	}
+
 
 	/**
 	 * Purge a post from the index when it is edited
@@ -3779,6 +3845,8 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 		if ( wp_is_post_revision( $post_id ) ) {
 			return;
 		}
+
+		do_action( 'searchwp_log', 'purge_post_via_edit() ' . $post_id );
 
 		if ( ! isset( $this->purgeQueue[ $post_id ] ) ) {
 
@@ -3904,6 +3972,58 @@ if ( is_array( $diagnostics['posts'] ) && isset( $diagnostics['posts'][0] ) ) {
 				$detailed_debug = apply_filters( 'searchwp_debug_detailed', false );
 				if ( $detailed_debug ) {
 					do_action( 'searchwp_log', 'Prevented duplicate purge purge_post_via_comment() ' . $object_id );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Callback for a new comment being posted
+	 *
+	 * @uses $this->purge_post to clear out the post content from the index and trigger a reindex entirely
+	 *
+	 * @param $id
+	 */
+	function purge_post_via_comment_post( $id, $comment_approved ) {
+		if ( 1 === $comment_approved && apply_filters( 'searchwp_index_comments', true ) ) {
+			$comment   = get_comment( $id );
+			$object_id = absint( $comment->comment_post_ID );
+
+			if ( ! isset( $this->purgeQueue[ $object_id ] ) ) {
+				$this->purgeQueue[ $object_id ] = $object_id;
+				do_action( 'searchwp_log', 'purge_post_via_comment_post() ' . $object_id );
+			} else {
+				$detailed_debug = apply_filters( 'searchwp_debug_detailed', false );
+				if ( $detailed_debug ) {
+					do_action( 'searchwp_log', 'Prevented duplicate purge purge_post_via_comment_post() ' . $object_id );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Callback for a comment status transition happening
+	 *
+	 * @uses $this->purge_post to clear out the post content from the index and trigger a reindex entirely
+	 *
+	 * @param $id
+	 */
+	function purge_post_via_comment_transition( $new_status, $old_status, $comment ) {
+		if ( $new_status === $old_status ) {
+			return;
+		}
+
+		// If a comment status changes, the index needs to be updated
+		if ( apply_filters( 'searchwp_index_comments', true ) ) {
+			$object_id = absint( $comment->comment_post_ID );
+
+			if ( ! isset( $this->purgeQueue[ $object_id ] ) ) {
+				$this->purgeQueue[ $object_id ] = $object_id;
+				do_action( 'searchwp_log', 'purge_post_via_comment_transition() ' . $object_id );
+			} else {
+				$detailed_debug = apply_filters( 'searchwp_debug_detailed', false );
+				if ( $detailed_debug ) {
+					do_action( 'searchwp_log', 'Prevented duplicate purge purge_post_via_comment_transition() ' . $object_id );
 				}
 			}
 		}

@@ -13,7 +13,7 @@ class SearchWP_Settings_Implementation_License {
 	/**
 	 *
 	 */
-	function init() {
+	public function init() {
 
 		// render the 'License' tab on the settings screen
 		add_action( 'searchwp_settings_nav_tab', array( $this, 'render_tab_license' ), 9999 );
@@ -32,7 +32,7 @@ class SearchWP_Settings_Implementation_License {
 	/**
 	 * Callback to render the settings nav for the License screen
 	 */
-	function render_tab_license() {
+	public function render_tab_license() {
 		if ( current_user_can( apply_filters( 'searchwp_settings_cap', 'manage_options' ) ) ) {
 			$searchwp = SWP();
 			$status = $searchwp->status;
@@ -178,7 +178,60 @@ class SearchWP_Settings_Implementation_License {
 	}
 
 	/**
-	 * Activate license
+	 * Activate the submitted license key
+	 *
+	 * @since 3.0
+	 *
+	 * @param string $license The license key.
+	 */
+	public function activate( $license ) {
+		// data to send in our API request
+		$api_params = array(
+			'edd_action' => 'activate_license',
+			'license'    => sanitize_text_field( $license ),
+			'url'        => esc_url( home_url() ),
+			'item_name'  => urlencode( SEARCHWP_EDD_ITEM_NAME ) // the name of our product in EDD
+		);
+
+		// Call the custom API.
+		$api_args = array(
+			'timeout'   => 30,
+			'sslverify' => false,
+			'body'      => $api_params,
+		);
+
+		$response = wp_remote_post( SEARCHWP_EDD_STORE_URL, $api_args );
+
+		// make sure the response came back okay
+		if ( is_wp_error( $response ) ) {
+			return false;
+		}
+
+		// decode the license data
+		$license_data = json_decode( wp_remote_retrieve_body( $response ) );
+
+		// $license_data->license will be either "valid" or "invalid"
+		$status = sanitize_text_field( $license_data->license );
+		update_option( SEARCHWP_PREFIX . 'license_status', $status );
+
+		// also record the expiration date
+		if ( isset( $license_data->expires ) ) {
+
+			if ( 'lifetime' !== $license_data->expires ) {
+				$expiration = $license_data->expires;
+				$expiration = date( 'U', strtotime( $expiration ) );
+				$expiration = absint( $expiration );
+			} else {
+				$expiration = 'never';
+			}
+
+			update_option( SEARCHWP_PREFIX . 'license_expiration', $expiration );
+		}
+	}
+
+	/**
+	 * ** INTERNAL ONLY to manually activate a license use SearchWP_License->activate( $license_key).
+	 * Activates license.
 	 *
 	 * @return bool Whether the license was activated
 	 * @since 1.0
@@ -204,49 +257,9 @@ class SearchWP_Settings_Implementation_License {
 				$license = sanitize_text_field( $_REQUEST['searchwp_license_key'] );
 			}
 
-			// data to send in our API request
-			$api_params = array(
-				'edd_action' => 'activate_license',
-				'license'    => $license,
-				'url'        => esc_url( home_url() ),
-				'item_name'  => urlencode( SEARCHWP_EDD_ITEM_NAME ) // the name of our product in EDD
-			);
+			$activated = $this->activate( $license );
 
-			// Call the custom API.
-			$api_args = array(
-				'timeout'   => 30,
-				'sslverify' => false,
-				'body'      => $api_params,
-			);
-			$response = wp_remote_post( SEARCHWP_EDD_STORE_URL, $api_args );
-
-			// make sure the response came back okay
-			if ( is_wp_error( $response ) ) {
-				return false;
-			}
-
-			// decode the license data
-			$license_data = json_decode( wp_remote_retrieve_body( $response ) );
-
-			// $license_data->license will be either "valid" or "invalid"
-			$status = sanitize_text_field( $license_data->license );
-			$result = update_option( SEARCHWP_PREFIX . 'license_status', $status );
-
-			// also record the expiration date
-			if ( isset( $license_data->expires ) ) {
-
-				if ( 'lifetime' !== $license_data->expires ) {
-					$expiration = $license_data->expires;
-					$expiration = date( 'U', strtotime( $expiration ) );
-					$expiration = absint( $expiration );
-				} else {
-					$expiration = 'never';
-				}
-
-				update_option( SEARCHWP_PREFIX . 'license_expiration', $expiration );
-			}
-
-			return true;
+			return $activated;
 		}
 
 		return false;

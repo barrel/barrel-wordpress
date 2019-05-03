@@ -80,7 +80,6 @@ MySQL Version:            <?php echo esc_textarea( $wpdb->db_version() ) . "\n";
 Web Server Info:          <?php echo esc_textarea( $_SERVER['SERVER_SOFTWARE'] ) . "\n"; ?>
 
 WordPress Memory Limit:   <?php echo esc_textarea( WP_MEMORY_LIMIT ) . "\n"; ?>
-PHP Safe Mode:            <?php echo esc_textarea( ini_get( 'safe_mode' ) ? 'Yes' : 'No' ) . "\n"; ?>
 PHP Memory Limit:         <?php echo esc_textarea( ini_get( 'memory_limit' ) ) . "\n"; ?>
 PHP Time Limit:           <?php echo esc_textarea( ini_get( 'max_execution_time' ) ) . "\n"; ?>
 
