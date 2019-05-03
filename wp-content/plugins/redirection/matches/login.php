@@ -4,7 +4,7 @@ class Login_Match extends Red_Match {
 	public $logged_in;
 	public $logged_out;
 
-	function name() {
+	public function name() {
 		return __( 'URL and login status', 'redirection' );
 	}
 
@@ -19,17 +19,21 @@ class Login_Match extends Red_Match {
 		);
 	}
 
-	function get_target( $url, $matched_url, $regex ) {
+	public function is_match( $url ) {
+		return is_user_logged_in();
+	}
+
+	public function get_target_url( $requested_url, $source_url, Red_Source_Flags $flags, $match ) {
 		$target = false;
 
-		if ( is_user_logged_in() && $this->logged_in !== '' ) {
+		if ( $match && $this->logged_in !== '' ) {
 			$target = $this->logged_in;
-		} else if ( ! is_user_logged_in() && $this->logged_out !== '' ) {
+		} elseif ( ! $match && $this->logged_out !== '' ) {
 			$target = $this->logged_out;
 		}
 
-		if ( $regex && $target ) {
-			$target = $this->get_target_regex_url( $matched_url, $target, $url );
+		if ( $flags->is_regex() && $target ) {
+			$target = $this->get_target_regex_url( $source_url, $target, $requested_url, $flags );
 		}
 
 		return $target;
@@ -44,7 +48,7 @@ class Login_Match extends Red_Match {
 
 	public function load( $values ) {
 		$values = unserialize( $values );
-		$this->logged_in = $values['logged_in'];
-		$this->logged_out = $values['logged_out'];
+		$this->logged_in = isset( $values['logged_in'] ) ? $values['logged_in'] : '';
+		$this->logged_out = isset( $values['logged_out'] ) ? $values['logged_out'] : '';
 	}
 }

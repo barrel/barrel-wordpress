@@ -1,17 +1,19 @@
 {
   "name": "barrel-base",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "scripts": {
     "start": "brrl -w",
     "build": "brrl -b -e production; npm run build:lazy-css",
     "build:lazy-css": "postcss src/css/main.css -o assets/deferred.min.css --config tasks/",
     "dependencies": "brrl-install",
-    "create-module": "sh ../../../private/scripts/create_module.sh",
-    "remove-multidev": "sh ../../../private/scripts/multidev_remove.sh",
-    "test": "npm run test:css_lint && npm run test:editorconfig",
-    "test:css_lint": "stylelint src/css/*.css modules/**/*.css",
+    "create-module": "bash ../../../private/scripts/create_module.sh",
+    "import-module": "bash ../../../private/scripts/import_module.sh",
+    "remove-multidev": "bash ../../../private/scripts/multidev_remove.sh",
+    "test": "bash ../../../private/scripts/test_grammars.sh",
     "test:editorconfig": "editorconfig-checker ./**/*",
-    "test:json_lint": "sh ../../../private/scripts/test_json.sh"
+    "test:js_lint": "standard",
+    "test:css_lint": "stylelint src/css/*.css modules/**/*.css",
+    "test:json_lint": "bash ../../../private/scripts/test_json.sh"
   },
   "devDependencies": {
     "@barrelny/cli": "^1.0.3",
@@ -54,5 +56,8 @@
     "tweezer.js": "^1.4.0",
     "url-loader": "^1.1.1",
     "webpack": "^4.19.1"
+  },
+  "dependencies": {
+    "lodash.throttle": "^4.1.1"
   }
 }

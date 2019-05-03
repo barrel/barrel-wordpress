@@ -22,6 +22,7 @@ class SearchWPAdminNotices extends SearchWP {
 		add_action( 'admin_notices', array( $this, 'missing_integrations' ), 9999 );
 		add_action( 'admin_notices', array( $this, 'log_file_size_warning' ), 9999 );
 		add_action( 'admin_notices', array( $this, 'http_basic_auth' ), 9999 );
+		add_action( 'admin_notices', array( $this, 'deprecated_extensions' ), 9999 );
 	}
 
 	/**
@@ -454,6 +455,47 @@ class SearchWPAdminNotices extends SearchWP {
 		}
 	}
 
+	/**
+	 * Version 3.0 merged a number of extensions which should no longer be active.
+	 *
+	 * @since 3.0
+	 */
+	function deprecated_extensions() {
+		$deprecated_extensions = array(
+			'searchwp-like' => array(
+				'file' => 'searchwp-like/searchwp-like.php',
+				'name' => 'SearchWP LIKE Terms',
+			),
+			'searchwp-fuzzy-matches' => array(
+				'file' => 'searchwp-fuzzy-matches/searchwp-fuzzy.php',
+				'name' => 'SearchWP Fuzzy Matches',
+			),
+			'searchwp-term-highlight' => array(
+				'file' => 'searchwp-term-highlight/searchwp-term-highlight.php',
+				'name' => 'SearchWP Term Highlight (note that the selector for highlights is now <code>mark.searchwp-highlight</code>)',
+			),
+			'searchwp-term-synonyms' => array(
+				'file' => 'searchwp-term-synonyms/searchwp-term-synonyms.php',
+				'name' => 'SearchWP Term Synonyms',
+			),
+		);
+
+		$active_deprecated_extensions = array();
+		foreach ( $deprecated_extensions as $deprecated_extension ) {
+			if ( is_plugin_active( $deprecated_extension['file'] ) ) {
+				$active_deprecated_extensions[] = $deprecated_extension;
+			}
+		}
+
+		if ( ! empty( $active_deprecated_extensions ) && apply_filters( 'searchwp_deprecated_extension_notices', true ) ) { ?>
+			<div class="error">
+				<p><strong><?php esc_html_e( 'Deprecated SearchWP Extensions', 'searchwp' ); ?>:</strong> <?php esc_html_e( 'SearchWP 3.0 has merged the functionality of the following extensions, which should be deactivated:', 'searchwp' ); ?></p>
+				<ul style="list-style: disc; padding-left: 2em;">
+					<li><?php echo wp_kses_post( implode( '</li><li>', wp_list_pluck( $active_deprecated_extensions, 'name' ) ) ); ?></li>
+				</ul>
+			</div>
+		<?php }
+	}
 }
 
 $searchwp_admin_notices = new SearchWPAdminNotices();

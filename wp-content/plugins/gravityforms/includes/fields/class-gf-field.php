@@ -253,7 +253,8 @@ class GF_Field extends stdClass implements ArrayAccess {
 
 		$field_label = $this->get_field_label( $force_frontend_label, $value );
 
-		$validation_message = ( $this->failed_validation && ! empty( $this->validation_message ) ) ? sprintf( "<div class='gfield_description validation_message'>%s</div>", $this->validation_message ) : '';
+		$validation_message_id = 'validation_message_' . $form['id'] . '_' . $this->id;
+		$validation_message = ( $this->failed_validation && ! empty( $this->validation_message ) ) ? sprintf( "<div id='%s' class='gfield_description validation_message' aria-live='polite'>%s</div>", $validation_message_id, $this->validation_message ) : '';
 
 		$is_form_editor  = $this->is_form_editor();
 		$is_entry_detail = $this->is_entry_detail();
@@ -284,6 +285,17 @@ class GF_Field extends stdClass implements ArrayAccess {
 
 
 	// # SUBMISSION -----------------------------------------------------------------------------------------------------
+
+	/**
+	 * Whether this field expects an array during submission.
+	 *
+	 * @since 2.4
+	 *
+	 * @return bool
+	 */
+	public function is_value_submission_array() {
+		return false;
+	}
 
 	/**
 	 * Used to determine the required validation result.
@@ -347,6 +359,61 @@ class GF_Field extends stdClass implements ArrayAccess {
 				return $is_empty;
 			}
 		}
+	}
+
+	/**
+	 * Is the given value considered empty for this field.
+	 *
+	 * @since 2.4
+	 *
+	 * @param $value
+	 *
+	 * @return bool
+	 */
+	public function is_value_empty( $value ) {
+		if ( is_array( $this->inputs ) ) {
+			if ( $this->is_value_submission_array() ) {
+				foreach ( $this->inputs as $i => $input ) {
+					$v = isset( $value[ $i ] ) ?  $value[ $i ] : '';
+					if ( is_array( $v ) && ! empty( $v ) ) {
+						return false;
+					}
+
+					if ( ! is_array( $v ) && strlen( trim( $v ) ) > 0 ) {
+						return false;
+					}
+				}
+			} else {
+				foreach ( $this->inputs as $input ) {
+					$input_id = (string) $input['id'];
+					$v = isset( $value[ $input_id ] ) ?  $value[ $input_id ] : '';
+					if ( is_array( $v ) && ! empty( $v ) ) {
+						return false;
+					}
+
+					if ( ! is_array( $v ) && strlen( trim( $v ) ) > 0 ) {
+						return false;
+					}
+				}
+			}
+
+		} elseif ( is_array( $value ) ) {
+			// empty if any of the inputs are empty (for inputs with the same name)
+			foreach ( $value as $input ) {
+				$input = GFCommon::trim_deep( $input );
+				if ( GFCommon::safe_strlen( $input ) <= 0 ) {
+					return true;
+				}
+			}
+
+			return false;
+		} elseif ( empty( $value ) ) {
+			return true;
+		} else {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -434,15 +501,29 @@ class GF_Field extends stdClass implements ArrayAccess {
 	 * @return array|string The safe value.
 	 */
 	public function get_value_save_entry( $value, $form, $input_name, $lead_id, $lead ) {
+		if ( rgblank( $value ) ) {
 
-		if ( is_array( $value ) ) {
-			_doing_it_wrong( __METHOD__, 'Override this method to handle array values', '2.0' );
-			return $value;
+			return '';
+
+		} elseif ( is_array( $value ) ) {
+
+			foreach ( $value as &$v ) {
+
+				if ( is_array( $v ) ) {
+					$v = '';
+				}
+
+				$v = $this->sanitize_entry_value( $v, $form['id'] );
+
+			}
+
+			return implode( ',', $value );
+
+		} else {
+
+			return $this->sanitize_entry_value( $value, $form['id'] );
+
 		}
-
-		$value = $this->sanitize_entry_value( $value, $form['id'] );
-
-		return $value;
 	}
 
 	/**
@@ -599,11 +680,18 @@ class GF_Field extends stdClass implements ArrayAccess {
 	/**
 	 * Maybe return the input attribute which will trigger evaluation of conditional logic rules which depend on this field.
 	 *
+	 * @since 2.4
+	 *
 	 * @param string $event The event attribute which should be returned. Possible values: keyup, click, or change.
+	 *
+	 * @deprecated 2.4 Conditional Logic is now triggered based on .gfield class name. No need to hardcode calls to gf_apply_rules() to every field.
 	 *
 	 * @return string
 	 */
 	public function get_conditional_logic_event( $event ) {
+
+		_deprecated_function( __CLASS__ . ':' . __METHOD__, '2.4' );
+
 		if ( empty( $this->conditionalLogicFields ) || $this->is_entry_detail() || $this->is_form_editor() ) {
 			return '';
 		}
@@ -914,8 +1002,25 @@ class GF_Field extends stdClass implements ArrayAccess {
 		$is_form_editor  = $this->is_form_editor();
 		$is_entry_detail = $this->is_entry_detail();
 		$is_admin        = $is_form_editor || $is_entry_detail;
+		$id              = "gfield_description_{$this->formId}_{$this->id}";
 
-		return $is_admin || ! empty( $description ) ? "<div class='$css_class'>" . $description . '</div>' : '';
+		return $is_admin || ! empty( $description ) ? "<div class='$css_class' id='$id'>" . $description . '</div>' : '';
+	}
+
+	/**
+	 * If a field has a description, the aria-describedby attribute for the input field is returned.
+	 *
+	 * @return string
+	 */
+	public function get_aria_describedby() {
+
+		if ( empty( $this->description ) ) {
+			return '';
+		}
+		$id = "gfield_description_{$this->formId}_{$this->id}";
+
+		return 'aria-describedby="' . $id . '"';
+
 	}
 
 	/**
@@ -1053,6 +1158,14 @@ class GF_Field extends stdClass implements ArrayAccess {
 
 		$this->inputMask      = (bool) $this->inputMask;
 		$this->inputMaskValue = wp_strip_all_tags( $this->inputMaskValue );
+
+		if ( $this->inputMaskIsCustom !== '' ) {
+			$this->inputMaskIsCustom = (bool) $this->inputMaskIsCustom;
+		}
+
+		if ( $this->maxLength ) {
+			$this->maxLength = absint( $this->maxLength );
+		}
 
 		if ( $this->inputType ) {
 			$this->inputType = wp_strip_all_tags( $this->inputType );
@@ -1254,4 +1367,91 @@ class GF_Field extends stdClass implements ArrayAccess {
 		unset( $this->failed_validation );
 		unset( $this->validation_message );
 	}
+
+	// # FIELD FILTER UI HELPERS ---------------------------------------------------------------------------------------
+
+	/**
+	 * Returns the filter settings for the current field.
+	 *
+	 * If overriding to add custom settings call the parent method first to get the default settings.
+	 *
+	 * @since 2.4
+	 *
+	 * @return array
+	 */
+	public function get_filter_settings() {
+		$filter_settings = array(
+			'key'  => $this->id,
+			'text' => GFFormsModel::get_label( $this ),
+		);
+
+		$sub_filters = $this->get_filter_sub_filters();
+		if ( ! empty( $sub_filters ) ) {
+			$filter_settings['group']   = true;
+			$filter_settings['filters'] = $sub_filters;
+		} else {
+			$filter_settings['preventMultiple'] = false;
+			$filter_settings['operators']       = $this->get_filter_operators();
+
+			$values = $this->get_filter_values();
+			if ( ! empty( $values ) ) {
+				$filter_settings['values'] = $values;
+			}
+		}
+
+		return $filter_settings;
+	}
+
+	/**
+	 * Returns the filter operators for the current field.
+	 *
+	 * @since 2.4
+	 *
+	 * @return array
+	 */
+	public function get_filter_operators() {
+		return array( 'is', 'isnot', '>', '<' );
+	}
+
+	/**
+	 * Returns the filters values setting for the current field.
+	 *
+	 * @since 2.4
+	 *
+	 * @return array
+	 */
+	public function get_filter_values() {
+		if ( ! is_array( $this->choices ) ) {
+			return array();
+		}
+
+		$choices = $this->choices;
+		if ( $this->type == 'post_category' ) {
+			foreach ( $choices as &$choice ) {
+				$choice['value'] = $choice['text'] . ':' . $choice['value'];
+			}
+		}
+
+		if ( $this->enablePrice ) {
+			foreach ( $choices as &$choice ) {
+				$price = rgempty( 'price', $choice ) ? 0 : GFCommon::to_number( rgar( $choice, 'price' ) );
+
+				$choice['value'] .= '|' . $price;
+			}
+		}
+
+		return $choices;
+	}
+
+	/**
+	 * Returns the sub-filters for the current field.
+	 *
+	 * @since  2.4
+	 *
+	 * @return array
+	 */
+	public function get_filter_sub_filters() {
+		return array();
+	}
+
 }

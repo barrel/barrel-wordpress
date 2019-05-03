@@ -469,13 +469,13 @@ class SearchWPDocumentParser {
 		if ( version_compare( PHP_VERSION, '5.3', '>=' ) && function_exists( 'mb_check_encoding' ) ) {
 
 			/** @noinspection PhpIncludeInspection */
-			include_once( $searchwp->dir . '/vendor/pdfparser-bootloader.php' );
+			include_once( $searchwp->dir . '/lib/pdfparser-bootloader.php' );
 
 			// a wrapper class was conditionally included if we're running PHP 5.3+ so let's try that
 			if ( class_exists( 'SearchWP_PdfParser' ) ) {
 
 				/** @noinspection PhpIncludeInspection */
-				include_once( $searchwp->dir . '/vendor/pdfparser/vendor/autoload.php' );
+				include_once( $searchwp->dir . '/vendor/autoload.php' );
 
 				// try PdfParser first
 				$parser = new SearchWP_PdfParser();
@@ -498,7 +498,7 @@ class SearchWPDocumentParser {
 		if ( empty( $pdfContent ) ) {
 			if ( ! class_exists( 'PDF2Text' ) ) {
 				/** @noinspection PhpIncludeInspection */
-				include_once( $searchwp->dir . '/vendor/class.pdf2text.php' );
+				include_once( $searchwp->dir . '/lib/class.pdf2text.php' );
 			}
 			$pdfParser = new PDF2Text();
 			$pdfParser->setFilename( $filename );
@@ -523,7 +523,7 @@ class SearchWPDocumentParser {
 			if ( false !== strpos( $filecontent, 'trailer' ) ) {
 				if ( ! class_exists( 'pdf_readstream' ) ) {
 					/** @noinspection PhpIncludeInspection */
-					include_once( $searchwp->dir . '/vendor/class.pdfreadstream.php' );
+					include_once( $searchwp->dir . '/lib/class.pdfreadstream.php' );
 				}
 				$pdfContent = '';
 				$pdf = new pdf( get_attached_file( $this->post->ID ) );
@@ -588,13 +588,13 @@ class SearchWPDocumentParser {
 		if ( version_compare( PHP_VERSION, '5.3', '>=' ) ) {
 
 			/** @noinspection PhpIncludeInspection */
-			include_once( $searchwp->dir . '/vendor/pdfparser-bootloader.php' );
+			include_once( $searchwp->dir . '/lib/pdfparser-bootloader.php' );
 
 			// a wrapper class was conditionally included if we're running PHP 5.3+ so let's try that
 			if ( class_exists( 'SearchWP_PdfParser' ) ) {
 
 				/** @noinspection PhpIncludeInspection */
-				include_once( $searchwp->dir . '/vendor/pdfparser/vendor/autoload.php' );
+				include_once( $searchwp->dir . '/vendor/autoload.php' );
 
 				// try PdfParser first
 				$parser = new SearchWP_PdfParser();

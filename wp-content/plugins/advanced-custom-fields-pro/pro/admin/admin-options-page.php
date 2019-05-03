@@ -190,9 +190,7 @@ class acf_admin_options_page {
 		
 		// notices
 		if( !empty($_GET['message']) && $_GET['message'] == '1' ) {
-		
-			acf_add_admin_notice( $this->page['updated_message'] );
-			
+			acf_add_admin_notice( $this->page['updated_message'], 'success' );
 		}
 		
 		
@@ -202,8 +200,8 @@ class acf_admin_options_page {
 		
 		
 		if( empty($field_groups) ) {
-		
-			acf_add_admin_notice( sprintf( __('No Custom Field Groups found for this options page. <a href="%s">Create a Custom Field Group</a>', 'acf'), admin_url() . 'post-new.php?post_type=acf-field-group' ), 'error');
+			
+			acf_add_admin_notice( sprintf( __('No Custom Field Groups found for this options page. <a href="%s">Create a Custom Field Group</a>', 'acf'), admin_url('post-new.php?post_type=acf-field-group') ), 'warning' );
 		
 		} else {
 			
@@ -261,6 +259,15 @@ class acf_admin_options_page {
 	
 	function postbox_submitdiv( $post, $args ) {
 		
+		/**
+		*   Fires before the major-publishing-actions div.
+		*
+		*  @date	24/9/18
+		*  @since	5.7.7
+		*
+		*  @param array $page The current options page.
+		*/
+		do_action( 'acf/options_page/submitbox_before_major_actions', $this->page );
 		?>
 		<div id="major-publishing-actions">
 
@@ -269,11 +276,21 @@ class acf_admin_options_page {
 				<input type="submit" accesskey="p" value="<?php echo $this->page['update_button']; ?>" class="button button-primary button-large" id="publish" name="publish">
 			</div>
 			
+			<?php
+			/**
+			*   Fires before the major-publishing-actions div.
+			*
+			*  @date	24/9/18
+			*  @since	5.7.7
+			*
+			*  @param array $page The current options page.
+			*/
+			do_action( 'acf/options_page/submitbox_major_actions', $this->page );
+			?>
 			<div class="clear"></div>
 		
 		</div>
 		<?php
-		
 	}
 	
 	

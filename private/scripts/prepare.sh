@@ -16,17 +16,14 @@
 ## - Runs the finish from gitflow command
 ####################################################################
 
-THEME_NAME="barrel-base"
+THEME_NAME=""
 SEM="minor"
 FLOW="hotfix"
 START="no"
+SCRIPT_PATH="`dirname \"$0\"`"
 
 # Terminal colors
-DEFAULT=$(tput setaf 7)
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-BLUE=$(tput setaf 4)
+source $SCRIPT_PATH/colors.sh
 
 # handle arguments
 for i in "$@"; do
@@ -60,6 +57,24 @@ case $i in
 esac
 done
 
+WP_CONTENT="wp-content"
+THEMES_DIR="./$WP_CONTENT/themes"
+
+if [ "$THEME_NAME" == "" ]; then 
+    if [ -d "$WP_CONTENT" ]; then
+        # assume theme is the same as project
+        THEME_NAME=$(basename $(pwd))
+        echo "${YELLOW}Checking to see if '$THEME_NAME' exists...${DEFAULT}"
+        if ! [ -d "$THEMES_DIR/$THEME_NAME" ]; then 
+            echo "${BLUE}Hmm... Something is missing. What is the Theme Name?${DEFAULT}"
+            read THEME_NAME_UD
+            export THEME_NAME="$THEME_NAME_UD"
+        else
+            echo "${YELLOW}Theme '$THEME_NAME' exists...${DEFAULT}"
+        fi
+    fi
+fi
+
 # Platform detection
 PLATFORM='unknown'
 DETECTED=$(uname | tr '[:upper:]' '[:lower:]')
@@ -86,15 +101,16 @@ cd $THEME_PATH
 CWD=$(pwd)
 printf "\nCurrent working directory is now: ${BLUE}$CWD${DEFAULT}\n"
 
-# check to process stlyes and scripts before continuing
-read -r -p "Do you want to build and commit scripts/styles? [y/N] " response
+# install dependencies from npm
+read -r -p "Install locked dependencies? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 
-    printf "\nBuilding scripts and styles..."
-    npm run build #might want to include `nmp i` here
-    printf "\nCommitting styles and scripts..."
-    git commit -am "Process scripts/styles"
-    printf "\n\n${GREEN}done.${DEFAULT}\n\n"
+    printf "\nInstalling dependencies..."
+    npm ci
+    if [[ "$?" -ne 0 ]]; then
+        echo "${RED}Failed to install build files!${DEFAULT}"
+        exit 1
+    fi
 esac
 
 # get next version with npm, unless you find a clever regex that works
@@ -113,6 +129,18 @@ ALT_NEXT_VERSION=${NEXT_VERSION:1}
 if [ "$START" == "yes" ]; then
     git flow $FLOW start $NEXT_VERSION
 fi
+
+# check to process styles and scripts before continuing
+read -r -p "Do you want to build and commit scripts/styles? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+    printf "\nBuilding scripts and styles..."
+    npm run build
+    printf "\nCommitting styles and scripts..."
+    git add --all
+    git commit -am "Process scripts/styles"
+    printf "\n\n${GREEN}done.${DEFAULT}\n\n"
+esac
 
 # Add new line to changelog
 printf "\nUsing git messages for CHANGELOG...\n"
@@ -161,23 +189,28 @@ printf "\nNext version is: ${YELLOW}"
 eval $AUTO_INC_VERSION_WITH_NPM
 printf "${DEFAULT}\n"
 
-read -r -p "Finish and commit version changes? [y/N] " response
+read -r -p "Commit versioning changes? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 
     printf "\nProceeding with package ${GREEN}$NEXT_VERSION${DEFAULT}, "
     printf "last version was ${YELLOW}$CURR_VERSION${DEFAULT}"
+	git commit -am "Update changelog and bump versions"
     printf "\n\n${GREEN}done.${DEFAULT}\n\n"
-	git commit -am "Update changelog and bump versions" 
 esac
 
-printf "\nFinish up with gitflow command ${BLUE}git flow $FLOW finish $NEXT_VERSION${DEFAULT}"
-git flow $FLOW finish $NEXT_VERSION
-exit 0
-;;
-*)
-printf "\n${RED}Exiting. Goodbye.${DEFAULT}\n\n"
-git reset --hard HEAD
-exit 1
-;;
-
+read -r -p "Finish up with gitflow? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+    printf "\nFinishing up with gitflow command ${BLUE}git flow $FLOW finish $NEXT_VERSION${DEFAULT}...\n"
+    export GIT_MERGE_AUTOEDIT=no
+    git flow $FLOW finish -m "Tag $NEXT_VERSION" $NEXT_VERSION
+    unset GIT_MERGE_AUTOEDIT
+    exit 0
+    ;;
+    *)
+    printf "\n${RED}Exiting. Goodbye.${DEFAULT}\n\n"
+    git reset --hard HEAD
+    exit 1
+    ;;
+esac
 exit

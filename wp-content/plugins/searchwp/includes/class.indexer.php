@@ -369,6 +369,7 @@ class SearchWPIndexer {
 
 		// allow dev to forcefully omit post types that would normally be indexed
 		$this->postTypesToIndex = apply_filters( 'searchwp_indexed_post_types', $this->postTypesToIndex );
+		$this->postTypesToIndex = array_unique( $this->postTypesToIndex );
 
 		// attachments cannot be included here, to omit attachments use the searchwp_index_attachments filter
 		// so we have to check to make sure attachments were not included
@@ -454,6 +455,19 @@ class SearchWPIndexer {
 				}
 			}
 			$this->post->custom[ $meta_key ] = $meta_value;
+		}
+
+		// Support Gutenberg blocks. We do this before Shortcodes because
+		// block parsing will parse Shortcodes when Shortcode blocks are used.
+		if ( function_exists( 'has_blocks' ) && function_exists( 'do_blocks' ) ) {
+			$do_blocks = apply_filters( 'searchwp_do_blocks', true, array(
+				'post'  => $post,
+				'field' => 'post_content',
+			) );
+
+			if ( $do_blocks && has_blocks( $this->post->post_content ) ) {
+				$this->post->post_content = do_blocks( $this->post->post_content );
+			}
 		}
 
 		// allow dev the option to parse Shortcodes
@@ -794,10 +808,34 @@ class SearchWPIndexer {
 			// if it's in the index, force the indexed flag
 			if ( is_array( $already_indexed ) && ! empty( $already_indexed ) ) {
 				foreach ( $already_indexed as $already_indexed_key => $already_indexed_id ) {
-					do_action( 'searchwp_log', (int) $already_indexed_id . ' is already in the index' );
+					$remaining_terms = get_post_meta( (int) $already_indexed_id, '_' . SEARCHWP_PREFIX . 'terms', true );
+
+					if ( $remaining_terms ) {
+						if ( is_array( $remaining_terms ) ) {
+							$remaining_count = count( $remaining_terms );
+						} else {
+							$remaining_count = 'N/A';
+						}
+						do_action( 'searchwp_log', 'Post ' . (int) $already_indexed_id . ' is being chunked, ' . $remaining_count . ' remain');
+
+						// Reset the attempt count
+						$count = get_post_meta( (int) $already_indexed_id, '_' . SEARCHWP_PREFIX . 'attempts', true );
+						if ( false === $count ) {
+							$count = 0;
+						} else {
+							$count = intval( $count );
+						}
+
+						$count--;
+
+						// increment our counter to prevent the indexer getting stuck on a gigantic PDF
+						update_post_meta( (int) $already_indexed_id, '_' . SEARCHWP_PREFIX . 'attempts', $count );
+					} else {
+						do_action( 'searchwp_log', 'Post ' . (int) $already_indexed_id . ' is already in the index' );
+					}
 
 					// if we're not dealing with a term queue, mark this post as indexed
-					if ( ! get_post_meta( (int) $already_indexed_id, '_' . SEARCHWP_PREFIX . 'terms', true ) ) {
+					if ( ! $remaining_terms ) {
 						update_post_meta( (int) $already_indexed_id, '_' . SEARCHWP_PREFIX . 'last_index', current_time( 'timestamp' ) );
 					} else {
 						// this is a term chunk update, not a conflict
@@ -1558,6 +1596,10 @@ class SearchWPIndexer {
 			if ( is_array( $whitelisted_terms ) && ! empty( $whitelisted_terms ) ) {
 				$whitelisted_terms = array_map( 'trim', $whitelisted_terms );
 				$whitelisted_terms = array_filter( $whitelisted_terms, 'strlen' );
+
+				// We need to remove what was whitelisted so as to not interfere with counts.
+				$exploded = array_diff( $exploded, $whitelisted_terms );
+
 				if ( ! empty( $whitelisted_terms ) ) {
 					$exploded = array_merge( $exploded, $whitelisted_terms );
 				}
@@ -1646,6 +1688,8 @@ class SearchWPIndexer {
 			$content = $this->parse_variable_for_terms( $content );
 		}
 
+		$content = html_entity_decode( $content );
+
 		// allow developers the ability to customize content where necessary (e.g. remove TM symbols)
 		$content = apply_filters( 'searchwp_indexer_pre_process_content', $content );
 
@@ -1653,7 +1697,8 @@ class SearchWPIndexer {
 			$content = mb_convert_encoding( $content, 'UTF-8', 'UTF-8' );
 		}
 
-		if ( empty( $searchwp->settings['utf8mb4'] ) ) {
+		$index_emoji = apply_filters( 'searchwp_index_emoji', false );
+		if ( empty( $searchwp->settings['utf8mb4'] ) || empty( $index_emoji ) ) {
 			$content = $searchwp->replace_4_byte( $content );
 		}
 
@@ -1776,6 +1821,10 @@ class SearchWPIndexer {
 	 * @since 1.0
 	 */
 	function index_title( $title = '' ) {
+		if ( ! $this->is_attribute_used( 'title' ) ) {
+			return '';
+		}
+
 		$title = ( ! is_string( $title ) || empty( $title ) ) && ! empty( $this->post->post_title ) ? $this->post->post_title : $title;
 		$title = $this->clean_content( $title );
 
@@ -1784,6 +1833,47 @@ class SearchWPIndexer {
 		} else {
 			return false;
 		}
+	}
+
+	public function is_attribute_used( $attribute = '' ) {
+		$used = false;
+		$attributes = array( 'title', 'slug', 'content', 'excerpt' );
+
+		if ( ! in_array( $attribute, $attributes, true ) ) {
+			return apply_filters( 'searchwp_is_attribute_used', $used, $attribute );
+		}
+
+		foreach ( SWP()->settings['engines'] as $engine => $post_types ) {
+			foreach ( $post_types as $post_type => $post_type_settings ) {
+
+				if ( $post_type !== $this->post->post_type ) {
+					continue;
+				}
+
+				if ( ! isset( $post_type_settings['enabled'] ) || empty( $post_type_settings['enabled'] ) ) {
+					continue;
+				}
+
+				if ( empty( $post_type_settings['weights'] ) ) {
+					continue;
+				}
+
+				if ( empty( $post_type_settings['weights'][ $attribute ] ) ) {
+					continue;
+				}
+
+				$used = true;
+			}
+
+			if ( $used ) {
+				break;
+			}
+		}
+
+		$used = apply_filters( 'searchwp_is_attribute_used', $used, $attribute );
+		$used = ! empty( $used );
+
+		return $used;
 	}
 
 
@@ -1868,6 +1958,10 @@ class SearchWPIndexer {
 	 * @since 1.0
 	 */
 	function index_slug( $slug = '' ) {
+		if ( ! $this->is_attribute_used( 'slug' ) ) {
+			return '';
+		}
+
 		$slug = ( ! is_string( $slug ) || empty( $slug ) ) && ! empty( $this->post->post_name ) ? $this->post->post_name : $slug;
 		$slug = str_replace( '-', ' ', $slug );
 		$slug = $this->clean_content( $slug );
@@ -1888,6 +1982,10 @@ class SearchWPIndexer {
 	 * @since 1.0
 	 */
 	function index_content( $content = '' ) {
+		if ( ! $this->is_attribute_used( 'content' ) ) {
+			return '';
+		}
+
 		$content = ( ! is_string( $content ) || empty( $content ) ) && ! empty( $this->post->post_content ) ? $this->post->post_content : $content;
 
 		$content = $this->clean_content( $content );
@@ -2011,6 +2109,10 @@ class SearchWPIndexer {
 	 * @since 1.0
 	 */
 	function index_excerpt( $excerpt = '' ) {
+		if ( ! $this->is_attribute_used( 'excerpt' ) ) {
+			return '';
+		}
+
 		$excerpt = ( ! is_string( $excerpt ) || empty( $excerpt ) ) && ! empty( $this->post->post_excerpt ) ? $this->post->post_excerpt : $excerpt;
 		$excerpt = $this->clean_content( $excerpt );
 

@@ -9,10 +9,8 @@ class Red_Csv_File extends Red_FileIO {
 	public function force_download() {
 		parent::force_download();
 
-		$filename = 'redirection-'.date_i18n( get_option( 'date_format' ) ).'.csv';
-
 		header( 'Content-Type: text/csv' );
-		header( 'Content-Disposition: attachment; filename="'.$filename.'"' );
+		header( 'Content-Disposition: attachment; filename="' . $this->export_filename( 'csv' ) . '"' );
 	}
 
 	public function get_data( array $items, array $groups ) {
@@ -22,7 +20,7 @@ class Red_Csv_File extends Red_FileIO {
 			$lines[] = $this->item_as_csv( $line );
 		}
 
-		return implode( PHP_EOL, $lines ).PHP_EOL;
+		return implode( PHP_EOL, $lines ) . PHP_EOL;
 	}
 
 	public function item_as_csv( $item ) {
@@ -45,7 +43,7 @@ class Red_Csv_File extends Red_FileIO {
 	}
 
 	public function escape_csv( $item ) {
-		return '"'.str_replace( '"', '""', $item ).'"';
+		return '"' . str_replace( '"', '""', $item ) . '"';
 	}
 
 	public function load( $group, $filename, $data ) {
@@ -55,17 +53,23 @@ class Red_Csv_File extends Red_FileIO {
 
 		ini_set( 'auto_detect_line_endings', false );
 
+		$count = 0;
 		if ( $file ) {
-			return $this->load_from_file( $group, $file );
+			$count = $this->load_from_file( $group, $file, ',' );
+
+			// Try again with semicolons - Excel often exports CSV with semicolons
+			if ( $count === 0 ) {
+				$count = $this->load_from_file( $group, $file, ';' );
+			}
 		}
 
-		return 0;
+		return $count;
 	}
 
-	public function load_from_file( $group_id, $file ) {
+	public function load_from_file( $group_id, $file, $separator ) {
 		$count = 0;
 
-		while ( ( $csv = fgetcsv( $file, 5000, ',' ) ) ) {
+		while ( ( $csv = fgetcsv( $file, 5000, $separator ) ) ) {
 			$item = $this->csv_as_item( $csv, $group_id );
 
 			if ( $item ) {

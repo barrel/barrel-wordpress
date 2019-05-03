@@ -16,43 +16,91 @@
 ## - $THEME_NAME (`export THEME_NAME="theme-name"`)
 ####################################################################
 
+ERRORS=0
+ROOT_PATH=$(git rev-parse --show-toplevel)
+SCRIPT_PATH="`dirname \"$0\"`"
+
 # Terminal colors
-DEFAULT=$(tput setaf 7 -T xterm)
-RED=$(tput setaf 1 -T xterm)
-GREEN=$(tput setaf 2 -T xterm)
-YELLOW=$(tput setaf 3 -T xterm)
-BLUE=$(tput setaf 4 -T xterm)
-OK="${GREEN}OK${DEFAULT}"
+source $SCRIPT_PATH/colors.sh
+cd $ROOT_PATH
 
 echo "${YELLOW}Performing PHP syntax check...${DEFAULT}"
 git diff --diff-filter=ACMR --name-only origin/master -- '*.php' | xargs -L1 php -d short_open_tag=Off -l
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}PHP syntax check failed!${DEFAULT}"
-    exit 1
+    ERRORS=$(($ERRORS+1))
+fi
+echo $OK
+
+
+THEME_NAME=""
+
+# handle arguments
+for i in "$@"; do
+case $i in
+    -t=*|--themename=*)
+    THEME_NAME="${i#*=}"
+    shift # past argument=value
+    ;;
+    *)
+    echo "Unknown option: ${i#*=}"
+    # unknown option
+    ;;
+esac
+done
+
+WP_CONTENT="wp-content"
+THEMES_DIR="./$WP_CONTENT/themes"
+
+if [ "$THEME_NAME" == "" ]; then 
+    if [ -d "$WP_CONTENT" ]; then
+        # assume theme is the same as project
+        THEME_NAME=$(basename $(pwd))
+        echo "${YELLOW}Checking to see if '$THEME_NAME' exists...${DEFAULT}"
+        if ! [ -d "$THEMES_DIR/$THEME_NAME" ]; then 
+            echo "${BLUE}Hmm... Something is missing. What is the Theme Name?${DEFAULT}"
+            read THEME_NAME_UD
+            export THEME_NAME="$THEME_NAME_UD"
+        else
+            echo "${YELLOW}Theme '$THEME_NAME' exists...${DEFAULT}"
+        fi
+    fi
+fi
+THEME_LOCATION="$THEMES_DIR/$THEME_NAME"
+
+if [[ `pwd` == *"$THEME_LOCATION"* ]]; then
+    echo "${YELLOW}Theme path detected!${DEFAULT}"
+else
+    echo "${YELLOW}Changing directory to theme path: $THEME_LOCATION/ ${DEFAULT}"
+    cd $THEME_LOCATION
+    if [[ "$?" -ne 0 ]]; then
+        echo "${RED}Theme path is invalid!${DEFAULT}"
+        ERRORS=$(($ERRORS+1))
+    fi
 fi
 echo $OK
 
 echo "${YELLOW}Performing JSON syntax check...${DEFAULT}"
-bash private/scripts/test_json.sh
+npm run test:json_lint
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}JSON syntax check failed!${DEFAULT}"
-    exit 6
+    ERRORS=$(($ERRORS+1))
 fi
 echo $OK
 
-echo "${YELLOW}Changing directories, installing theme dependencies...${DEFAULT}"
-cd ./wp-content/themes/$THEME_NAME && npm ci --loglevel=silent
+echo "${YELLOW}Installing theme dependencies...${DEFAULT}"
+npm ci
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}Dependency installation failed!${DEFAULT}"
-    exit 2
+    ERRORS=$(($ERRORS+1))
 fi
 echo $OK
 
 echo "${YELLOW}Testing js against standardjs...${DEFAULT}"
-standard
+npm run test:js_lint
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}Conformance to standardjs failed!${DEFAULT}"
-    exit 4
+    ERRORS=$(($ERRORS+1))
 fi
 echo $OK
 
@@ -60,7 +108,7 @@ echo "${YELLOW}Testing css against stylelint...${DEFAULT}"
 npm run test:css_lint
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}Conformance to stylelint failed!${DEFAULT}"
-    exit 5
+    ERRORS=$(($ERRORS+1))
 fi
 echo $OK
 
@@ -68,9 +116,15 @@ echo "${YELLOW}Testing files against editorconfig...${DEFAULT}"
 npm run test:editorconfig
 if [[ "$?" -ne 0 ]]; then
     echo "${RED}Conformance to editorconfig failed!${DEFAULT}"
-    exit 6
+    ERRORS=$(($ERRORS+1))
 fi
 echo $OK
+
+echo "${YELLOW}Tallying sum of failures...${DEFAULT}"
+if [[ "$ERRORS" -gt "0" ]]; then 
+    echo "${RED}There were $ERRORS errors encountered! Please review the errors above.${DEFAULT}"
+    exit $ERRORS
+fi
 
 echo "${GREEN}Grammar and sanity checks complete!${DEFAULT}"
 exit 0

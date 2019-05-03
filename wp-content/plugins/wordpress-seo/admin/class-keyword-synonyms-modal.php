@@ -18,7 +18,7 @@ class WPSEO_Keyword_Synonyms_Modal {
 	 */
 	public function get_translations() {
 		return array(
-			'title'                    => __( 'Would you like to add keyword synonyms?', 'wordpress-seo' ),
+			'title'                    => __( 'Would you like to add keyphrase synonyms?', 'wordpress-seo' ),
 			'intro'                    => sprintf(
 				/* translators: %1$s expands to a 'Yoast SEO Premium' text linked to the yoast.com website. */
 				__( 'Great news: you can, with %1$s!', 'wordpress-seo' ),
@@ -33,10 +33,10 @@ class WPSEO_Keyword_Synonyms_Modal {
 			'buylink'                  => WPSEO_Shortlinker::get( 'https://yoa.st/keyword-synonyms-popup' ),
 			'buy'                      => sprintf(
 				/* translators: %s expands to 'Yoast SEO Premium'. */
-				__( 'Get %s now!', 'wordpress-seo' ),
+				__( 'Get %s', 'wordpress-seo' ),
 				'Yoast SEO Premium'
 			),
-			'small'                    => __( '1 year free updates and upgrades included!', 'wordpress-seo' ),
+			'small'                    => __( '1 year free support and updates included!', 'wordpress-seo' ),
 			'a11yNotice.opensInNewTab' => __( '(Opens in a new browser tab)', 'wordpress-seo' ),
 		);
 	}
@@ -50,7 +50,7 @@ class WPSEO_Keyword_Synonyms_Modal {
 		$translations = $this->get_translations();
 
 		return array(
-			'locale' => WPSEO_Utils::get_user_locale(),
+			'locale' => WPSEO_Language_Utils::get_user_locale(),
 			'intl'   => $translations,
 		);
 	}

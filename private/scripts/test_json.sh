@@ -6,28 +6,35 @@
 ## json_decode() function of PHP. 
 ####################################################################
 
+SCRIPT_PATH="`dirname \"$0\"`"
+INVALID_FILES=""
+
 # Terminal colors
-DEFAULT=$(tput setaf 7 -T xterm)
-RED=$(tput setaf 1 -T xterm)
-GREEN=$(tput setaf 2 -T xterm)
-YELLOW=$(tput setaf 3 -T xterm)
-BLUE=$(tput setaf 4 -T xterm)
+source $SCRIPT_PATH/colors.sh
 
 ## Check if module name was provided before moving on
 if [ -z ${THEME_NAME+x} ]; then
-    echo "${YELLOW}Hmm... Looks like you didn't set a theme name yet. What theme are we evaluating?${DEFAULT}"
+    echo "${BLUE}Hmm... Something is missing. What is the Theme Name?${DEFAULT}"
     read THEME_NAME
 fi
 
-INVALID_FILES=""
 THEME_LOCATION="wp-content/themes/$THEME_NAME"
 
-printf "Switching to the theme directory in $THEME_LOCATION..\n"
-cd $THEME_LOCATION
+if [[ `pwd` == *"$THEME_LOCATION"* ]]; then
+    echo "${YELLOW}Theme path detected!${DEFAULT}"
+else
+    echo "${YELLOW}Changing directory to theme path: $THEME_LOCATION/ ${DEFAULT}"
+    cd $THEME_LOCATION
+    if [[ "$?" -ne 0 ]]; then
+        echo "${RED}Theme path is invalid!${DEFAULT}"
+        exit 2
+    fi
+fi
+echo $OK
 
-printf "Validating json files in the $THEME_NAME theme\n"
+echo "${YELLOW}Validating json files in the $THEME_NAME theme${DEFAULT}"
 while read -r line; do
-    echo "Testing $line..."
+    echo "Testing $line"
     php -r "if ( ! json_decode(file_get_contents('$line')) ) { exit(1); }"
     if [ $? -ne 0 ]; then
         INVALID_FILES+="$line\n"
@@ -35,10 +42,10 @@ while read -r line; do
 done <<< "$(find . -type f -name '*.json' -not -path './node_modules/*')"
 
 if [ -z "$INVALID_FILES" ]; then
-    echo "${GREEN}All JSON files look ok. Moving on ...${DEFAULT}"
+    echo "${GREEN}All JSON files look ok.${DEFAULT}"
     exit
 else
-    printf "\n${RED}JSON Syntax errors were found in the ${THEME_NAME} theme. Please check the syntax of the following files and fix any errors.${DEFAULT}\n"
-    printf "\nINVALID JSON FILES:\n${INVALID_FILES}"
+    echo "${RED}JSON Syntax errors were found in the $THEME_NAME theme. Please check the syntax of the following files and fix any errors.${DEFAULT}\n"
+    echo "INVALID JSON FILES:${INVALID_FILES}"
     exit 1;
 fi

@@ -40,6 +40,9 @@ class GFFormSettings {
 			case 'notification':
 				self::notification_page();
 				break;
+			case 'personal-data':
+				self::personal_data_page();
+				break;
 			default:
                 /**
                  * Fires when the settings page view is determined
@@ -969,7 +972,7 @@ class GFFormSettings {
 
 		<div class="gform_panel gform_panel_form_settings" id="form_settings">
 
-			<h3><span><i class="fa fa-cogs"></i> <?php _e( 'Form Settings', 'gravityforms' ) ?></span></h3>
+			<h3><span><i class="fa fa-cogs"></i> <?php esc_html_e( 'Form Settings', 'gravityforms' ) ?></span></h3>
 
 			<form action="" method="post" id="gform_form_settings">
 
@@ -981,7 +984,7 @@ class GFFormSettings {
 							?>
 							<tr>
 								<td colspan="2">
-									<h4 class="gf_settings_subgroup_title"><?php _e( $key, 'gravityforms' ); ?></h4>
+									<h4 class="gf_settings_subgroup_title"><?php echo esc_html( $key ); ?></h4>
 								</td>
 							</tr>
 							<?php
@@ -1550,6 +1553,29 @@ class GFFormSettings {
 	}
 
 	/**
+	 * Renders the Personal Data page.
+	 *
+	 * @since  2.4
+	 */
+	public static function personal_data_page() {
+
+		self::page_header( __( 'Personal Data', 'gravityforms' ) );
+
+		require_once( 'includes/class-personal-data.php' );
+
+		$form_id = absint( rgget( 'id' ) );
+
+		if ( isset( $_POST['save_personal_data_settings'])) {
+			GF_Personal_Data::process_form_settings( $form_id );
+		}
+
+		GF_Personal_Data::form_settings( $form_id );
+
+		self::page_footer();
+
+	}
+
+	/**
 	 * Displays the form settings page header.
 	 *
 	 * @since  Unknown
@@ -1609,6 +1635,11 @@ class GFFormSettings {
 				<?php
 				foreach ( $setting_tabs as $tab ) {
 					$query = array( 'subview' => $tab['name'] );
+
+					if ( rgar( $tab, 'capabilities' ) && ! GFCommon::current_user_can_any( $tab['capabilities'] ) ) {
+						continue;
+					}
+
 					if ( isset( $tab['query'] ) )
 						$query = array_merge( $query, $tab['query'] );
 
@@ -1676,9 +1707,29 @@ class GFFormSettings {
 	public static function get_tabs( $form_id ) {
 
 		$setting_tabs = array(
-			'10' => array( 'name' => 'settings', 'label' => __( 'Form Settings', 'gravityforms' ) ),
-			'20' => array( 'name' => 'confirmation', 'label' => __( 'Confirmations', 'gravityforms' ), 'query' => array( 'cid' => null, 'duplicatedcid' => null ) ),
-			'30' => array( 'name' => 'notification', 'label' => __( 'Notifications', 'gravityforms' ), 'query' => array( 'nid' => null ) ),
+			'10' => array(
+				'name'         => 'settings',
+				'label'        => __( 'Form Settings', 'gravityforms' ),
+				'capabilities' => array( 'gravityforms_edit_forms' ),
+			),
+			'20' => array(
+				'name'         => 'confirmation',
+				'label'        => __( 'Confirmations', 'gravityforms' ),
+				'query'        => array( 'cid' => null, 'duplicatedcid' => null ),
+				'capabilities' => array( 'gravityforms_edit_forms' ),
+			),
+			'30' => array(
+				'name'         => 'notification',
+				'label'        => __( 'Notifications', 'gravityforms' ),
+				'query'        => array( 'nid' => null ),
+				'capabilities' => array( 'gravityforms_edit_forms' ),
+			),
+			'40' => array(
+				'name'         => 'personal-data',
+				'label'        => __( 'Personal Data', 'gravityforms' ),
+				'query'        => array( 'nid' => null ),
+				'capabilities' => array( 'gravityforms_edit_forms' ),
+			),
 		);
 
 		/**
@@ -2239,7 +2290,7 @@ class GFConfirmationTable extends WP_List_Table {
 				'content' => __( 'Content', 'gravityforms' )
 			),
 			array(),
-			array(),
+			array( 'name' => array( 'name', false ) ),
 			'name',
 		);
 
@@ -2259,7 +2310,45 @@ class GFConfirmationTable extends WP_List_Table {
 	 * @return void
 	 */
 	function prepare_items() {
+
 		$this->items = $this->form['confirmations'];
+
+		switch ( rgget( 'orderby' ) ) {
+
+			case 'name':
+
+				// Sort confirmations alphabetically.
+				usort( $this->items, array( $this, 'sort_confirmations' ) );
+
+				// Reverse sort.
+				if ( 'desc' === rgget( 'order' ) ) {
+					$this->items = array_reverse( $this->items );
+				}
+
+				break;
+
+			default:
+				break;
+
+		}
+
+	}
+
+	/**
+	 * Sort confirmations alphabetically.
+	 *
+	 * @since  2.4
+	 * @access public
+	 *
+	 * @param array $a First confirmation to compare.
+	 * @param array $b Second confirmation to compare.
+	 *
+	 * @return int
+	 */
+	function sort_confirmations( $a = array(), $b = array() ) {
+
+		return strcasecmp( $a['name'], $b['name'] );
+
 	}
 
 	/**
@@ -2426,9 +2515,9 @@ class GFConfirmationTable extends WP_List_Table {
 		$duplicate_url = add_query_arg( array( 'cid' => 0, 'duplicatedcid' => $item['id'] ) );
 		$actions       = apply_filters(
 			'gform_confirmation_actions', array(
-				'edit'      => '<a title="' . __( 'Edit this item', 'gravityforms' ) . '" href="' . esc_url( $edit_url ) . '">' . __( 'Edit', 'gravityforms' ) . '</a>',
-				'duplicate' => '<a title="' . __( 'Duplicate this confirmation', 'gravityforms' ) . '" href="' . esc_url( $duplicate_url ) . '">' . __( 'Duplicate', 'gravityforms' ) . '</a>',
-				'delete'    => '<a title="' . __( 'Delete this item', 'gravityforms' ) . '" class="submitdelete" onclick="javascript: if(confirm(\'' . __( 'WARNING: You are about to delete this confirmation.', 'gravityforms' ) . __( "\'Cancel\' to stop, \'OK\' to delete.", 'gravityforms' ) . '\')){ DeleteConfirmation(\'' . esc_js( $item['id'] ) . '\'); }" onkeypress="javascript: if(confirm(\'' . __( 'WARNING: You are about to delete this confirmation.', 'gravityforms' ) . __( "\'Cancel\' to stop, \'OK\' to delete.", 'gravityforms' ) . '\')){ DeleteConfirmation(\'' . esc_js( $item['id'] ) . '\'); }" style="cursor:pointer;">' . __( 'Delete', 'gravityforms' ) . '</a>'
+				'edit'      => '<a href="' . esc_url( $edit_url ) . '">' . __( 'Edit', 'gravityforms' ) . '</a>',
+				'duplicate' => '<a href="' . esc_url( $duplicate_url ) . '">' . __( 'Duplicate', 'gravityforms' ) . '</a>',
+				'delete'    => '<a class="submitdelete" onclick="javascript: if(confirm(\'' . __( 'WARNING: You are about to delete this confirmation.', 'gravityforms' ) . __( "\'Cancel\' to stop, \'OK\' to delete.", 'gravityforms' ) . '\')){ DeleteConfirmation(\'' . esc_js( $item['id'] ) . '\'); }" onkeypress="javascript: if(confirm(\'' . __( 'WARNING: You are about to delete this confirmation.', 'gravityforms' ) . __( "\'Cancel\' to stop, \'OK\' to delete.", 'gravityforms' ) . '\')){ DeleteConfirmation(\'' . esc_js( $item['id'] ) . '\'); }" style="cursor:pointer;">' . __( 'Delete', 'gravityforms' ) . '</a>'
 			)
 		);
 

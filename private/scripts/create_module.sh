@@ -17,13 +17,10 @@
 
 # Variables
 MODULE_PATH="./modules"
+SCRIPT_PATH="`dirname \"$0\"`"
 
 # Terminal colors
-DEFAULT=$(tput setaf 7)
-RED=$(tput setaf 1)
-GREEN=$(tput setaf 2)
-YELLOW=$(tput setaf 3)
-BLUE=$(tput setaf 4)
+source $SCRIPT_PATH/colors.sh
 
 # handle arguments
 for i in "$@"; do

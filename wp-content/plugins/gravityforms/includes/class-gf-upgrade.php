@@ -83,7 +83,7 @@ class GF_Upgrade {
 
 			$this->update_db_version();
 
-			update_option( 'rg_form_version', GFForms::$version );
+			update_option( 'rg_form_version', GFForms::$version, false );
 
 		} elseif ( $this->requires_upgrade() && ! $this->requires_upgrade_wizard() ) {
 
@@ -175,9 +175,9 @@ class GF_Upgrade {
 		$this->flush_versions();
 
 		// Setting Database version
-		update_option( 'gf_db_version', GFForms::$version );
+		update_option( 'gf_db_version', GFForms::$version, false );
 
-		update_option( 'rg_form_version', GFForms::$version );
+		update_option( 'rg_form_version', GFForms::$version, false );
 
 		// Installing schema
 		$this->upgrade_schema();
@@ -407,6 +407,17 @@ class GF_Upgrade {
               KEY form_id (form_id)
             ) $charset_collate;";
 
+		$revisions_table_name            = GFFormsModel::get_form_revisions_table_name();
+		$tables[ $revisions_table_name ] = 'CREATE TABLE ' . $revisions_table_name . " (
+		      id bigint(20) unsigned not null auto_increment,
+              form_id mediumint(8) unsigned not null,
+              display_meta longtext,
+              date_created datetime not null,
+              PRIMARY KEY  (id),
+              KEY date_created (date_created),
+              KEY form_id (form_id)
+            ) $charset_collate;";
+
 		$entry_table_name = GFFormsModel::get_entry_table_name();
 		$tables[ $entry_table_name ] =
 			'CREATE TABLE ' . $entry_table_name . " (
@@ -459,6 +470,7 @@ class GF_Upgrade {
               entry_id bigint(20) unsigned not null,
               meta_key varchar(255),
               meta_value longtext,
+              item_index varchar(60),
               PRIMARY KEY  (id),
               KEY meta_key (meta_key($max_index_length)),
               KEY entry_id (entry_id),
@@ -1578,6 +1590,7 @@ HAVING count(*) > 1;" );
 
 		$previous_db_version = get_option( 'gf_previous_db_version' );
 
+
 		$this->versions = array(
 			'version'             => GFForms::$version,
 			'current_version'     => get_option( 'rg_form_version' ),
@@ -1593,7 +1606,8 @@ HAVING count(*) > 1;" );
 	 */
 	public function flush_versions() {
 		$this->versions = null;
-		wp_cache_flush();
+		wp_cache_delete( 'gf_db_version' );
+		wp_cache_delete( 'rg_form_version' );
 	}
 
 	/**
@@ -1693,8 +1707,8 @@ HAVING count(*) > 1;" );
 	 * @param string $version
 	 */
 	public function update_db_version( $version = null ) {
-		delete_option( 'gf_db_version' );
-		add_option( 'gf_db_version', is_null( $version ) ? GFForms::$version : $version );
+		$version = is_null( $version ) ? GFForms::$version : $version;
+		update_option( 'gf_db_version', $version, false );
 	}
 
 	/**

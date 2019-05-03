@@ -10,19 +10,39 @@
  */
 class WPSEO_Sitemaps_Renderer {
 
-	/** @var string $stylesheet XSL stylesheet for styling a sitemap for web browsers. */
+	/**
+	 * XSL stylesheet for styling a sitemap for web browsers.
+	 *
+	 * @var string
+	 */
 	protected $stylesheet = '';
 
-	/** @var string $charset Holds the get_bloginfo( 'charset' ) value to reuse for performance. */
+	/**
+	 * Holds the get_bloginfo( 'charset' ) value to reuse for performance.
+	 *
+	 * @var string
+	 */
 	protected $charset = 'UTF-8';
 
-	/** @var string $output_charset Holds charset of output, might be converted. */
+	/**
+	 * Holds charset of output, might be converted.
+	 *
+	 * @var string
+	 */
 	protected $output_charset = 'UTF-8';
 
-	/** @var bool $needs_conversion If data encoding needs to be converted for output. */
+	/**
+	 * If data encoding needs to be converted for output.
+	 *
+	 * @var bool
+	 */
 	protected $needs_conversion = false;
 
-	/** @var WPSEO_Sitemap_Timezone $timezone */
+	/**
+	 * Timezone.
+	 *
+	 * @var WPSEO_Sitemap_Timezone
+	 */
 	protected $timezone;
 
 	/**
@@ -114,8 +134,8 @@ class WPSEO_Sitemaps_Renderer {
 	/**
 	 * Produce final XML output with debug information.
 	 *
-	 * @param string  $sitemap    Sitemap XML.
-	 * @param boolean $transient  Transient cache flag.
+	 * @param string  $sitemap   Sitemap XML.
+	 * @param boolean $transient Transient cache flag.
 	 *
 	 * @return string
 	 */
@@ -167,7 +187,7 @@ class WPSEO_Sitemaps_Renderer {
 	/**
 	 * Set a custom stylesheet for this sitemap. Set to empty to just remove the default stylesheet.
 	 *
-	 * @param string $stylesheet Full xml-stylesheet declaration.
+	 * @param string $stylesheet Full XML-stylesheet declaration.
 	 */
 	public function set_stylesheet( $stylesheet ) {
 		$this->stylesheet = $stylesheet;
@@ -267,11 +287,11 @@ class WPSEO_Sitemaps_Renderer {
 		$output .= "\t</url>\n";
 
 		/**
-		 * Filters the output for the sitemap url tag.
+		 * Filters the output for the sitemap URL tag.
 		 *
 		 * @api   string $output The output for the sitemap url tag.
 		 *
-		 * @param array  $url The sitemap url array on which the output is based.
+		 * @param array $url The sitemap URL array on which the output is based.
 		 */
 		return apply_filters( 'wpseo_sitemap_url', $output, $url );
 	}
@@ -299,7 +319,7 @@ class WPSEO_Sitemaps_Renderer {
 
 			$encoded_path = array_map( 'rawurlencode', $encoded_path );
 			$encoded_path = implode( '/', $encoded_path );
-			$encoded_path = str_replace( '%7E', '~', $encoded_path ); // PHP <5.3.
+			$encoded_path = str_replace( '%7E', '~', $encoded_path ); // PHP < 5.3.
 
 			$url = str_replace( $path, $encoded_path, $url );
 		}
@@ -339,7 +359,10 @@ class WPSEO_Sitemaps_Renderer {
 			return home_url( 'main-sitemap.xsl' );
 		}
 
-		// Fallback to circumvent a cross-domain security problem when the XLS file is loaded from a different (sub)domain.
+		/*
+		 * Fallback to circumvent a cross-domain security problem when the XLS file is
+		 * loaded from a different (sub)domain.
+		 */
 		if ( strpos( plugins_url(), home_url() ) !== 0 ) {
 			return home_url( 'main-sitemap.xsl' );
 		}

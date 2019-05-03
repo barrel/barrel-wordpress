@@ -53,6 +53,16 @@
             <p>{{ i18n.adminSearchEnabled }}</p>
         </searchwp-message>
 
+        <ul v-if="false" class="searchwp-index-actions">
+            <li>
+                <confirm
+                    :buttonLabel="'Reset Index'"
+                    :question="'Are you sure?'"
+                    :confirm="'Yes, reset index'"
+                    v-on:confirmed="resetIndex"/>
+            </li>
+        </ul>
+
     </div>
 </template>
 
@@ -62,55 +72,36 @@ import keyfinder from 'keyfinder';
 import { EventBus } from './../EventBus.js';
 import SearchwpProgressBar from './ProgressBar.vue';
 import SearchwpMessage from './Message.vue';
+import Confirm from './Confirm.vue';
+import SearchwpNotice from './Notice.vue';
+import Spinner from 'vue-simple-spinner';
 
 export default {
     name: 'SearchwpIndexStats',
     components: {
         'searchwp-progress-bar': SearchwpProgressBar,
-        'searchwp-message': SearchwpMessage
-    },
-    data: function(){
-        return {
-            i18n: {
-                adminSearchEnabled:  _SEARCHWP_VARS.i18n.admin_search_enabled,
-                autoScale:  _SEARCHWP_VARS.i18n.auto_scale,
-                indexProgress: _SEARCHWP_VARS.i18n.index_progress,
-                lastActivity: _SEARCHWP_VARS.i18n.last_activity,
-                indexDirty: _SEARCHWP_VARS.i18n.index_dirty,
-                indexed: _SEARCHWP_VARS.i18n.indexed,
-                unindexed: _SEARCHWP_VARS.i18n.unindexed,
-                mainRowCount: _SEARCHWP_VARS.i18n.main_row_count,
-                entries: _SEARCHWP_VARS.i18n.entries,
-                rightNow: _SEARCHWP_VARS.i18n.right_now,
-                rows: _SEARCHWP_VARS.i18n.rows,
-                rebuildIndex: _SEARCHWP_VARS.i18n.rebuild_index,
-                indexNote: _SEARCHWP_VARS.i18n.index_note
-            },
-            progress: _SEARCHWP_VARS.data.index_stats.progress,
-            lastActivity: _SEARCHWP_VARS.data.index_stats.last_activity,
-            timeSinceChange: 0,
-            indexed: _SEARCHWP_VARS.data.index_stats.done,
-            unindexed: _SEARCHWP_VARS.data.index_stats.remaining,
-            mainRowCount: _SEARCHWP_VARS.data.index_stats.main_row_count,
-            waiting: _SEARCHWP_VARS.data.index_stats.waiting,
-            dirtyIndex: false,
-            adminEnabled: _SEARCHWP_VARS.data.misc.admin_search,
-            emptyEngines: _SEARCHWP_VARS.data.misc.empty_engines,
-            initialSettingsSaved: _SEARCHWP_VARS.data.misc.initial_settings_saved
-        }
+        'searchwp-message': SearchwpMessage,
+        Confirm,
+        Spinner,
+        'searchwp-notice': SearchwpNotice
     },
     methods: {
         resetIndex() {
             this.dirtyIndex = false;
             this.progress = 0;
             this.indexed = 0;
-            this.unindexed = ' ';
+            this.unindexed = '-';
             this.mainRowCount = 0;
             this.lastActivity = this.i18n.rightNow;
 
-            Vue.SearchwpResetIndex();
-
-            EventBus.$emit('indexReset');
+            this.indexIsResetting = true;
+            Vue.SearchwpResetIndex().then((response) => {
+                this.indexIsResetting = false;
+                this.indexIsReset = true;
+                EventBus.$emit('indexReset');
+            }).catch(function (response) {
+                alert('ERROR SEARCHWPINDEXRESET')
+            });
         },
         updateIndexStats() {
             let jumpStart = false;
@@ -166,10 +157,42 @@ export default {
             self.dirtyIndex = false;
             self.progress = 0;
             self.indexed = 0;
-            self.unindexed = ' ';
+            self.unindexed = '-';
             self.mainRowCount = 0;
             self.lastActivity = self.i18n.rightNow;
         });
+    },
+    data: function(){
+        return {
+            i18n: {
+                adminSearchEnabled:  _SEARCHWP_VARS.i18n.admin_search_enabled,
+                autoScale:  _SEARCHWP_VARS.i18n.auto_scale,
+                indexProgress: _SEARCHWP_VARS.i18n.index_progress,
+                lastActivity: _SEARCHWP_VARS.i18n.last_activity,
+                indexDirty: _SEARCHWP_VARS.i18n.index_dirty,
+                indexed: _SEARCHWP_VARS.i18n.indexed,
+                unindexed: _SEARCHWP_VARS.i18n.unindexed,
+                mainRowCount: _SEARCHWP_VARS.i18n.main_row_count,
+                entries: _SEARCHWP_VARS.i18n.entries,
+                rightNow: _SEARCHWP_VARS.i18n.right_now,
+                rows: _SEARCHWP_VARS.i18n.rows,
+                rebuildIndex: _SEARCHWP_VARS.i18n.rebuild_index,
+                indexNote: _SEARCHWP_VARS.i18n.index_note
+            },
+            progress: _SEARCHWP_VARS.data.index_stats.progress,
+            lastActivity: _SEARCHWP_VARS.data.index_stats.last_activity,
+            timeSinceChange: 0,
+            indexed: _SEARCHWP_VARS.data.index_stats.done,
+            unindexed: _SEARCHWP_VARS.data.index_stats.remaining,
+            mainRowCount: _SEARCHWP_VARS.data.index_stats.main_row_count,
+            waiting: _SEARCHWP_VARS.data.index_stats.waiting,
+            dirtyIndex: false,
+            adminEnabled: _SEARCHWP_VARS.data.misc.admin_search,
+            emptyEngines: _SEARCHWP_VARS.data.misc.empty_engines,
+            initialSettingsSaved: _SEARCHWP_VARS.data.misc.initial_settings_saved,
+            indexIsReset: false,
+            indexIsResetting: false
+        }
     }
 }
 </script>

@@ -10,23 +10,21 @@
 ####################################################################
 
 # Variables - Need to be updated per project
-# Terminal colors
-DEFAULT=$(tput setaf 7 -T xterm)
-RED=$(tput setaf 1 -T xterm)
-GREEN=$(tput setaf 2 -T xterm)
-YELLOW=$(tput setaf 3 -T xterm)
-BLUE=$(tput setaf 4 -T xterm)
-
 # CI_COMMIT_REF_NAME, defined by GitLab CI or by user
 # PANTHEON_SITE_ID, can be defined in environment variables, by flag, or by user
 # ENVIRONMENT, can be defined with a flag, by user, or automatically
+SCRIPT_PATH="`dirname \"$0\"`"
+
+# Terminal colors
+source $SCRIPT_PATH/colors.sh
 
 if [ -z ${CI_COMMIT_REF_NAME+x} ]; then
     echo "${YELLOW}Hmm... Looks like this is not being run in GitLab CI, what's the original branch name?${DEFAULT}"
     read CI_COMMIT_REF_NAME
 fi
 TARGET=$(echo $CI_COMMIT_REF_NAME | cut -d'/' -f2)
-ENVIRONMENT=$(echo ${TARGET:0:11} | tr '[:upper:]' '[:lower:]') 
+ENV=$(echo ${TARGET:0:11} | tr '[:upper:]' '[:lower:]') 
+ENVIRONMENT="${ENV//-}"
 
 # Parameters 
 for i in "$@"; do
@@ -40,13 +38,14 @@ case $i in
     shift # past argument=value
     ;;
     --help)
-    echo "Utility Usage:"
+    echo "${YELLOW}Utility Usage:"
     echo "--"
     echo "This script can be run from within the theme using npm"
     echo "npm run remove-multidev"
-    echo "--\n"
+    echo "--"
     echo "Arguments:"
-    echo "-m | --multidev - Multidev name: -n=the-module"
+    echo "-m | --multidev - Multidev name: -n=the-module${DEFAULT}"
+    exit 0
     shift # past argument with no value
     ;;
     *)

@@ -5,6 +5,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Support for wp_doing_ajax()
+ *
+ * @since 3.0
+ */
+function searchwp_wp_doing_ajax() {
+	return function_exists( 'wp_doing_ajax' ) ? wp_doing_ajax() : apply_filters( 'wp_doing_ajax', defined( 'DOING_AJAX' ) && DOING_AJAX );
+}
+
+/**
  * Which option names should be autoloaded
  *
  * @return array
@@ -15,6 +24,28 @@ function searchwp_get_autoload_options() {
 	return array(
 		'settings',
 		'advanced'
+	);
+}
+
+/**
+ * Valid settings names.
+ *
+ * @return array
+ *
+ * @since 3.0
+ */
+function searchwp_get_settings_names() {
+	return array(
+		'debugging',
+		'indexer_alternate',
+		'indexer_aggressiveness',
+		'min_word_length',
+		'admin_search',
+		'highlight_terms',
+		'exclusive_regex_matches',
+		'nuke_on_delete',
+		'parse_shortcodes',
+		'partial_matches',
 	);
 }
 
@@ -97,12 +128,6 @@ function searchwp_update_option( $option, $value = false ) {
  * @since 1.9.1
  */
 function searchwp_get_option( $option ) {
-
-	// The purge queue has been causing issues on certain hosts so the purge queue is DISABLED (20180907)
-	if ( 'purge_queue' == $option ) {
-		return array();
-	}
-
 	searchwp_maybe_clear_cache( $option );
 
 	return get_option( SEARCHWP_PREFIX . $option );
@@ -198,7 +223,7 @@ function searchwp_set_setting( $setting, $value, $group = false ) {
 	// settings are those that configure the plugin, the search engine config, keyword weights, etc. The indexer settings
 	// store various details for the indexer to utilize. Since the indexer runs independently and is constantly updating
 	// it's internal settings, we don't want updates to these settings records to ever collide, so we're going to "route"
-	// them here based on their name and/or group.
+	// them here based on their name and/or group
 
 	$indexer_names = array(
 		'initial_index_built',      // whether the initial index has been built
@@ -210,13 +235,10 @@ function searchwp_set_setting( $setting, $value, $group = false ) {
 		'in_progress',              // the posts currently being indexed
 		'running',                  // whether the indexer is running
 		'paused',                   // whether the indexer is paused (disabled)
-		'processing_purge_queue',   // whether the indexer is processing the purge queue
 		'endpoint',                 // the indexer endpoint
 	);
 
-	// check the setting name to see whether we need to retrieve a searchwp setting or an indexer setting
 	if ( in_array( $setting, $indexer_names, true ) || in_array( $group, $indexer_names, true ) ) {
-
 		// it's an indexer setting
 		$indexer_settings = get_option( SEARCHWP_PREFIX . 'indexer' );
 
@@ -317,6 +339,7 @@ if ( ! function_exists( 'searchwp_wake_up_indexer' ) ) {
 		searchwp_update_option( 'doing_delta', false );
 		searchwp_update_option( 'waiting', false );
 		searchwp_update_option( 'delta_attempts', 0 );
+		update_option( SEARCHWP_PREFIX . 'processing_purge_queue', 0, 'no' );
 	}
 }
 
@@ -346,6 +369,13 @@ if ( ! function_exists( 'searchwp_check_for_stalled_indexer' ) ) {
 	 * @since 1.0
 	 */
 	function searchwp_check_for_stalled_indexer( $threshold = 180 ) {
+
+		// The below checks were failing when the purge queue was processing so this check will avoid that
+		$processing_purge_queue = absint( get_option( SEARCHWP_PREFIX . 'processing_purge_queue' ) );
+		if ( ! empty( $processing_purge_queue ) ) {
+			return;
+		}
+
 		$last_activity  = searchwp_get_setting( 'last_activity', 'stats' );
 		$running        = searchwp_get_setting( 'running' );
 		$doing_delta    = searchwp_get_option( 'doing_delta' );
@@ -470,15 +500,16 @@ function searchwp_get_meta_keys_for_post_type( $post_type = 'post' ) {
 				FROM $wpdb->posts
 				LEFT JOIN $wpdb->postmeta
 				ON $wpdb->posts.ID = $wpdb->postmeta.post_id
-				WHERE $wpdb->posts.post_type = '%s'
+				WHERE $wpdb->posts.post_type = %s
 				AND $wpdb->postmeta.meta_key != ''
-				AND $wpdb->postmeta.meta_key NOT LIKE '_oembed_%'
+				AND $wpdb->postmeta.meta_key NOT LIKE '_oembed_%%'
 			",
 			$post_type
 		)
 	);
 
 	$all_meta_keys_for_post_type = array_unique( apply_filters( 'searchwp_custom_field_keys', $all_meta_keys_for_post_type ) );
+	$all_meta_keys_for_post_type = array_unique( apply_filters( 'searchwp_custom_field_keys_' . $post_type, $all_meta_keys_for_post_type, $post_type ) );
 
 	$meta_keys = array(
 		'searchwpcfdefault', // This is the 'any' custom field flag
