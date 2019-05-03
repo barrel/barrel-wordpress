@@ -1,5 +1,15 @@
 #!/bin/bash
 
+####################################################################
+## This script will clone the barrel-base from the current repo
+## and change all known handles to the new project handle. 
+####################################################################
+
+SCRIPT_PATH="`dirname \"$0\"`"
+
+# Terminal colors
+source $SCRIPT_PATH/colors.sh
+
 BASE_THEME="barrel-base"
 THEME_NAME=""
 WP_CONTENT="wp-content"
@@ -16,6 +26,7 @@ case $i in
     echo "Utility Usage:"
     echo "--"
     echo "clone.sh -t=THEME_NAME"
+    exit 0
     shift # past argument with no value
     ;;
     *)
@@ -29,12 +40,12 @@ if [ "$THEME_NAME" == "" ]; then
     if [ -d "$WP_CONTENT" ]; then
         # assume theme is the same as project
         THEME_NAME=$(basename $(pwd))
-    fi
-    if [ "$THEME_NAME" == "" ]; then
-        echo ""
-        echo "Please define the variable for THEME_NAME within your environment"
-        echo "or supply the theme name as an argument: -t=theme-name"
-        exit
+        echo "${YELLOW}Checking to see if '$THEME_NAME' exists...${DEFAULT}"
+        if ! [ -d "$THEMES_DIR/$THEME_NAME" ]; then 
+            echo "${RED}Hmm... Something is missing. What is the Theme Name?${DEFAULT}"
+            read THEME_NAME_UD
+            export THEME_NAME="$THEME_NAME_UD"
+        fi
     fi
 fi
 
