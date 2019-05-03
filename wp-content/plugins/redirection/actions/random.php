@@ -1,6 +1,6 @@
 <?php
 
-include_once dirname( __FILE__).'/url.php';
+include_once dirname( __FILE__ ) . '/url.php';
 
 class Random_Action extends Url_Action {
 	public function process_before( $code, $target ) {
@@ -13,5 +13,9 @@ class Random_Action extends Url_Action {
 
 	public function process_after( $code, $target ) {
 		$this->redirect_to( $code, $target );
+	}
+
+	public function needs_target() {
+		return true;
 	}
 }

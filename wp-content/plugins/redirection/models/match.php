@@ -1,15 +1,22 @@
 <?php
 
 abstract class Red_Match {
+	protected $type;
+
 	public function __construct( $values = '' ) {
 		if ( $values ) {
 			$this->load( $values );
 		}
 	}
 
+	public function get_type() {
+		return $this->type;
+	}
+
 	abstract public function save( array $details, $no_target_url = false );
 	abstract public function name();
-	abstract public function get_target( $url, $matched_url, $regex );
+	abstract public function get_target_url( $url, $matched_url, Red_Source_Flags $flag, $is_matched );
+	abstract public function is_match( $url );
 	abstract public function get_data();
 	abstract public function load( $values );
 
@@ -23,8 +30,10 @@ abstract class Red_Match {
 		return $url;
 	}
 
-	protected function get_target_regex_url( $matched_url, $target, $url ) {
-		return preg_replace( '@' . str_replace( '@', '\\@', $matched_url ) . '@', $target, $url );
+	protected function get_target_regex_url( $source_url, $target_url, $requested_url, Red_Source_Flags $flags ) {
+		$regex = new Red_Regex( $source_url, $flags->is_ignore_case() );
+
+		return $regex->replace( $target_url, $requested_url );
 	}
 
 	static function create( $name, $data = '' ) {
@@ -36,7 +45,9 @@ abstract class Red_Match {
 				include( dirname( __FILE__ ) . '/../matches/' . $avail[ strtolower( $name ) ] );
 			}
 
-			return new $classname( $data );
+			$class = new $classname( $data );
+			$class->type = $name;
+			return $class;
 		}
 
 		return false;
@@ -65,13 +76,63 @@ abstract class Red_Match {
 			'cookie'   => 'cookie.php',
 			'role'     => 'user-role.php',
 			'server'   => 'server.php',
+			'ip'       => 'ip.php',
+			'page'     => 'page.php',
+		);
+	}
+}
+
+trait FromUrl_Match {
+	public $url;
+
+	private function save_data( array $details, $no_target_url, array $data ) {
+		if ( $no_target_url === false ) {
+			return array_merge( array(
+				'url' => isset( $details['url'] ) ? $this->sanitize_url( $details['url'] ) : '',
+			), $data );
+		}
+
+		return $data;
+	}
+
+	public function get_target_url( $requested_url, $source_url, Red_Source_Flags $flags, $matched ) {
+		$target = $this->get_matched_target( $matched );
+
+		if ( $flags->is_regex() && $target ) {
+			return $this->get_target_regex_url( $source_url, $target, $requested_url, $flags );
+		}
+
+		return $target;
+	}
+
+	private function get_matched_target( $matched ) {
+		if ( $matched ) {
+			return $this->url;
+		}
+
+		return false;
+	}
+
+	private function load_data( $values ) {
+		$values = unserialize( $values );
+
+		if ( isset( $values['url'] ) ) {
+			$this->url = $values['url'];
+		}
+
+		return $values;
+	}
+
+	private function get_from_data() {
+		return array(
+			'url' => $this->url,
 		);
 	}
 }
 
 trait FromNotFrom_Match {
-	public $url_from;
-	public $url_notfrom;
+	public $url_from = '';
+	public $url_notfrom = '';
 
 	private function save_data( array $details, $no_target_url, array $data ) {
 		if ( $no_target_url === false ) {
@@ -82,6 +143,17 @@ trait FromNotFrom_Match {
 		}
 
 		return $data;
+	}
+
+	public function get_target_url( $requested_url, $source_url, Red_Source_Flags $flags, $matched ) {
+		// Action needs a target URL based on whether we matched or not
+		$target = $this->get_matched_target( $matched );
+
+		if ( $flags->is_regex() && $target ) {
+			return $this->get_target_regex_url( $source_url, $target, $requested_url, $flags );
+		}
+
+		return $target;
 	}
 
 	private function get_matched_target( $matched ) {

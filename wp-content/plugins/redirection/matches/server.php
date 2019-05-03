@@ -5,7 +5,7 @@ class Server_Match extends Red_Match {
 
 	public $server;
 
-	function name() {
+	public function name() {
 		return __( 'URL and server', 'redirection' );
 	}
 
@@ -20,7 +20,7 @@ class Server_Match extends Red_Match {
 			$server = ( is_ssl() ? 'https://' : 'http://' ) . $server;
 		}
 
-		$parts = parse_url( $server );
+		$parts = wp_parse_url( $server );
 
 		if ( isset( $parts['host'] ) ) {
 			return $parts['scheme'] . '://' . $parts['host'];
@@ -29,15 +29,10 @@ class Server_Match extends Red_Match {
 		return '';
 	}
 
-	function get_target( $url, $matched_url, $regex ) {
-		$server = parse_url( $this->server, PHP_URL_HOST );
+	public function is_match( $url ) {
+		$server = wp_parse_url( $this->server, PHP_URL_HOST );
 
-		$matched = false;
-		if ( $server === Redirection_Request::get_server_name() ) {
-			$matched = true;
-		}
-
-		return $this->get_matched_target( $matched );
+		return $server === Redirection_Request::get_server_name();
 	}
 
 	public function get_data() {
@@ -48,6 +43,6 @@ class Server_Match extends Red_Match {
 
 	public function load( $values ) {
 		$values = $this->load_data( $values );
-		$this->server = $values['server'];
+		$this->server = isset( $values['server'] ) ? $values['server'] : '';
 	}
 }
