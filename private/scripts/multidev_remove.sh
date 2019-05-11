@@ -78,15 +78,8 @@ if [ $STATUS -ne 0 ]; then
     exit 1
 fi
 
-echo "Deleting multidev environment <${YELLOW}${PANTHEON_SITE_ID}${DEFAULT}>.<${YELLOW}${ENVIRONMENT}${DEFAULT}>..."
+echo "Deleting multidev the <${YELLOW}${PANTHEON_SITE_ID}${DEFAULT}>.<${YELLOW}${ENVIRONMENT}${DEFAULT}> environment..."
 terminus multidev:delete -y --delete-branch -- ${PANTHEON_SITE_ID}.${ENVIRONMENT}
-MD_DELETED_STATUS="$?"
-
-if [ $MD_DELETED_STATUS -eq 0 ]; then
-    echo "Attempting to remove remote branch pantheon/${ENVIRONMENT}..."
-    git push -d pantheon ${ENVIRONMENT}
-fi
-echo ""
 echo "${GREEN}All finished here... goodbye.${DEFAULT}"
 
 exit
