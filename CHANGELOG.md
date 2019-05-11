@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.1.0 - 2019-05-11
+### CHANGED:
+- Add line to init gitflow with defaults 
+- Remove THEME_NAME variable declaration for CI context 
+- Remove older 2017 wp theme 
+- Update Yoast plugin v11.1.1 
+- Update Gravity forms to v2.4.9 
+- Update Classic Editor plugin to v1.5 
+- Update ACF plugin to v5.8.0 
+- Update terminus multidev:delete command for 2.0 support 
+- Update to WordPress 5.2. For more information, see https://wordpress.org/news/2019/05/jaco/ 
+
 ## 3.0.0 - 2019-05-03
 ### CHANGED:
 - Update WordPress to v5.1.1
