@@ -12,6 +12,7 @@ Cask is a WordPress starter theme with a modern development workflow.
 * [The Module](#The-Module) API for modular WordPress theme development
 * [BEM](http://getbem.com/introduction/) methodology to help with CSS class naming and creating reusable components.
 * [Stave](https://github.com/barrel/svbstrate), a light functional CSS library to supplement BEM definitions.
+* [GitLab CI](https://docs.gitlab.com/ee/ci/) config for testing and auto-deployment (with [Pantheon](https://pantheon.io/))
 
 See a working example at [dev-barrel-base-theme.pantheonsite.io](http://dev-barrel-base-theme.pantheonsite.io/).
 
@@ -23,7 +24,7 @@ Make sure all dependencies have been installed before moving on:
 * [Node.js](http://nodejs.org/) >= 6.9.x
 * [Lando](https://docs.devwithlando.io/tutorials/wordpress.html) >= v3.0.0-rc.1
 
-The theme makes use of the [barrel-cli](https://github.com/barrel/barrel-cli), which wraps much of the webpack and postcss functionality along with tooling for our modular development workflow.
+The theme makes use of the [barrel-cli](https://github.com/barrel/barrel-cli), which wraps much of the webpack, postcss, and browsersync functionality along with tooling for our modular development workflow.
 
 If you have an issue with setup, please open an [issue](https://github.com/barrel/barrel-cli/issues) on GitHub.
 
@@ -45,17 +46,16 @@ $ composer create-project barrel/cask your-theme-name dev-master
 During theme installation you will have options to update `style.css` theme headers, select a CSS framework, and configure Browsersync.
 
 ## Theme structure
-
-```shell
+<pre>
 themes/your-theme-name/   # → Root of your Cask based theme
 ├── .babelrc              # → Babel Config
 ├── .editorconfig         # → EditorConfig
 ├── .eslintrc.js          # → EsLint/Standard Config
 ├── .gitignore            # → Git Ignore file pattern
 ├── .stylelintrc          # → StyleLint Config
-├── acf-json/             # → ACF JSON autoloading
-├── assets/               # → Front-end assets
-│   ├── img/              # → Theme images
+├── <a href="./docs/acf.md">acf-json</a>/             # → ACF JSON autoloading
+├── <a href="./docs/assets.md">assets</a>/               # → Front-end assets
+│   ├── <a href="./docs/img.md">img</a>/              # → Theme images
 │   │   └── favicon/      # → Favicon images
 │   ├── fonts/            # → Theme fonts
 │   └── *.min.(css|js)    # → Built theme assets (never edit)
@@ -63,10 +63,10 @@ themes/your-theme-name/   # → Root of your Cask based theme
 ├── config.yml            # → Browsersync proxy targets
 ├── composer.json         # → Empty composer config
 ├── functions.php         # → Theme includes for initialization and helpers 
-├── lib/                  # → Theme PHP
-│   ├── helpers/          # → Helper files
-│   └── vendor/           # → Composer packages (never edit)
-├── modules/              # → Front-end modules (PHP, CSS, JS)
+├── <a href="./docs/lib.md">lib</a>/                  # → Theme PHP
+│   ├── <a href="./docs/helpers.md">helpers</a>/          # → Helper files
+│   └── <a href="./docs/vendor.md">vendor</a>/           # → Composer packages (never edit)
+├── <a href="./docs/modules.md">modules</a>/              # → Front-end modules (PHP, CSS, JS)
 ├── node_modules/         # → Node.js packages (never edit)
 ├── package-lock.json     # → Node.js dependency lockfile (new packages only)
 ├── package.json          # → Node.js dependencies and scripts
@@ -74,13 +74,13 @@ themes/your-theme-name/   # → Root of your Cask based theme
 ├── README.md             # → This file 
 ├── screenshot.png        # → Theme screenshot for WP admin
 ├── style.css             # → Theme meta information
-├── src/                  # → Theme PHP
+├── <a href="./docs/src.md">src</a>/                  # → Theme PHP
 │   ├── css/              # → Theme stylesheets
-│   └── js/               # → Theme javascript
+│   └── <a href="./docs/js.md">js</a>/               # → Theme javascript
 ├── tasks/                # → Theme tasks (node/webpack)
-├── templates/            # → Theme templates
+├── <a href="./docs/templates.md">templates</a>/            # → Theme templates
 └── webpack.config.css    # → Webpack config
-```
+</pre>
 
 ## Theme setup
 
