@@ -126,6 +126,7 @@ ALT_CURR_VERSION=${CURR_VERSION:1}
 ALT_NEXT_VERSION=${NEXT_VERSION:1}
 
 # Initiate git flow start
+GITFLOW_INIT=$(git flow init -d)
 if [ "$START" == "yes" ]; then
     git flow $FLOW start $NEXT_VERSION
 fi

@@ -79,8 +79,8 @@ if [ $STATUS -ne 0 ]; then
 fi
 
 echo "Deleting multidev environment <${YELLOW}${PANTHEON_SITE_ID}${DEFAULT}>.<${YELLOW}${ENVIRONMENT}${DEFAULT}>..."
-terminus multidev:delete ${PANTHEON_SITE_ID}.${ENVIRONMENT} --yes
-MD_DELETED_STATUS=$?
+terminus multidev:delete -y --delete-branch -- ${PANTHEON_SITE_ID}.${ENVIRONMENT}
+MD_DELETED_STATUS="$?"
 
 if [ $MD_DELETED_STATUS -eq 0 ]; then
     echo "Attempting to remove remote branch pantheon/${ENVIRONMENT}..."
