@@ -32,9 +32,6 @@ if [[ "$?" -ne 0 ]]; then
 fi
 echo $OK
 
-
-THEME_NAME=""
-
 # handle arguments
 for i in "$@"; do
 case $i in
