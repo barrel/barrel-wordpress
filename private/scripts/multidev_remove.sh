@@ -69,7 +69,7 @@ if [ -z ${ENVIRONMENT+x} ]; then
 fi
 
 # Check if provided multidev exists
-EXISTS=$(terminus multidev:list ${PANTHEON_SITE_ID} | grep "${ENVIRONMENT}")
+EXISTS=$(terminus multidev:list --format=string --fields=id $PANTHEON_SITE_ID | grep $ENVIRONMENT)
 STATUS=$?
 
 if [ $STATUS -ne 0 ]; then
