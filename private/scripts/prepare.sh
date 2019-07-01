@@ -88,18 +88,14 @@ AUTO_INC_VERSION_WITH_NPM="npm version $SEM --no-git-tag"
 
 # this is to always be run from the root of the project
 CWD=$(pwd)
-printf "\n%s\n\n" "Current working directory is: ${YELLOW}$CWD${DEFAULT}"
-
-# get current version, assumes prior git tag
-CURR_VERSION=$(git tag --sort v:refname | grep "^v" | tail -1)
+printf "\n%s" "Current working directory is: ${YELLOW}$CWD${DEFAULT}"
 
 # theme path
 THEME_PATH="./wp-content/themes/$THEME_NAME"
-printf "\nTheme path is: ${YELLOW}$THEME_PATH${DEFAULT}"
-printf "\nChanging directory to ${BLUE}$THEME_PATH${DEFAULT}"
+printf "\nChanging directory to theme path: ${YELLOW}$THEME_PATH${DEFAULT}"
 cd $THEME_PATH
 CWD=$(pwd)
-printf "\nCurrent working directory is now: ${BLUE}$CWD${DEFAULT}\n"
+printf "\nCurrent working directory is now: ${YELLOW}$CWD${DEFAULT}\n"
 
 # install dependencies from npm
 read -r -p "Install locked dependencies? [y/N] " response
@@ -112,6 +108,15 @@ case "$response" in
         exit 1
     fi
 esac
+if hash jq 2>/dev/null; then
+    CURR_VERSION="v"$(cat package.json | jq .version -r)
+else
+    echo "${RED}The jq utility was not detected, please install jq for more reliable version name detection.${DEFAULT}"
+    echo "Attempting to get version numer by tag..."
+    # get current version, assumes prior git tag
+    CURR_VERSION=$(git tag --sort v:refname | grep "^v" | tail -1)
+    echo "${YELLOW}The latest versioned git-tag $CURR_VERSION was found. Is this correct?${DEFAULT}"
+fi
 
 # get next version with npm, unless you find a clever regex that works
 NEXT_VERSION=$(eval $AUTO_INC_VERSION_WITH_NPM)
@@ -140,7 +145,7 @@ case "$response" in
     printf "\nCommitting styles and scripts..."
     git add --all
     git commit -am "Process scripts/styles"
-    printf "\n\n${GREEN}done.${DEFAULT}\n\n"
+    printf "\n\n$DONE\n\n"
 esac
 
 # Add new line to changelog
@@ -195,14 +200,14 @@ case "$response" in
     [yY][eE][sS]|[yY]) 
     printf "\nProceeding with package ${GREEN}$NEXT_VERSION${DEFAULT}, "
     printf "last version was ${YELLOW}$CURR_VERSION${DEFAULT}"
-	git commit -am "Update changelog and bump versions"
-    printf "\n\n${GREEN}done.${DEFAULT}\n\n"
+	git commit -am "Update changelog and bump versions" 
+    printf "\n\n$DONE\n\n"
 esac
 
 read -r -p "Finish up with gitflow? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 
-    printf "\nFinishing up with gitflow command ${BLUE}git flow $FLOW finish $NEXT_VERSION${DEFAULT}...\n"
+    printf "\nFinishing up with gitflow command: ${BLUE}git flow $FLOW finish $NEXT_VERSION${DEFAULT}\n"
     export GIT_MERGE_AUTOEDIT=no
     git flow $FLOW finish -m "Tag $NEXT_VERSION" $NEXT_VERSION
     unset GIT_MERGE_AUTOEDIT
