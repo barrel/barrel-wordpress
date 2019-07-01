@@ -97,17 +97,6 @@ cd $THEME_PATH
 CWD=$(pwd)
 printf "\nCurrent working directory is now: ${YELLOW}$CWD${DEFAULT}\n"
 
-# install dependencies from npm
-read -r -p "Install locked dependencies? [y/N] " response
-case "$response" in
-    [yY][eE][sS]|[yY]) 
-    printf "\nInstalling dependencies..."
-    npm ci
-    if [[ "$?" -ne 0 ]]; then
-        echo "${RED}Failed to install build files!${DEFAULT}"
-        exit 1
-    fi
-esac
 if hash jq 2>/dev/null; then
     CURR_VERSION="v"$(cat package.json | jq .version -r)
 else
@@ -129,6 +118,19 @@ printf "%s\n\n" "Running: npm version ${YELLOW}$SEM${DEFAULT}"
 # Remove the "v"
 ALT_CURR_VERSION=${CURR_VERSION:1}
 ALT_NEXT_VERSION=${NEXT_VERSION:1}
+
+# install dependencies from npm
+read -r -p "Install locked dependencies? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+    printf "\nInstalling dependencies..."
+    npm ci
+    if [[ "$?" -ne 0 ]]; then
+        echo "${RED}Failed to install build files!${DEFAULT}"
+        exit 1
+    fi
+    printf "\n\n$DONE\n\n"
+esac
 
 # Initiate git flow start
 GITFLOW_INIT=$(git flow init -d)
