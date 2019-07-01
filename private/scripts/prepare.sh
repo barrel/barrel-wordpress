@@ -210,4 +210,29 @@ case "$response" in
     unset GIT_MERGE_AUTOEDIT
     printf "\n\n$DONE\n\n"
 esac
+
+read -r -p "Sync git remotes for pantheon and gitlab? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+    printf "\n${YELLOW}Synchronizing git remotes...${DEFAULT}\n"
+    git checkout develop && git push origin develop && git push -f pantheon develop
+    git checkout master && git push origin master && git push pantheon master
+    git push origin $NEXT_VERSION
+    printf "\n\n$DONE\n\n"
+esac
+
+read -r -p "Deploy to test? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+    printf "\n${YELLOW}Deploying to Pantheon <test> environment...${DEFAULT}\n"
+
+    # assumes pantheon deploy tags are local
+    t=$(git tag --sort v:refname | grep _test_ | tail -1)
+    p="pantheon_test_"
+    v=${t:${#p}}
+    p=$p$(($v+1))
+    git tag $p && git push pantheon $p
+    printf "\n\n$DONE\n\n"
+esac
+
 exit
