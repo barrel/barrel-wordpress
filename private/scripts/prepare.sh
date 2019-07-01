@@ -180,11 +180,6 @@ read -r -p "Finalize the CHANGELOG and continue? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 
     vim "+4 $A" ../../../CHANGELOG.md
-    ;;
-    *)
-    printf "\nMust finalize changes. Exiting..."
-    exit 1
-    ;;
 esac
 
 # replace current version with new one in style.css
@@ -211,12 +206,6 @@ case "$response" in
     export GIT_MERGE_AUTOEDIT=no
     git flow $FLOW finish -m "Tag $NEXT_VERSION" $NEXT_VERSION
     unset GIT_MERGE_AUTOEDIT
-    exit 0
-    ;;
-    *)
-    printf "\n${RED}Exiting. Goodbye.${DEFAULT}\n\n"
-    git reset --hard HEAD
-    exit 1
-    ;;
+    printf "\n\n$DONE\n\n"
 esac
 exit
