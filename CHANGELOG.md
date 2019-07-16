@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.2.0 - 2019-07-16
+### CHANGED:
+- Update Zapier webhook catch URL 
+- Add case blocks to prepare script for synchronizing git remotes and deploying to pantheon 
+- Modify block to install dependencies, mnoving it lower than the current version detection 
+- Remove exits within conditional blocks to treat as skip 
+- Modify prepare script dialog output and current version detection 
+- Update terminus command to find mulitdev by name 
+- Update testing script variable with export 
+- Modify readme and move/centralize markdown files to a single directory 
+- Remove lines that delete the remote Pantheon branch after multidev deletion 
+
 ## 3.1.0 - 2019-05-11
 ### CHANGED:
 - Add line to init gitflow with defaults 
