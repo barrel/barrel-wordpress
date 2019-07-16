@@ -56,11 +56,11 @@ if [ "$THEME_NAME" == "" ]; then
         echo "${YELLOW}Checking to see if '$THEME_NAME' exists...${DEFAULT}"
         if ! [ -d "$THEMES_DIR/$THEME_NAME" ]; then 
             echo "${BLUE}Hmm... Something is missing. What is the Theme Name?${DEFAULT}"
-            read THEME_NAME_UD
-            export THEME_NAME="$THEME_NAME_UD"
+            read THEME_NAME
         else
             echo "${YELLOW}Theme '$THEME_NAME' exists...${DEFAULT}"
         fi
+        export THEME_NAME="$THEME_NAME"
     fi
 fi
 THEME_LOCATION="$THEMES_DIR/$THEME_NAME"

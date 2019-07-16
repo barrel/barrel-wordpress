@@ -88,30 +88,24 @@ AUTO_INC_VERSION_WITH_NPM="npm version $SEM --no-git-tag"
 
 # this is to always be run from the root of the project
 CWD=$(pwd)
-printf "\n%s\n\n" "Current working directory is: ${YELLOW}$CWD${DEFAULT}"
-
-# get current version, assumes prior git tag
-CURR_VERSION=$(git tag --sort v:refname | grep "^v" | tail -1)
+printf "\n%s" "Current working directory is: ${YELLOW}$CWD${DEFAULT}"
 
 # theme path
 THEME_PATH="./wp-content/themes/$THEME_NAME"
-printf "\nTheme path is: ${YELLOW}$THEME_PATH${DEFAULT}"
-printf "\nChanging directory to ${BLUE}$THEME_PATH${DEFAULT}"
+printf "\nChanging directory to theme path: ${YELLOW}$THEME_PATH${DEFAULT}"
 cd $THEME_PATH
 CWD=$(pwd)
-printf "\nCurrent working directory is now: ${BLUE}$CWD${DEFAULT}\n"
+printf "\nCurrent working directory is now: ${YELLOW}$CWD${DEFAULT}\n"
 
-# install dependencies from npm
-read -r -p "Install locked dependencies? [y/N] " response
-case "$response" in
-    [yY][eE][sS]|[yY]) 
-    printf "\nInstalling dependencies..."
-    npm ci
-    if [[ "$?" -ne 0 ]]; then
-        echo "${RED}Failed to install build files!${DEFAULT}"
-        exit 1
-    fi
-esac
+if hash jq 2>/dev/null; then
+    CURR_VERSION="v"$(cat package.json | jq .version -r)
+else
+    echo "${RED}The jq utility was not detected, please install jq for more reliable version name detection.${DEFAULT}"
+    echo "Attempting to get version numer by tag..."
+    # get current version, assumes prior git tag
+    CURR_VERSION=$(git tag --sort v:refname | grep "^v" | tail -1)
+    echo "${YELLOW}The latest versioned git-tag $CURR_VERSION was found. Is this correct?${DEFAULT}"
+fi
 
 # get next version with npm, unless you find a clever regex that works
 NEXT_VERSION=$(eval $AUTO_INC_VERSION_WITH_NPM)
@@ -124,6 +118,19 @@ printf "%s\n\n" "Running: npm version ${YELLOW}$SEM${DEFAULT}"
 # Remove the "v"
 ALT_CURR_VERSION=${CURR_VERSION:1}
 ALT_NEXT_VERSION=${NEXT_VERSION:1}
+
+# install dependencies from npm
+read -r -p "Install locked dependencies? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+    printf "\nInstalling dependencies..."
+    npm ci
+    if [[ "$?" -ne 0 ]]; then
+        echo "${RED}Failed to install build files!${DEFAULT}"
+        exit 1
+    fi
+    printf "\n\n$DONE\n\n"
+esac
 
 # Initiate git flow start
 GITFLOW_INIT=$(git flow init -d)
@@ -140,7 +147,7 @@ case "$response" in
     printf "\nCommitting styles and scripts..."
     git add --all
     git commit -am "Process scripts/styles"
-    printf "\n\n${GREEN}done.${DEFAULT}\n\n"
+    printf "\n\n$DONE\n\n"
 esac
 
 # Add new line to changelog
@@ -175,11 +182,6 @@ read -r -p "Finalize the CHANGELOG and continue? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 
     vim "+4 $A" ../../../CHANGELOG.md
-    ;;
-    *)
-    printf "\nMust finalize changes. Exiting..."
-    exit 1
-    ;;
 esac
 
 # replace current version with new one in style.css
@@ -195,23 +197,42 @@ case "$response" in
     [yY][eE][sS]|[yY]) 
     printf "\nProceeding with package ${GREEN}$NEXT_VERSION${DEFAULT}, "
     printf "last version was ${YELLOW}$CURR_VERSION${DEFAULT}"
-	git commit -am "Update changelog and bump versions"
-    printf "\n\n${GREEN}done.${DEFAULT}\n\n"
+	git commit -am "Update changelog and bump versions" 
+    printf "\n\n$DONE\n\n"
 esac
 
 read -r -p "Finish up with gitflow? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 
-    printf "\nFinishing up with gitflow command ${BLUE}git flow $FLOW finish $NEXT_VERSION${DEFAULT}...\n"
+    printf "\nFinishing up with gitflow command: ${BLUE}git flow $FLOW finish $NEXT_VERSION${DEFAULT}\n"
     export GIT_MERGE_AUTOEDIT=no
     git flow $FLOW finish -m "Tag $NEXT_VERSION" $NEXT_VERSION
     unset GIT_MERGE_AUTOEDIT
-    exit 0
-    ;;
-    *)
-    printf "\n${RED}Exiting. Goodbye.${DEFAULT}\n\n"
-    git reset --hard HEAD
-    exit 1
-    ;;
+    printf "\n\n$DONE\n\n"
 esac
+
+read -r -p "Sync git remotes for pantheon and gitlab? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+    printf "\n${YELLOW}Synchronizing git remotes...${DEFAULT}\n"
+    git checkout develop && git push origin develop && git push -f pantheon develop
+    git checkout master && git push origin master && git push pantheon master
+    git push origin $NEXT_VERSION
+    printf "\n\n$DONE\n\n"
+esac
+
+read -r -p "Deploy to test? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+    printf "\n${YELLOW}Deploying to Pantheon <test> environment...${DEFAULT}\n"
+
+    # assumes pantheon deploy tags are local
+    t=$(git tag --sort v:refname | grep _test_ | tail -1)
+    p="pantheon_test_"
+    v=${t:${#p}}
+    p=$p$(($v+1))
+    git tag $p && git push pantheon $p
+    printf "\n\n$DONE\n\n"
+esac
+
 exit
