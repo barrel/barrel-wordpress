@@ -2,9 +2,9 @@
 Contributors: johnny5
 Donate link: https://redirection.me/donation/
 Tags: redirect, htaccess, 301, 404, seo, permalink, apache, nginx, post, admin
-Requires at least: 4.6
-Tested up to: 5.1.1
-Stable tag: 4.2.3
+Requires at least: 4.8
+Tested up to: 5.2.1
+Stable tag: 4.3.1
 Requires PHP: 5.4
 License: GPLv3
 
@@ -86,6 +86,7 @@ You can also import from the following plugins:
 - Simple 301 Redirects
 - SEO Redirection
 - Safe Redirect Manager
+- Rank Math
 - WordPress old slug redirects
 
 = Wait, it's free? =
@@ -137,9 +138,6 @@ The plugin works in a similar manner to how WordPress handles permalinks and sho
 
 == Upgrade Notice ==
 
-= 2.3.3 =
-* Full WordPress 3.5+ compatibility! Note that this contains database changes so please backup your data.
-
 = 2.4 =
 * Another database change. Please backup your data
 
@@ -158,6 +156,23 @@ The plugin works in a similar manner to how WordPress handles permalinks and sho
 * Alters database to support case insensitivity, trailing slashes, and query params. Please backup your data
 
 == Changelog ==
+
+= 4.3.1 - 8th June 2019 =
+* Fix + character being removed from source URL
+
+= 4.3 - 2nd June 2019 =
+* Add support for UTF8 URLs without manual encoding
+* Add manual database install option
+* Add check for pipe character in target URL
+* Add warning when problems saving .htaccess file
+* Switch from 'x-redirect-agent' to 'x-redirect-by', for WP 5+
+* Improve handling of invalid query parameters
+* Fix query param name is a number
+* Fix redirect with blank target and auto target settings
+* Fix monitor trash option applying when deleting a draft
+* Fix case insensitivity not applying to query params
+* Disable IP grouping when IP option is disabled
+* Allow multisite database updates to run when more than 100 sites
 
 = 4.2.3 - 16th Apr 2019 =
 * Fix bug with old API routes breaking test
@@ -628,13 +643,8 @@ The plugin works in a similar manner to how WordPress handles permalinks and sho
 * Fix 410 error code
 * Fix DB errors when MySQL doesn't auto-convert data types
 
-= 2.2.4 =
-* Add Hungarian translation, thanks to daSSad
-
-= 2.2.3 =
+= < 2.2.4 =
 * Remove debug from htaccess module
-
-= < 2.2.2 =
 * Fix encoding of JS strings
 * Use fgetcsv for CSV importer - better handling
 * Allow http as URL parameter

@@ -64,7 +64,8 @@ class Redirection_Api_Plugin extends Redirection_Api_Route {
 
 			$posts = $wpdb->get_results(
 				$wpdb->prepare(
-					"SELECT ID,post_title,post_name FROM $wpdb->posts WHERE post_status='publish' AND (post_title LIKE %s OR post_name LIKE %s)",
+					"SELECT ID,post_title,post_name FROM $wpdb->posts WHERE post_status='publish' AND (post_title LIKE %s OR post_name LIKE %s) " .
+					"AND post_type NOT IN ('nav_menu_item','wp_block','oembed_cache')",
 					'%' . $wpdb->esc_like( $search ) . '%', '%' . $wpdb->esc_like( $search ) . '%'
 				)
 			);
@@ -95,7 +96,14 @@ class Redirection_Api_Plugin extends Redirection_Api_Route {
 		$fixer = new Red_Fixer();
 
 		if ( isset( $params['name'] ) && isset( $params['value'] ) ) {
+			global $wpdb;
+
 			$fixer->save_debug( $params['name'], $params['value'] );
+
+			$groups = intval( $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}redirection_groups" ), 10 );
+			if ( $groups === 0 ) {
+				Red_Group::create( 'new group', 1 );
+			}
 		} else {
 			$fixer->fix( $fixer->get_status() );
 		}

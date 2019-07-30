@@ -67,25 +67,21 @@ HOME_URL:                 <?php echo esc_url( home_url() ) . "\n"; ?>
 SearchWP Version:         <?php echo esc_textarea( $this->searchwp->version ) . "\n"; ?>
 SearchWP License:         <?php echo esc_textarea( searchwp_get_license_key() ) . "\n"; ?>
 WordPress Version:        <?php echo esc_textarea( get_bloginfo( 'version' ) ) . "\n"; ?>
-Permalink Structure:      <?php echo esc_textarea( get_option( 'permalink_structure' ) ) . "\n"; ?>
 Active Theme:             <?php echo esc_textarea( $theme ) . "\n"; ?>
 <?php if ( $host ) : ?>
 Host:                     <?php echo esc_textarea( $host ) . "\n"; ?>
 <?php endif; ?>
-
-Registered Post Stati:    <?php echo esc_textarea( implode( ', ', get_post_stati() ) ) . "\n"; ?>
 
 PHP Version:              <?php echo esc_textarea( PHP_VERSION ) . "\n"; ?>
 MySQL Version:            <?php echo esc_textarea( $wpdb->db_version() ) . "\n"; ?>
 Web Server Info:          <?php echo esc_textarea( $_SERVER['SERVER_SOFTWARE'] ) . "\n"; ?>
 
 WordPress Memory Limit:   <?php echo esc_textarea( WP_MEMORY_LIMIT ) . "\n"; ?>
+WordPress Uploads Base:   <?php echo esc_textarea( searchwp_get_relative_upload_path() ) . "\n"; ?>
 PHP Memory Limit:         <?php echo esc_textarea( ini_get( 'memory_limit' ) ) . "\n"; ?>
 PHP Time Limit:           <?php echo esc_textarea( ini_get( 'max_execution_time' ) ) . "\n"; ?>
 
 WP_DEBUG:                 <?php echo esc_textarea( ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? 'Enabled' : 'Disabled' ) . "\n"; ?>
-
-WP Table Prefix:          <?php echo 'Length: '. absint( strlen( $wpdb->prefix ) ); echo ' Status:'; if ( strlen( $wpdb->prefix ) > 16 ) { echo ' ERROR: Too Long'; } else { echo ' Acceptable'; } echo "\n"; ?>
 
 <?php
 $request['cmd'] = '_notify-validate';
@@ -234,9 +230,60 @@ if ( isset( $this->searchwp->settings['paused'] ) ) {
 }
 ?>
 
+ENGINE CONFIG:
+
+<?php
+if ( isset( $this->searchwp->settings['engines'] ) ) {
+		echo esc_textarea( print_r( $this->searchwp->settings['engines'], true ) );
+}
+?>
+
 SETTINGS:
 
-<?php if ( isset( $this->searchwp->settings['engines'] ) ) { echo esc_textarea( print_r( $this->searchwp->settings['engines'], true ) ); } ?>
+Stopwords:
+
+<?php echo esc_textarea( wordwrap( implode( ', ', (array) SWP()->common ) ) ); ?>
+
+
+Synonyms:
+
+<?php
+$pad = 0;
+foreach ( (array) SWP()->synonyms->get() as $synonym ) {
+	if ( strlen( $synonym['term'] ) > $pad ) {
+		$pad = strlen( $synonym['term'] );
+	}
+}
+
+$synonyms = SWP()->synonyms->get();
+foreach ( (array) $synonyms as $synonym ) {
+	$synonyms = is_array( $synonym['synonyms'] ) ? implode( ', ', $synonym['synonyms'] ) : (string) $synonym['synonyms'];
+	echo "\t" . esc_textarea( str_pad( $synonym['term'], $pad ) ) . ' => ' . $synonyms;
+	if ( $synonym['replace'] ) {
+		echo ' (replace)';
+	}
+	echo "\n";
+}
+?>
+
+Advanced Settings:
+
+<?php
+$searchwp_advanced_settings = new SearchWP_Settings_Implementation_Advanced();
+$advanced_settings          = $searchwp_advanced_settings->get_settings();
+?>
+	Alternate Indexer:                <?php echo esc_textarea( $advanced_settings['indexer_alternate'] ? 'Yes' : 'No' ) . "\n"; ?>
+	Debugging Enabled:                <?php echo esc_textarea( $advanced_settings['debugging'] ? 'Yes' : 'No' ) . "\n"; ?>
+	Admin Search Enabled:             <?php echo esc_textarea( $advanced_settings['admin_search'] ? 'Yes' : 'No' ) . "\n"; ?>
+	Admin Search Engine:              <?php echo esc_textarea( $advanced_settings['admin_engine'] ? 'Yes' : 'No' ) . "\n"; ?>
+	Exclusive Regex Matches:          <?php echo esc_textarea( $advanced_settings['exclusive_regex_matches'] ? 'Yes' : 'No' ) . "\n"; ?>
+	Minimum Word Length Disabled:     <?php echo esc_textarea( $advanced_settings['min_word_length'] ? 'Yes' : 'No' ) . "\n"; ?>
+	Reduced Indexer Aggressiveness:   <?php echo esc_textarea( $advanced_settings['indexer_aggressiveness'] ? 'Yes' : 'No' ) . "\n"; ?>
+	Nuke on Delete:                   <?php echo esc_textarea( $advanced_settings['nuke_on_delete'] ? 'Yes' : 'No' ) . "\n"; ?>
+	Indexer Disabled:                 <?php echo esc_textarea( $advanced_settings['disable_indexer'] ? 'Yes' : 'No' ) . "\n"; ?>
+	Parse Shortcodes:                 <?php echo esc_textarea( $advanced_settings['parse_shortcodes'] ? 'Yes' : 'No' ) . "\n"; ?>
+	Partial Matches:                  <?php echo esc_textarea( $advanced_settings['partial_matches'] ? 'Yes' : 'No' ) . "\n"; ?>
+	Highlighting Enabled:             <?php echo esc_textarea( $advanced_settings['highlight_terms'] ? 'Yes' : 'No' ) . "\n"; ?>
 
 PURGE QUEUE:
 

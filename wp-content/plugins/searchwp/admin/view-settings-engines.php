@@ -140,6 +140,7 @@ $data['misc'] = array(
 
 $advanced_settings = searchwp_get_option( 'advanced' );
 $data['misc']['admin_search'] = ! empty( $advanced_settings['admin_search'] );
+$data['misc']['admin_engine'] = isset( $advanced_settings['admin_engine'] ) ? $advanced_settings['admin_engine'] : 'default';
 
 // We need the configurations for all existing engines
 $data['engines'] = searchwp_get_setting( 'engines' );

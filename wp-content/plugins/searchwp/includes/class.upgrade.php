@@ -638,10 +638,13 @@ class SearchWPUpgrade {
 			);
 
 			// back up the settings
-			$live_settings = searchwp_get_option( 'settings' );
-			$settings_backups = array();
-			$settings_backups[ current_time( 'timestamp' ) ] = $live_settings;
-			update_option( SEARCHWP_PREFIX . 'settings_backup', $settings_backups, false );
+			$do_backup = apply_filters( 'searchwp_do_settings_backup', true );
+			if ( $do_backup ) {
+				$live_settings = searchwp_get_option( 'settings' );
+				$settings_backups = array();
+				$settings_backups[ current_time( 'timestamp' ) ] = $live_settings;
+				update_option( SEARCHWP_PREFIX . 'settings_backup', $settings_backups, false );
+			}
 
 			$autoload_options = searchwp_get_autoload_options();
 
@@ -718,12 +721,21 @@ class SearchWPUpgrade {
  * @since 2.9.0
  */
 function searchwp_add_settings_backup() {
-	$live_settings = searchwp_get_option( 'settings' );
+	$do_backup = apply_filters( 'searchwp_do_settings_backup', true );
+
+	if ( empty( $do_backup ) ) {
+		return;
+	}
+
+	$live_settings    = searchwp_get_option( 'settings' );
 	$settings_backups = searchwp_get_option( 'settings_backup' );
+
 	if ( empty( $settings_backups ) ) {
 		$settings_backups = array();
 	}
+
 	$settings_backups[ current_time( 'timestamp' ) ] = $live_settings;
+
 	update_option( SEARCHWP_PREFIX . 'settings_backup', $settings_backups, 'no' );
 }
 

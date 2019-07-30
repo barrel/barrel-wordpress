@@ -234,6 +234,7 @@ class SearchWP_Settings_Implementation_Advanced {
 					'do_stopwords_suggestions' => $do_stopwords_suggestions,
 					'synonyms'                 => SWP()->synonyms->get(),
 					'settings'                 => $this->get_settings(),
+					'min_word_length'          => apply_filters( 'searchwp_minimum_word_length', 3 ),
 				),
 			)
 		);

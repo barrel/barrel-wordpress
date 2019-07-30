@@ -531,6 +531,13 @@ function searchwp_get_meta_keys_for_post_type( $post_type = 'post' ) {
 	return $meta_keys;
 }
 
+function searchwp_get_relative_upload_path() {
+	$upload_dest = wp_upload_dir();
+	$upload_path = $upload_dest['basedir'];
+
+	return str_replace( ABSPATH, '', $upload_path );
+}
+
 function searchwp_get_excluded_meta_keys() {
 	$omit_wp_metadata = apply_filters( 'searchwp_omit_wp_metadata', array(
 		'_edit_lock',

@@ -66,8 +66,11 @@ class WPSEO_Option_Titles extends WPSEO_Option {
 
 		'website_name'                  => '',
 		'person_name'                   => '',
+		'person_logo'                   => '',
+		'person_logo_id'                => 0,
 		'alternate_website_name'        => '',
 		'company_logo'                  => '',
+		'company_logo_id'               => 0,
 		'company_name'                  => '',
 		'company_or_person'             => 'company',
 		'company_or_person_user_id'     => false,
@@ -93,6 +96,13 @@ class WPSEO_Option_Titles extends WPSEO_Option {
 		 * - 'display-metabox-tax-' . $tax->name => false;
 		 */
 	);
+
+	/**
+	 * Used for "caching" during pageload.
+	 *
+	 * @var array
+	 */
+	protected $enriched_defaults = null;
 
 	/**
 	 * Array of variable option name patterns for the option.
@@ -230,10 +240,8 @@ class WPSEO_Option_Titles extends WPSEO_Option {
 	 * @return  void
 	 */
 	public function enrich_defaults() {
-		$cache_key = 'yoast_titles_rich_defaults_' . $this->option_name;
-
-		$enriched_defaults = wp_cache_get( $cache_key );
-		if ( false !== $enriched_defaults ) {
+		$enriched_defaults = $this->enriched_defaults;
+		if ( null !== $enriched_defaults ) {
 			$this->defaults += $enriched_defaults;
 			return;
 		}
@@ -288,8 +296,8 @@ class WPSEO_Option_Titles extends WPSEO_Option {
 			}
 		}
 
-		wp_cache_set( $cache_key, $enriched_defaults );
-		$this->defaults += $enriched_defaults;
+		$this->enriched_defaults = $enriched_defaults;
+		$this->defaults         += $enriched_defaults;
 	}
 
 	/**
@@ -302,7 +310,7 @@ class WPSEO_Option_Titles extends WPSEO_Option {
 	 * @return void
 	 */
 	public function invalidate_enrich_defaults_cache() {
-		wp_cache_delete( 'yoast_titles_rich_defaults_' . $this->option_name );
+		$this->enriched_defaults = null;
 	}
 
 	/**
@@ -359,13 +367,14 @@ class WPSEO_Option_Titles extends WPSEO_Option {
 							$clean[ $key ] = $dirty[ $key ];
 						}
 						else {
-							$defaults = $this->get_defaults();
+							$defaults      = $this->get_defaults();
 							$clean[ $key ] = $defaults['company_or_person'];
 						}
 					}
 					break;
 
 				case 'company_logo':
+				case 'person_logo':
 					$this->validate_url( $key, $dirty, $old, $clean );
 					break;
 
@@ -474,6 +483,8 @@ class WPSEO_Option_Titles extends WPSEO_Option {
 					break;
 
 				case 'company_or_person_user_id':
+				case 'company_logo_id':
+				case 'person_logo_id':
 				case 'title_test': /* Integer field - not in form. */
 					if ( isset( $dirty[ $key ] ) ) {
 						$int = WPSEO_Utils::validate_int( $dirty[ $key ] );

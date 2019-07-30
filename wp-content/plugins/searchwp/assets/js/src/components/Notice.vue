@@ -2,7 +2,7 @@
 	<div :class="['searchwp-notice-persist', 'notice', 'notice-' + type, dismissable ? 'is-dismissable' : '']">
 		<p>
 			<span class="searchwp-notice-text"><slot></slot></span>
-			<a v-if="link && link.length && linkText && linkText.length" :href="link">{{ linkText }}</a>
+			<a v-if="link && link.length && linkText && linkText.length" :href="link" target="_BLANK">{{ linkText }}</a>
 			<button v-if="buttonText" @click="emitButtonClick" class="button">{{ buttonText }}</button>
 			<button v-if="dismissable" @click="emitDismissed" type="button" class="notice-dismiss">
 				<span class="screen-reader-text">{{ i18n.dismiss }}</span>

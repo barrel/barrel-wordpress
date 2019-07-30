@@ -15,6 +15,7 @@
  * @property int    $attachment_id  The ID of the attachment used to generate the object.
  */
 class WPSEO_Schema_Image {
+
 	/**
 	 * The `@id` to use for the returned image.
 	 *
@@ -37,7 +38,7 @@ class WPSEO_Schema_Image {
 	private $attachment_id;
 
 	/**
-	 * WPSEO_Schema_Breadcrumb constructor.
+	 * WPSEO_Schema_Image constructor.
 	 *
 	 * @param string $schema_id The string to use in an image's `@id`.
 	 */
@@ -123,8 +124,6 @@ class WPSEO_Schema_Image {
 		if ( ! empty( $caption ) ) {
 			$this->data['caption'] = $caption;
 		}
-
-		return;
 	}
 
 	/**
@@ -145,7 +144,7 @@ class WPSEO_Schema_Image {
 	 * @return void
 	 */
 	private function add_image_size() {
-		$image_meta           = wp_get_attachment_metadata( $this->attachment_id );
+		$image_meta = wp_get_attachment_metadata( $this->attachment_id );
 		if ( empty( $image_meta['width'] ) || empty( $image_meta['height'] ) ) {
 			return;
 		}

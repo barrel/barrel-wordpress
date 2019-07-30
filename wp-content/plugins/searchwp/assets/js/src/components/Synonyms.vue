@@ -1,17 +1,27 @@
 <template>
 	<div class="searchwp-synonyms">
+
+		<searchwp-notice
+			v-if="termViolations && termViolations.length > 0"
+			type="warning"
+			:dismissable="false"
+			link="https://searchwp.com/?p=164370"
+			:linkText="i18n.moreInfo">
+			<component :is="translatedMinWordLengthNote"></component>
+		</searchwp-notice>
+
 		<div class="searchwp-synonyms__list" id="searchwp-synonyms__list">
 			<table v-if="synonyms && synonyms.length">
 				<thead>
 					<tr>
 						<th>
-							<searchwp-tooltip :content="'The original search term'">{{ i18n.searchTerm }}</searchwp-tooltip>
+							<searchwp-tooltip :content="i18n.searchTermNote">{{ i18n.searchTerm }}</searchwp-tooltip>
 						</th>
 						<th>
-							<searchwp-tooltip :content="'Term(s) that are synonymous with the Search Term'">{{ i18n.synonyms }}</searchwp-tooltip>
+							<searchwp-tooltip :content="i18n.synonymsNote">{{ i18n.synonyms }}</searchwp-tooltip>
 						</th>
 						<th>
-							<searchwp-tooltip :content="'When enabled, original Search Term will be removed'">{{ i18n.replace }}</searchwp-tooltip>
+							<searchwp-tooltip :content="i18n.replaceNote">{{ i18n.replace }}</searchwp-tooltip>
 						</th>
 					</tr>
 				</thead>
@@ -27,7 +37,7 @@
 						<td class="searchwp-synonyms__term">
 							<div>
 								<button @click="remove(synonymIndex)"><span class="dashicons dashicons-dismiss"><span class="searchwp-hidden">{{ i18n.remove }}</span></span></button>
-								<input @keyup.enter="add" v-model="synonym.term"/>
+								<input @keyup.enter="add" v-model="synonym.term" @blur="checkSourceTerms()"/>
 							</div>
 						</td>
 						<td class="searchwp-synonyms__synonyms">
@@ -89,9 +99,17 @@ export default {
 		Spinner,
 		'searchwp-notice': SearchwpNotice
 	},
+	computed: {
+		translatedMinWordLengthNote() {
+			return {
+				template: '<span>' + this.i18n.minWordLengthNote.replace( '{{ minWordLength }}', this.minWordLength ) + '</span>'
+			}
+		}
+	},
 	methods: {
 		remove(index) {
 			this.synonyms.splice(index, 1);
+			this.checkSourceTerms();
 		},
 		save() {
 			const data = {
@@ -131,6 +149,22 @@ export default {
 					input.focus();
 				}
 			}, 100);
+		},
+		checkSourceTerms() {
+			this.termViolations.splice(0);
+			this.checkForMinCharacterCount();
+		},
+		checkForMinCharacterCount() {
+			this.synonyms.map(synonym => {
+				if (synonym.term.length < this.minWordLength) {
+					this.addViolation('minWordLength');
+				}
+			});
+		},
+		addViolation(violation) {
+			if (this.termViolations.indexOf(violation) == -1) {
+				this.termViolations.push(violation);
+			}
 		}
 	},
 	created() {
@@ -144,21 +178,30 @@ export default {
 			synonym.synonyms = synonym.synonyms.join(', ');
 			return synonym;
 		});
+
+		this.checkSourceTerms();
 	},
 	data: function() {
 		return {
 			saving: false,
 			saved: false,
 			synonyms: [],
+			minWordLength: _SEARCHWP_VARS.data.min_word_length,
+			termViolations: [],
 			i18n: {
 				addNew: _SEARCHWP_VARS.i18n.add_new,
+				minWordLengthNote: _SEARCHWP_VARS.i18n.min_word_length_note,
+				moreInfo: _SEARCHWP_VARS.i18n.more_info,
 				remove: _SEARCHWP_VARS.i18n.remove,
 				replace: _SEARCHWP_VARS.i18n.replace,
+				replaceNote: _SEARCHWP_VARS.i18n.replace_note,
 				saveSynonyms: _SEARCHWP_VARS.i18n.save_synonyms,
 				saving: _SEARCHWP_VARS.i18n.saving,
 				searchTerm: _SEARCHWP_VARS.i18n.search_term,
+				searchTermNote: _SEARCHWP_VARS.i18n.search_term_note,
 				synonyms: _SEARCHWP_VARS.i18n.synonyms_maybe_plural,
 				synonymsNone: _SEARCHWP_VARS.i18n.synonyms_none,
+				synonymsNote: _SEARCHWP_VARS.i18n.synonyms_note_tooltip,
 				synonymsSaved: _SEARCHWP_VARS.i18n.synonyms_saved
 			}
 		}
