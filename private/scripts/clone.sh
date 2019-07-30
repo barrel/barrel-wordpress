@@ -42,9 +42,7 @@ if [ "$THEME_NAME" == "" ]; then
         THEME_NAME=$(basename $(pwd))
         echo "${YELLOW}Checking to see if '$THEME_NAME' exists...${DEFAULT}"
         if ! [ -d "$THEMES_DIR/$THEME_NAME" ]; then 
-            echo "${RED}Hmm... Something is missing. What is the Theme Name?${DEFAULT}"
-            read THEME_NAME_UD
-            export THEME_NAME="$THEME_NAME_UD"
+            echo "${YELLOW}Theme '$THEME_NAME' does not exist, using '$THEME_NAME' moving forward...${DEFAULT}"
         fi
     fi
 fi
@@ -63,11 +61,8 @@ CWD=$(pwd)
 echo "Current working directory is: $CWD"
 
 echo "Copying theme files..."
+echo "Copying $THEMES_DIR/$BASE_THEME to $THEMES_DIR/$THEME_NAME"
 cp -R $THEMES_DIR/$BASE_THEME $THEMES_DIR/$THEME_NAME
-
-# remove lando config 
-echo "Removing lando config, please re-run 'lando init --source cwd --recipe pantheon' when connecting with Pantheon..."
-rm .lando.yml
 
 # replace barrel-base
 if [ "$PLATFORM" == "macos" ]; then
@@ -78,7 +73,6 @@ if [ "$PLATFORM" == "macos" ]; then
     sed -i "" "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/lib/helpers/wordpress.php
     sed -i "" "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/modules/search-form/search-form.php
     sed -i "" "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/package.json
-    sed -i "" "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/package-lock.json
     sed -i "" "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/style.css
     sed -i "" "s/$BASE_THEME-theme/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/config.yml
 else
@@ -89,23 +83,29 @@ else
     sed -i "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/lib/helpers/wordpress.php
     sed -i "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/modules/search-form/search-form.php
     sed -i "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/package.json
-    sed -i "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/package-lock.json
     sed -i "s/$BASE_THEME/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/style.css
     sed -i "s/$BASE_THEME-theme/$THEME_NAME/g" $THEMES_DIR/$THEME_NAME/config.yml
 fi
 
+# remove original package lock
+rm $THEMES_DIR/$THEME_NAME/package-lock.json
+
 # replace version number of latest base theme in package.json, package-lock.json, and style.css
-BASE_THEME_VERSION="2.1.0"
+BASE_THEME_VERSION="3.2.0"
 NEW_VERSION="0.0.1"
 if [ "$PLATFORM" == "macos" ]; then
     sed -i "" "s/$BASE_THEME_VERSION/$NEW_VERSION/g" $THEMES_DIR/$THEME_NAME/package.json
-    sed -i "" "s/$BASE_THEME_VERSION/$NEW_VERSION/g" $THEMES_DIR/$THEME_NAME/package-lock.json
     sed -i "" "s/$BASE_THEME_VERSION/$NEW_VERSION/g" $THEMES_DIR/$THEME_NAME/style.css
 else
     sed -i "s/$BASE_THEME_VERSION/$NEW_VERSION/g" $THEMES_DIR/$THEME_NAME/package.json
-    sed -i "s/$BASE_THEME_VERSION/$NEW_VERSION/g" $THEMES_DIR/$THEME_NAME/package-lock.json
     sed -i "s/$BASE_THEME_VERSION/$NEW_VERSION/g" $THEMES_DIR/$THEME_NAME/style.css
 fi
 
+# remove lando config 
+echo "Removing lando config..."
+rm .lando.yml
+
 # re-init lando
 lando init --source cwd --recipe pantheon
+git add --all
+git commit -m "Initial base theme naming replacements"
