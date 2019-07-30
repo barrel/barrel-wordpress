@@ -40,19 +40,37 @@ class Database_Migration {
 	protected $wpdb;
 
 	/**
-	 * @var \Dependency_Management
+	 * @var \Yoast\WP\Free\Config\Dependency_Management
 	 */
 	protected $dependency_management;
 
 	/**
+	 * Configuration for the database migration.
+	 *
+	 * Should have at least two keys:
+	 *  - `directory`:  The directory in which the migrations are located.
+	 *  - `table_name`: The name of the database table in which the previously run migrations are stored.
+	 *
+	 * @var array
+	 */
+	protected $config;
+
+	/**
 	 * Migrations constructor.
 	 *
-	 * @param \wpdb                 $wpdb                  Database class to use.
-	 * @param Dependency_Management $dependency_management Dependency Management to use.
+	 * @param \wpdb                                       $wpdb                  Database class to use.
+	 * @param \Yoast\WP\Free\Config\Dependency_Management $dependency_management Dependency Management to use.
+	 * @param array                                       $config                Configuration, associative array should include a 'directory' string,
+	 *                                                                           which configures where the migrations that need to be run
+	 *                                                                           are located, and a 'table_name' string, which configures
+	 *                                                                           the name of the table in which the migration versions are stored.
 	 */
-	public function __construct( $wpdb, Dependency_Management $dependency_management ) {
+	public function __construct( $wpdb, Dependency_Management $dependency_management, $config ) {
 		$this->wpdb                  = $wpdb;
 		$this->dependency_management = $dependency_management;
+		$this->config                = $config;
+		// Prepend table name with the Yoast namespace.
+		$this->config['table_name'] = Yoast_Model::get_table_name( $this->config['table_name'] );
 	}
 
 	/**
@@ -62,7 +80,7 @@ class Database_Migration {
 	 */
 	public function run_migrations() {
 		// If the defines could not be set, we do not want to run.
-		if ( ! $this->set_defines( Yoast_Model::get_table_name( 'migrations' ) ) ) {
+		if ( ! $this->set_defines() ) {
 			$this->set_failed_state( 'Defines could not be set.' );
 
 			return false;
@@ -116,12 +134,10 @@ class Database_Migration {
 	/**
 	 * Registers defines needed for Ruckusing to work.
 	 *
-	 * @param string $table_name The Schema table name to use.
-	 *
 	 * @return bool True on success, false when the defines are already set.
 	 */
-	protected function set_defines( $table_name ) {
-		foreach ( $this->get_defines( $table_name ) as $key => $value ) {
+	protected function set_defines() {
+		foreach ( $this->get_defines() as $key => $value ) {
 			if ( ! $this->set_define( $key, $value ) ) {
 				return false;
 			}
@@ -139,7 +155,7 @@ class Database_Migration {
 	 */
 	protected function set_failed_state( $message ) {
 		// @todo do something with the message.
-		\set_transient( $this->get_error_transient_key(), self::MIGRATION_STATE_ERROR, DAY_IN_SECONDS );
+		\set_transient( $this->get_error_transient_key(), self::MIGRATION_STATE_ERROR, \DAY_IN_SECONDS );
 	}
 
 	/**
@@ -163,7 +179,7 @@ class Database_Migration {
 	/**
 	 * Retrieves the Ruckusing instance to run migrations with.
 	 *
-	 * @return Ruckusing_FrameworkRunner Framework runner to use.
+	 * @return \YoastSEO_Vendor\Ruckusing_FrameworkRunner Framework runner to use.
 	 */
 	protected function get_framework_runner() {
 		$main = new Ruckusing_FrameworkRunner(
@@ -194,17 +210,18 @@ class Database_Migration {
 		return array(
 			'db'             => array(
 				'production' => array(
-					'type'      => 'mysql',
-					'host'      => DB_HOST,
-					'port'      => 3306,
-					'database'  => DB_NAME,
-					'user'      => DB_USER,
-					'password'  => DB_PASSWORD,
-					'charset'   => $this->get_charset(),
-					'directory' => '', // This needs to be set, to use the migrations folder as base folder.
+					'type'                      => 'mysql',
+					'host'                      => \DB_HOST,
+					'port'                      => 3306,
+					'database'                  => \DB_NAME,
+					'user'                      => \DB_USER,
+					'password'                  => \DB_PASSWORD,
+					'charset'                   => $this->get_charset(),
+					'directory'                 => '', // This needs to be set, to use the migrations folder as base folder.
+					'schema_version_table_name' => $this->config['table_name'],
 				),
 			),
-			'migrations_dir' => array( 'default' => WPSEO_PATH . 'migrations' ),
+			'migrations_dir' => array( 'default' => $this->config['directory'] ),
 			// This needs to be set but is not used.
 			'db_dir'         => true,
 			// This needs to be set but is not used.
@@ -222,31 +239,27 @@ class Database_Migration {
 	 * @return bool True if the define has the value we want it to be.
 	 */
 	protected function set_define( $define, $value ) {
-		if ( defined( $define ) ) {
-			return constant( $define ) === $value;
+		if ( \defined( $define ) ) {
+			return \constant( $define ) === $value;
 		}
 
-		return define( $define, $value );
+		return \define( $define, $value );
 	}
 
 	/**
 	 * Retrieves a list of defines that should be set.
 	 *
-	 * @param string $table_name Table name to use.
-	 *
 	 * @return array List of defines to be set.
 	 */
-	protected function get_defines( $table_name ) {
+	protected function get_defines() {
 		if ( $this->dependency_management->prefixed_available() ) {
 			return array(
-				YOAST_VENDOR_NS_PREFIX . '\RUCKUSING_BASE' => WPSEO_PATH . YOAST_VENDOR_PREFIX_DIRECTORY . '/ruckusing',
-				YOAST_VENDOR_NS_PREFIX . '\RUCKUSING_TS_SCHEMA_TBL_NAME' => $table_name,
+				\YOAST_VENDOR_NS_PREFIX . '\RUCKUSING_BASE' => WPSEO_PATH . YOAST_VENDOR_PREFIX_DIRECTORY . '/ruckusing',
 			);
 		}
 
 		return array(
-			'RUCKUSING_BASE'               => WPSEO_PATH . 'vendor/ruckusing/ruckusing-migrations',
-			'RUCKUSING_TS_SCHEMA_TBL_NAME' => $table_name,
+			'RUCKUSING_BASE' => WPSEO_PATH . 'vendor/ruckusing/ruckusing-migrations',
 		);
 	}
 
@@ -256,6 +269,6 @@ class Database_Migration {
 	 * @return string The transient key to use for storing the error state.
 	 */
 	protected function get_error_transient_key() {
-		return self::MIGRATION_ERROR_TRANSIENT_KEY;
+		return self::MIGRATION_ERROR_TRANSIENT_KEY . '_' . $this->config['table_name'];
 	}
 }

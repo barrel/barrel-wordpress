@@ -11,6 +11,7 @@
  * @since 10.2
  */
 class WPSEO_Schema_Person implements WPSEO_Graph_Piece {
+
 	/**
 	 * A value object with context variables.
 	 *
@@ -19,12 +20,48 @@ class WPSEO_Schema_Person implements WPSEO_Graph_Piece {
 	private $context;
 
 	/**
-	 * WPSEO_Schema_Breadcrumb constructor.
+	 * Array of the social profiles we display for a Person.
+	 *
+	 * @var string[]
+	 */
+	private $social_profiles = array(
+		'facebook',
+		'instagram',
+		'linkedin',
+		'pinterest',
+		'twitter',
+		'myspace',
+		'youtube',
+		'soundcloud',
+		'tumblr',
+		'wikipedia',
+	);
+
+	/**
+	 * The Schema type we use for this class.
+	 *
+	 * @var string[]
+	 */
+	protected $type = array(
+		'Person',
+		'Organization',
+	);
+
+	/**
+	 * The hash used for images.
+	 *
+	 * @var string
+	 */
+	protected $image_hash;
+
+	/**
+	 * WPSEO_Schema_Person constructor.
 	 *
 	 * @param WPSEO_Schema_Context $context A value object with context variables.
 	 */
 	public function __construct( WPSEO_Schema_Context $context ) {
-		$this->context = $context;
+		$this->image_hash = WPSEO_Schema_IDs::PERSON_LOGO_HASH;
+		$this->context    = $context;
 	}
 
 	/**
@@ -33,7 +70,7 @@ class WPSEO_Schema_Person implements WPSEO_Graph_Piece {
 	 * @return bool
 	 */
 	public function is_needed() {
-		if ( $this->context->site_represents === 'person' || is_author() ) {
+		if ( ( $this->context->site_represents === 'person' ) || is_author() ) {
 			return true;
 		}
 
@@ -77,21 +114,18 @@ class WPSEO_Schema_Person implements WPSEO_Graph_Piece {
 	 *
 	 * @param int $user_id User ID.
 	 *
-	 * @return array $output A list of social profiles.
+	 * @return string[] $output A list of social profiles.
 	 */
 	protected function get_social_profiles( $user_id ) {
-		$social_profiles = array(
-			'facebook',
-			'instagram',
-			'linkedin',
-			'pinterest',
-			'twitter',
-			'myspace',
-			'youtube',
-			'soundcloud',
-			'tumblr',
-			'wikipedia',
-		);
+		/**
+		 * Filter: 'wpseo_schema_person_social_profiles' - Allows filtering of social profiles per user.
+		 *
+		 * @param int $user_id The current user we're grabbing social profiles for.
+		 *
+		 * @api string[] $social_profiles The array of social profiles to retrieve. Each should be a user meta field
+		 *                                key. As they are retrieved using the WordPress function `get_the_author_meta`.
+		 */
+		$social_profiles = apply_filters( 'wpseo_schema_person_social_profiles', $this->social_profiles, $user_id );
 		$output          = array();
 		foreach ( $social_profiles as $profile ) {
 			$social_url = $this->url_social_site( $profile, $user_id );
@@ -113,8 +147,8 @@ class WPSEO_Schema_Person implements WPSEO_Graph_Piece {
 	protected function build_person_data( $user_id ) {
 		$user_data = get_userdata( $user_id );
 		$data      = array(
-			'@type' => 'Person',
-			'@id'   => $this->determine_schema_id( $user_id ),
+			'@type' => $this->type,
+			'@id'   => WPSEO_Schema_Utils::get_user_schema_id( $user_id, $this->context ),
 			'name'  => $user_data->display_name,
 		);
 
@@ -141,36 +175,67 @@ class WPSEO_Schema_Person implements WPSEO_Graph_Piece {
 	 * @return array $data The Person schema.
 	 */
 	protected function add_image( $data, $user_data ) {
-		$url = get_avatar_url( $user_data->user_email );
-		if ( empty( $url ) ) {
-			return $data;
+		$schema_id = $this->context->site_url . $this->image_hash;
+
+		$data = $this->set_image_from_options( $data, $schema_id );
+		if ( ! isset( $data['image'] ) ) {
+			$data = $this->set_image_from_avatar( $data, $user_data, $schema_id );
 		}
 
-		$id            = $this->context->site_url . WPSEO_Schema_IDs::PERSON_LOGO_HASH;
-		$schema_image  = new WPSEO_Schema_Image( $id );
-		$data['image'] = $schema_image->simple_image_object( $url, $user_data->display_name );
+		if ( is_array( $this->type ) && in_array( 'Organization', $this->type ) ) {
+			$data['logo'] = array( '@id' => $schema_id );
+		}
 
 		return $data;
 	}
 
 	/**
-	 * Returns the string to use in Schema's `@id`.
+	 * Generate the person image from our settings.
 	 *
-	 * @param int $user_id The user ID if we're on a user page.
+	 * @param array  $data      The Person schema.
+	 * @param string $schema_id The string used in the `@id` for the schema.
 	 *
-	 * @return string The `@id` string value.
+	 * @return array    $data      The Person schema.
 	 */
-	protected function determine_schema_id( $user_id ) {
-		switch ( true ) {
-			case ( $this->context->site_represents === 'company' ):
-				$url = get_author_posts_url( $user_id );
-				break;
-			default:
-				$url = $this->context->site_url;
-				break;
+	private function set_image_from_options( $data, $schema_id ) {
+		if ( $this->context->site_represents !== 'person' ) {
+			return $data;
+		}
+		$person_logo_id = WPSEO_Image_Utils::get_attachment_id_from_settings( 'person_logo' );
+
+		if ( $person_logo_id ) {
+			$image         = new WPSEO_Schema_Image( $schema_id );
+			$data['image'] = $image->generate_from_attachment_id( $person_logo_id, $data['name'] );
 		}
 
-		return $url . WPSEO_Schema_IDs::PERSON_HASH;
+		return $data;
+	}
+
+	/**
+	 * Generate the person logo from gravatar.
+	 *
+	 * @param array    $data      The Person schema.
+	 * @param \WP_User $user_data User data.
+	 * @param string   $schema_id The string used in the `@id` for the schema.
+	 *
+	 * @return array    $data      The Person schema.
+	 */
+	private function set_image_from_avatar( $data, $user_data, $schema_id ) {
+		// If we don't have an image in our settings, fall back to an avatar, if we're allowed to.
+		$show_avatars = get_option( 'show_avatars' );
+		if ( ! $show_avatars ) {
+			return $data;
+		}
+
+		$url = get_avatar_url( $user_data->user_email );
+		if ( empty( $url ) ) {
+			return $data;
+		}
+
+		$schema_image  = new WPSEO_Schema_Image( $schema_id );
+		$data['image'] = $schema_image->simple_image_object( $url, $user_data->display_name );
+
+		return $data;
 	}
 
 	/**

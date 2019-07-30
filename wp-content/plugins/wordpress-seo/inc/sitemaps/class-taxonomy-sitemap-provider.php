@@ -144,6 +144,8 @@ class WPSEO_Taxonomy_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 	 * @param int    $max_entries  Entries per sitemap.
 	 * @param int    $current_page Current page of the sitemap.
 	 *
+	 * @throws OutOfBoundsException When an invalid page is requested.
+	 *
 	 * @return array
 	 */
 	public function get_sitemap_links( $type, $max_entries, $current_page ) {
@@ -162,11 +164,18 @@ class WPSEO_Taxonomy_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 		/** This filter is documented in inc/sitemaps/class-taxonomy-sitemap-provider.php */
 		$hide_empty = apply_filters( 'wpseo_sitemap_exclude_empty_terms', true, array( $taxonomy->name ) );
 		$terms      = get_terms( $taxonomy->name, array( 'hide_empty' => $hide_empty ) );
-		$terms      = array_splice( $terms, $offset, $steps );
 
-		if ( empty( $terms ) ) {
-			$terms = array();
+		// If the total term count is lower than the offset, we are on an invalid page.
+		if ( count( $terms ) < $offset ) {
+			throw new OutOfBoundsException( 'Invalid sitemap page requested' );
 		}
+
+		$terms = array_splice( $terms, $offset, $steps );
+		if ( empty( $terms ) ) {
+			return $links;
+		}
+
+		$post_statuses = array_map( 'esc_sql', WPSEO_Sitemaps::get_post_statuses() );
 
 		// Grab last modified date.
 		$sql = "
@@ -178,7 +187,7 @@ class WPSEO_Taxonomy_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 				ON		term_tax.term_taxonomy_id = term_rel.term_taxonomy_id
 				AND		term_tax.taxonomy = %s
 				AND		term_tax.term_id = %d
-			WHERE	p.post_status IN ('publish','inherit')
+			WHERE	p.post_status IN ('" . implode( "','", $post_statuses ) . "')
 				AND		p.post_password = ''
 		";
 
