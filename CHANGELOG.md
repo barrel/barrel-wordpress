@@ -1,6 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.3.0 - 2019-07-30
+### CHANGED:
+- Update clone script procedures 
+- Add pantheon-advanced-page-cache plugin 
+- Update wordpress-seo plugin 
+- Update searchwp plugin 
+- Update redirection plugin 
+- Update kraken-image-optimizer plugin 
+- Update gravity-forms plugin 
+- Update custom-post-types plugin 
+- Update advanced-custom-fields-pro plugin 
+- Update script to update WP core and plugins 
+
 ## 3.2.0 - 2019-07-16
 ### CHANGED:
 - Update Zapier webhook catch URL 
