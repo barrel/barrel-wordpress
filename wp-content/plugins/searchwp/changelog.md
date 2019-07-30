@@ -1,3 +1,25 @@
+### 3.0.7
+- **[Improvement]** Handling of highlighter logic
+- **[Improvement]** Highlighter excerpt generation
+- **[Improvement]** Debug environment checks/messaging
+- **[Improvement]** Provide feedback when synonyms are influenced by other tokenizer rules
+- **[Improvement]** Index statistics calculation
+- **[Fix]** Issue with multiple-word source terms for synonyms not being processed correctly in all cases
+- **[New]** New filter `searchwp_weight_mods_wrap_core_weights` to support additional weight customizations
+- **[Update]** Translation source
+- **[Update]** Updated updater
+
+### 3.0.6
+- **[New]** When enabling Admin search hijacking you must now choose an engine to use for Admin searches
+- **[Change]** Regex pattern matches are processed by min word length and stopword removal rules
+- **[New]** New filter `searchwp_apply_rules_to_whitelisted_terms` controls whether rules (min word length, stopword removal) applies to whitelisted terms
+- **[Fix]** Issue with partial matching when multiple searches are run for a single request
+- **[Fix]** Prevent parent attribution when searching in the Admin (would result in false negatives)
+- **[Improvement]** Partial match processing
+- **[Improvement]** Handling of delta updates to reduce resource usage
+- **[Improvement]** System Information is now more comprehensive
+- **[Update]** Translation source
+
 ### 3.0.5
 - **[New]** Pasting of comma separated Stopwords will create individual Stopwords from the list
 - **[Fix]** Conditional disabling of partial matches per engine by using provided filter
@@ -9,7 +31,7 @@
 - **[Update]** Translation source
 - **[Update]** PHP version compatibility
 - **[Update]** Dependency update which brings additional PHP compatibility
-- **[Update]** TCPDF security update (which as evaluated could NOT have been exploited)
+- **[Security]** TCPDF security update (which as evaluated could NOT have been exploited)
 
 ### 3.0.4
 - **[Improvement]** Handling of multiple word highlighting

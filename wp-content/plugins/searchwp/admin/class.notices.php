@@ -78,12 +78,11 @@ class SearchWPAdminNotices extends SearchWP {
 		$logfile = trailingslashit( $wp_upload_dir['basedir'] ) . 'searchwp-debug.txt';
 
 		// if the logfile is over a 2MB it's likely the developer forgot to disable debugging
-		if ( file_exists( $logfile ) && absint( filesize( $logfile ) ) > 2097151 ) :
-		?>
-			<div class="error" id="searchwp-log-file-size">
-				<p><?php echo wp_kses( __( 'Your SearchWP debug log is quite large. Please remember to disable debugging and delete <code>~/wp-content/uploads/searchwp-debug.text</code> when you are done.', 'searchwp' ), array( 'code' => array() ) ); ?></p>
-			</div>
-		<?php endif;
+		if ( file_exists( $logfile ) && absint( filesize( $logfile ) ) > 2097151 ) {
+			$nags_util = new SearchWP_Nags();
+			$nags_util->init();
+			$nags_util->debug_filesize_nag();
+		}
 	}
 
 	/**
@@ -306,8 +305,7 @@ class SearchWPAdminNotices extends SearchWP {
 	 */
 	function conflicts() {
 		// allow developers to disable potential conflict notices if they want
-		$maybe_debugging = apply_filters( 'searchwp_debug', false );
-		$show_conflict_notices = apply_filters( 'searchwp_show_conflict_notices', $maybe_debugging );
+		$show_conflict_notices = apply_filters( 'searchwp_show_conflict_notices', true );
 
 		if ( false === $show_conflict_notices || ! class_exists( 'SearchWP_Conflicts' ) ) {
 			return;

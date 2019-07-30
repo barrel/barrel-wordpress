@@ -70,7 +70,7 @@ class SearchWPPartialMatches {
 
 				$this->exact_matches[ $engine ][] = $term;
 
-				$break_on_first_match = apply_filters( 'searchwp_partial_matching_aggressive', false, array(
+				$break_on_first_match = apply_filters( 'searchwp_partial_matches_aggressive', false, array(
 					'engine' => $engine,
 				) );
 
@@ -87,6 +87,8 @@ class SearchWPPartialMatches {
 		$proceed = apply_filters( 'searchwp_partial_matching_' . $engine, true );
 
 		if ( empty( $proceed ) ) {
+			$this->reset();
+
 			return;
 		}
 
@@ -95,6 +97,8 @@ class SearchWPPartialMatches {
 		) );
 
 		if ( ! empty( $this->exact_matches[ $engine ] ) && empty( $proceed_despite_exact_matches ) ) {
+			$this->reset();
+
 			return $terms;
 		}
 
@@ -109,13 +113,23 @@ class SearchWPPartialMatches {
 
 		// If we found LIKE terms and don't want to force fuzzy matches, break out
 		if ( $has_like_terms && empty( $force_fuzzy ) ) {
+			$this->reset();
+
 			return array_merge( (array) $terms, (array) $like_terms );
 		}
 
 		$fuzzy_terms = $this->find_fuzzy_matches( $terms, $engine, $original_prepped_term );
 		$fuzzy_terms = array_diff( $fuzzy_terms, $terms );
 
-		return array_merge( (array) $terms, (array) $fuzzy_terms );
+		$all_terms = array_unique( array_merge( (array) $terms, (array) $like_terms, (array) $fuzzy_terms ) );
+
+		$this->reset();
+
+		return $all_terms;
+	}
+
+	public function reset() {
+		$this->consumed = array();
 	}
 
 	public function find_like_terms( $terms, $engine ) {

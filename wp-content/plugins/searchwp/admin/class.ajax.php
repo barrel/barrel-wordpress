@@ -94,6 +94,14 @@ class SearchWP_Admin_Ajax {
 		$setting = isset( $_REQUEST['setting'] ) ? $_REQUEST['setting'] : '';
 		$value   = isset( $_REQUEST['value'] ) ? $_REQUEST['value'] : false;
 
+		// @since 3.0.6 Admin search is a compound value so we need to extract
+		if ( 'admin_search' === $setting ) {
+			$compound_value = json_decode( stripslashes( $value ) );
+			$value          = empty( $compound_value->enabled ) ? 'false' : 'true';
+			$engine         = isset( $compound_value->engine ) ? $compound_value->engine : 'default';
+			$admin_engine   = SWP()->is_valid_engine( $engine ) ? $engine : 'default';
+		}
+
 		if ( 'false' == $value || empty( $value ) ) {
 			$value = false;
 		} else {
@@ -114,6 +122,10 @@ class SearchWP_Admin_Ajax {
 		}
 
 		$existing_settings[ $setting ] = $value;
+
+		if ( ! empty( $admin_engine ) ) {
+			$existing_settings['admin_engine'] = $admin_engine;
+		}
 
 		searchwp_update_option( 'advanced', $existing_settings );
 

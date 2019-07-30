@@ -1864,15 +1864,19 @@ class SearchWPSearch {
 		$comment_weight = absint( $args['comment_weight'] );
 		$excerpt_weight = absint( $args['excerpt_weight'] );
 
+		$wrap_core_weights  = apply_filters( 'searchwp_weight_mods_wrap_core_weights', false );
+		$core_weight_prefix = $wrap_core_weights ? '(' : '';
+		$core_weight_suffix = $wrap_core_weights ? ')' : '';
+
 		$this->sql .= "
             LEFT JOIN (
                 SELECT {$wpdb->prefix}posts.{$post_column} AS post_id,
-                    ( SUM( {$this->db_prefix}index.title ) * {$title_weight} ) +
+                    {$core_weight_prefix}( SUM( {$this->db_prefix}index.title ) * {$title_weight} ) +
                     ( SUM( {$this->db_prefix}index.slug ) * {$slug_weight} ) +
                     ( SUM( {$this->db_prefix}index.content ) * {$content_weight} ) +
                     ( SUM( {$this->db_prefix}index.comment ) * {$comment_weight} ) +
                     ( SUM( {$this->db_prefix}index.excerpt ) * {$excerpt_weight} ) +
-                    {$args['custom_fields']} + {$args['taxonomies']}";
+                    {$args['custom_fields']} + {$args['taxonomies']}{$core_weight_suffix}";
 
 		// allow developers to inject their own weight modifications
 		$this->sql .= apply_filters( 'searchwp_weight_mods', '', array(
@@ -2321,7 +2325,7 @@ class SearchWPSearch {
 					// TODO: store our post format clause and integrate
 					// TODO: store our post status clause and integrate
 
-					// prep the term
+					// prep the term for this combination of term and post type config
 					$prepped_term           = $this->prep_term( $term, $postTypeWeights );
 					$term                   = $prepped_term['term'];
 					$term_or_stem           = $prepped_term['term_or_stem'];
@@ -2332,6 +2336,7 @@ class SearchWPSearch {
 					if ( ! in_array( $term_or_stem, array( 'term', 'stem' ) ) ) {
 						wp_die( 'Invalid request', 'searchwp' );
 					}
+
 					$this->sql_term_where = " {$this->db_prefix}terms." . $term_or_stem . ' IN (' . implode( ',', $term ) . ')';
 					/** @noinspection PhpUnusedLocalVariableInspection */
 					$last_term = $term;
@@ -2767,6 +2772,25 @@ class SearchWPSearch {
 
 			// if the term was stemmed via the filter use it, else generate our own
 			$term = ( $unstemmed == $maybeStemmed ) ? $this->stemmer->stem( $term ) : $maybeStemmed;
+
+			// It's only a valid stem if the original term is in fact in the index, so let's verify.
+			$validate_stem = apply_filters( 'searchwp_stem_validate', true );
+			if ( $validate_stem ) {
+				$in_index = $wpdb->query(
+					$wpdb->prepare(
+						"
+							SELECT * FROM {$this->db_prefix}terms
+							WHERE stem = %s LIMIT 1
+						",
+						$term
+					)
+				);
+
+				// If it's an invalid stem then we need to revert back to the original, prepped term for additional processing (e.g. partial matches)
+				if ( empty( $in_index ) ) {
+					$term = $original_prepped_term;
+				}
+			}
 		}
 
 		// set up our term operator (e.g. LIKE terms or fuzzy matching)
