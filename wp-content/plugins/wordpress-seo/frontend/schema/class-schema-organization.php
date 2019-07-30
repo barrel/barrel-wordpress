@@ -11,6 +11,7 @@
  * @since 10.2
  */
 class WPSEO_Schema_Organization implements WPSEO_Graph_Piece {
+
 	/**
 	 * A value object with context variables.
 	 *
@@ -19,7 +20,7 @@ class WPSEO_Schema_Organization implements WPSEO_Graph_Piece {
 	private $context;
 
 	/**
-	 * WPSEO_Schema_Breadcrumb constructor.
+	 * WPSEO_Schema_Organization constructor.
 	 *
 	 * @param WPSEO_Schema_Context $context A value object with context variables.
 	 */
@@ -62,14 +63,10 @@ class WPSEO_Schema_Organization implements WPSEO_Graph_Piece {
 	 * @return array $data The Organization schema.
 	 */
 	private function add_logo( $data ) {
-		$logo = WPSEO_Options::get( 'company_logo', '' );
-		if ( empty( $logo ) ) {
-			return $data;
-		}
-		$id            = $this->context->site_url . WPSEO_Schema_IDs::ORGANIZATION_LOGO_HASH;
-		$schema_image  = new WPSEO_Schema_Image( $id );
-		$data['logo']  = $schema_image->generate_from_url( $logo, $this->context->company_name );
-		$data['image'] = array( '@id' => $id );
+		$schema_id     = $this->context->site_url . WPSEO_Schema_IDs::ORGANIZATION_LOGO_HASH;
+		$schema_image  = new WPSEO_Schema_Image( $schema_id );
+		$data['logo']  = $schema_image->generate_from_attachment_id( $this->context->company_logo_id, $this->context->company_name );
+		$data['image'] = array( '@id' => $schema_id );
 
 		return $data;
 	}

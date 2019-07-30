@@ -52,9 +52,6 @@ class WPSEO_Taxonomy_Metabox {
 	 */
 	public function display() {
 
-		$asset_manager = new WPSEO_Admin_Asset_Manager();
-		$asset_manager->enqueue_script( 'help-center' );
-
 		$content_sections = $this->get_content_sections();
 
 		$product_title = 'Yoast SEO';
@@ -65,25 +62,11 @@ class WPSEO_Taxonomy_Metabox {
 		printf( '<div id="wpseo_meta" class="postbox yoast wpseo-taxonomy-metabox-postbox"><h2><span>%1$s</span></h2>', $product_title );
 
 		echo '<div class="inside">';
-
-		$helpcenter_tab = new WPSEO_Option_Tab(
-			'tax-metabox',
-			__( 'Meta box', 'wordpress-seo' ),
-			array( 'video_url' => WPSEO_Shortlinker::get( 'https://yoa.st/metabox-taxonomy-screencast' ) )
-		);
-
-		$helpcenter = new WPSEO_Help_Center( 'tax-metabox', $helpcenter_tab, WPSEO_Utils::is_yoast_seo_premium() );
-		$helpcenter->localize_data();
-		$helpcenter->mount();
-
 		echo '<div id="taxonomy_overall"></div>';
 
-		if ( ! defined( 'WPSEO_PREMIUM_FILE' ) ) {
-			echo $this->get_buy_premium_link();
-		}
 
 		echo '<div class="wpseo-metabox-content">';
-		echo '<div class="wpseo-metabox-sidebar"><ul>';
+		printf( '<div class="wpseo-metabox-menu"><ul role="tablist" class="yoast-aria-tabs" aria-label="%s">', $product_title );
 
 		foreach ( $content_sections as $content_section ) {
 			$content_section->display_link();
@@ -107,7 +90,13 @@ class WPSEO_Taxonomy_Metabox {
 	private function get_content_sections() {
 		$content_sections = array();
 
-		$content_sections[] = $this->get_content_meta_section();
+		$content_sections[] = $this->get_seo_meta_section();
+
+		$readability_analysis = new WPSEO_Metabox_Analysis_Readability();
+		if ( $readability_analysis->is_enabled() ) {
+			$content_sections[] = $this->get_readability_meta_section();
+		}
+
 		$content_sections[] = $this->get_social_meta_section();
 		$content_sections[] = $this->get_settings_meta_section();
 
@@ -119,20 +108,31 @@ class WPSEO_Taxonomy_Metabox {
 	 *
 	 * @return WPSEO_Metabox_Section
 	 */
-	private function get_content_meta_section() {
+	private function get_seo_meta_section() {
 		$taxonomy_content_fields = new WPSEO_Taxonomy_Content_Fields( $this->term );
 		$content                 = $this->taxonomy_tab_content->html( $taxonomy_content_fields->get( $this->term ) );
 
+		$seo_analysis = new WPSEO_Metabox_Analysis_SEO();
+		$label        = __( 'SEO', 'wordpress-seo' );
+
+		if ( $seo_analysis->is_enabled() ) {
+			$label = '<span class="wpseo-score-icon-container" id="wpseo-seo-score-icon"></span>' . $label;
+		}
 
 		return new WPSEO_Metabox_Section_React(
 			'content',
-			'<span class="screen-reader-text">' . __( 'Content optimization', 'wordpress-seo' ) . '</span><span class="yst-traffic-light-container">' . WPSEO_Utils::traffic_light_svg() . '</span>',
-			$content,
-			array(
-				'link_aria_label' => __( 'Content optimization', 'wordpress-seo' ),
-				'link_class'      => 'yoast-tooltip yoast-tooltip-e',
-			)
+			$label,
+			$content
 		);
+	}
+
+	/**
+	 * Returns the metabox section for the readability analysis.
+	 *
+	 * @return WPSEO_Metabox_Section
+	 */
+	private function get_readability_meta_section() {
+		return new WPSEO_Metabox_Section_Readability();
 	}
 
 	/**
@@ -155,12 +155,8 @@ class WPSEO_Taxonomy_Metabox {
 
 		return new WPSEO_Metabox_Tab_Section(
 			'settings',
-			'<span class="screen-reader-text">' . __( 'Settings', 'wordpress-seo' ) . '</span><span class="dashicons dashicons-admin-generic"></span>',
-			array( $tab ),
-			array(
-				'link_aria_label' => __( 'Settings', 'wordpress-seo' ),
-				'link_class'      => 'yoast-tooltip yoast-tooltip-e',
-			)
+			'<span class="dashicons dashicons-admin-generic"></span>' . __( 'Settings', 'wordpress-seo' ),
+			array( $tab )
 		);
 	}
 
@@ -179,12 +175,8 @@ class WPSEO_Taxonomy_Metabox {
 
 		return new WPSEO_Metabox_Tab_Section(
 			'social',
-			'<span class="screen-reader-text">' . __( 'Social', 'wordpress-seo' ) . '</span><span class="dashicons dashicons-share"></span>',
-			$tabs,
-			array(
-				'link_aria_label' => __( 'Social', 'wordpress-seo' ),
-				'link_class'      => 'yoast-tooltip yoast-tooltip-e',
-			)
+			'<span class="dashicons dashicons-share"></span>' . __( 'Social', 'wordpress-seo' ),
+			$tabs
 		);
 	}
 
@@ -210,8 +202,6 @@ class WPSEO_Taxonomy_Metabox {
 			$this->social_admin->get_premium_notice( $network ) . $this->taxonomy_tab_content->html( $meta_fields ),
 			'<span class="screen-reader-text">' . $label . '</span><span class="dashicons dashicons-' . $icon . '"></span>',
 			array(
-				'link_aria_label' => $label,
-				'link_class'      => 'yoast-tooltip yoast-tooltip-se',
 				'single'          => $this->has_single_social_tab(),
 			)
 		);
@@ -226,19 +216,5 @@ class WPSEO_Taxonomy_Metabox {
 	 */
 	private function has_single_social_tab() {
 		return ( WPSEO_Options::get( 'opengraph' ) === false || WPSEO_Options::get( 'twitter' ) === false );
-	}
-
-	/**
-	 * Returns a link to activate the Buy Premium tab.
-	 *
-	 * @return string
-	 */
-	private function get_buy_premium_link() {
-		return sprintf(
-			'<div class="wpseo-metabox-buy-premium"><a target="_blank" href="%1$s"><span class="dashicons dashicons-star-filled wpseo-buy-premium"></span>%2$s%3$s</a></div>',
-			esc_url( WPSEO_Shortlinker::get( 'https://yoa.st/3hh' ) ),
-			esc_html__( 'Go Premium', 'wordpress-seo' ),
-			WPSEO_Admin_Utils::get_new_tab_message()
-		);
 	}
 }

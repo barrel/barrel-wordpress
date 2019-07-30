@@ -11,6 +11,7 @@
  * @since 10.2
  */
 class WPSEO_Schema_WebPage implements WPSEO_Graph_Piece {
+
 	/**
 	 * A value object with context variables.
 	 *
@@ -19,7 +20,7 @@ class WPSEO_Schema_WebPage implements WPSEO_Graph_Piece {
 	private $context;
 
 	/**
-	 * WPSEO_Schema_Breadcrumb constructor.
+	 * WPSEO_Schema_WebPage constructor.
 	 *
 	 * @param WPSEO_Schema_Context $context A value object with context variables.
 	 */
@@ -58,22 +59,21 @@ class WPSEO_Schema_WebPage implements WPSEO_Graph_Piece {
 		);
 
 		if ( is_front_page() ) {
-			$about_id = WPSEO_Schema_IDs::ORGANIZATION_HASH;
-			if ( $this->context->site_represents === 'person' ) {
-				$about_id = WPSEO_Schema_IDs::PERSON_HASH;
+			if ( $this->context->site_represents_reference ) {
+				$data['about'] = $this->context->site_represents_reference;
 			}
-
-			$data['about'] = array(
-				'@id' => $this->context->site_url . $about_id,
-			);
 		}
 
 		if ( is_singular() ) {
-			$data = $this->add_featured_image( $data );
+			$this->add_image( $data );
 
-			$post                  = get_post( $this->context->id );
+			$post = get_post( $this->context->id );
 			$data['datePublished'] = mysql2date( DATE_W3C, $post->post_date_gmt, false );
 			$data['dateModified']  = mysql2date( DATE_W3C, $post->post_modified_gmt, false );
+
+			if ( get_post_type( $post ) === 'post' ) {
+				$data = $this->add_author( $data, $post );
+			}
 		}
 
 		if ( ! empty( $this->context->description ) ) {
@@ -87,6 +87,32 @@ class WPSEO_Schema_WebPage implements WPSEO_Graph_Piece {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Adds an author property to the $data if the WebPage is not represented.
+	 *
+	 * @param array   $data The WebPage schema.
+	 * @param WP_Post $post The post the context is representing.
+	 *
+	 * @return array The WebPage schema.
+	 */
+	public function add_author( $data, $post ) {
+		if ( $this->context->site_represents === false ) {
+			$data['author'] = array( '@id' => WPSEO_Schema_Utils::get_user_schema_id( $post->post_author, $this->context ) );
+		}
+		return $data;
+	}
+
+	/**
+	 * If we have an image, make it the primary image of the page.
+	 *
+	 * @param array $data WebPage schema data.
+	 */
+	public function add_image( &$data ) {
+		if ( $this->context->has_image ) {
+			$data['primaryImageOfPage'] = array( '@id' => $this->context->canonical . WPSEO_Schema_IDs::PRIMARY_IMAGE_HASH );
+		}
 	}
 
 	/**
@@ -119,6 +145,8 @@ class WPSEO_Schema_WebPage implements WPSEO_Graph_Piece {
 			case is_author():
 				$type = 'ProfilePage';
 				break;
+			case WPSEO_Frontend_Page_Type::is_posts_page():
+			case WPSEO_Frontend_Page_Type::is_home_posts_page():
 			case is_archive():
 				$type = 'CollectionPage';
 				break;
@@ -132,27 +160,5 @@ class WPSEO_Schema_WebPage implements WPSEO_Graph_Piece {
 		 * @api string $type The WebPage type.
 		 */
 		return apply_filters( 'wpseo_schema_webpage_type', $type );
-	}
-
-	/**
-	 * Adds a featured image to the schema if there is one.
-	 *
-	 * @param array $data WebPage Schema.
-	 *
-	 * @return array $data WebPage Schema.
-	 */
-	private function add_featured_image( $data ) {
-		if ( ! has_post_thumbnail( $this->context->id ) ) {
-			return $data;
-		}
-
-		$id                         = $this->context->canonical . WPSEO_Schema_IDs::PRIMARY_IMAGE_HASH;
-		$schema_image               = new WPSEO_Schema_Image( $id );
-		$data['image']              = $schema_image->generate_from_attachment_id( get_post_thumbnail_id() );
-		$data['primaryImageOfPage'] = array(
-			'@id' => $id,
-		);
-
-		return $data;
 	}
 }

@@ -394,10 +394,32 @@ class SearchWPIndexer {
 		global $wpdb;
 
 		$index_table = $wpdb->prefix . SEARCHWP_DBPREFIX . 'index';
-		/** @noinspection SqlDialectInspection */
-		$row_count = $wpdb->get_var( "SELECT COUNT(id) FROM {$index_table}" );
 
-		return absint( $row_count );
+		// Try to get an estimate if possible (it's cheaper to get).
+		$index_table_status = $wpdb->get_row( "SHOW TABLE STATUS LIKE '{$index_table}'" );
+		$row_count = isset( $index_table_status->Rows ) ? absint( $index_table_status->Rows ) : 0;
+
+		// If the estimate failed, fall back to exact count.
+		if ( empty( $row_count ) ) {
+			$row_count = $wpdb->get_var( "SELECT COUNT(id) FROM {$index_table}" );
+			$row_count = absint( $row_count );
+		}
+
+		return '~' . $this->format_big_number( $row_count );
+	}
+
+	public function format_big_number( $n ) {
+		if ( $n > 1000000000000 ) {
+			return round( ( $n / 1000000000000 ) ) . 'Tn';
+		} elseif ( $n > 1000000000 ) {
+			return round( ( $n / 1000000000 ) ) . 'Bn';
+		} elseif ( $n > 1000000 ) {
+			return round( ( $n / 1000000 ) ) . 'M';
+		} elseif ( $n > 1000 ) {
+			return round( ( $n / 1000 ) ) . 'K';
+		} else {
+			return number_format( $n );
+		}
 	}
 
 

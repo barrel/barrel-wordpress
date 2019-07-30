@@ -137,6 +137,57 @@ class SearchWP_Nags {
 	}
 
 	/**
+	 * Output a nag if admin searching is enabled but this post type wasn't added to the admin engine
+	 *
+	 * @since 3.0.6
+	 */
+	function admin_search_post_type_nag() {
+		$nag = $this->implement_nag( array(
+			'name'      => 'admin_search_post_type',
+			'nonce'     => 'swpadminsearchtypenag',
+		) );
+
+		$dismiss = remove_query_arg( 'page', $nag['dismissal_link'] );
+
+		if ( is_admin() && is_search() && ! $nag['dismissed'] ) : ?>
+			<div class="notice notice-error" style="position: relative; padding-right: 38px;">
+				<p><?php echo wp_kses( sprintf( __( 'This post type is <strong>NOT</strong> added to your SearchWP admin engine. The default WordPress search results are shown. <a href="%s">Find out more &raquo;</a>', 'searchwp' ), 'http://searchwp.com/?p=161276' ) , array( 'a' => array( 'class' => array(), 'href' => array() ), 'strong' => array() ) ); ?></p>
+				<a style="text-decoration: none;" href="<?php echo esc_url( $dismiss ); ?>" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></a>
+			</div>
+		<?php endif;
+	}
+
+	function debug_filesize_nag() {
+		$nag = $this->implement_nag( array(
+			'name'      => 'debug_log_size',
+			'nonce'     => 'swpdebuglogsizenag',
+		) );
+
+		$dismiss = remove_query_arg( 'page', $nag['dismissal_link'] );
+
+		if ( is_admin() && ! $nag['dismissed'] ) : ?>
+			<div class="notice notice-error" style="position: relative; padding-right: 38px;">
+				<p>
+					<?php
+					echo wp_kses(
+						sprintf(
+							// Translators: placeholder is the folder path to the debug log file.
+							__( 'Your SearchWP debug log has exceeded 2MB in size. You can delete %1$s when you are done.', 'searchwp' ),
+							'<code>~/' . searchwp_get_relative_upload_path() . '/searchwp-debug.text</code>'
+						),
+						array(
+							'code' => array(),
+						)
+					);
+					?>
+				</p>
+
+				<a style="text-decoration: none;" href="<?php echo esc_url( $dismiss ); ?>" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></a>
+			</div>
+		<?php endif;
+	}
+
+	/**
 	 * Output the license nag
 	 */
 	function settings_license_nag() {

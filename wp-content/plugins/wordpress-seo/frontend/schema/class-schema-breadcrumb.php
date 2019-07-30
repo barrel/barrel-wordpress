@@ -11,12 +11,14 @@
  * @since 10.2
  */
 class WPSEO_Schema_Breadcrumb implements WPSEO_Graph_Piece {
+
 	/**
 	 * A value object with context variables.
 	 *
 	 * @var WPSEO_Schema_Context
 	 */
 	private $context;
+
 	/**
 	 * Current position in the List.
 	 *
@@ -140,9 +142,12 @@ class WPSEO_Schema_Breadcrumb implements WPSEO_Graph_Piece {
 	 */
 	private function add_paginated_state() {
 		$this->index++;
-		return $this->add_breadcrumb( $this->index, array(
-			'url'  => $this->context->canonical,
-			'text' => $this->context->title,
-		) );
+		return $this->add_breadcrumb(
+			$this->index,
+			array(
+				'url'  => $this->context->canonical,
+				'text' => $this->context->title,
+			)
+		);
 	}
 }

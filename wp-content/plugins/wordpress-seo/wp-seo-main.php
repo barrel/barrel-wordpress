@@ -15,7 +15,7 @@ if ( ! function_exists( 'add_filter' ) ) {
  * {@internal Nobody should be able to overrule the real version number as this can cause
  *            serious issues with the options, so no if ( ! defined() ).}}
  */
-define( 'WPSEO_VERSION', '11.1.1' );
+define( 'WPSEO_VERSION', '11.7' );
 
 
 if ( ! defined( 'WPSEO_PATH' ) ) {
@@ -315,7 +315,7 @@ function wpseo_init() {
 		$GLOBALS['wpseo_sitemaps'] = new WPSEO_Sitemaps();
 	}
 
-	if ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) {
+	if ( ! wp_doing_ajax() ) {
 		require_once WPSEO_PATH . 'inc/wpseo-non-ajax-functions.php';
 	}
 
@@ -373,7 +373,6 @@ function wpseo_init_rest_api() {
 	$endpoints[] = new WPSEO_Endpoint_Statistics( $statistics_service );
 	$endpoints[] = new WPSEO_Endpoint_MyYoast_Connect();
 
-	/** @var WPSEO_Endpoint[] $endpoints */
 	foreach ( $endpoints as $endpoint ) {
 		$endpoint->register();
 	}
@@ -502,7 +501,7 @@ if ( ! wp_installing() && ( $spl_autoload_exists && $filter_exists ) ) {
 		$yoast_addon_manager = new WPSEO_Addon_Manager();
 		$yoast_addon_manager->register_hooks();
 
-		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+		if ( wp_doing_ajax() ) {
 			require_once WPSEO_PATH . 'admin/ajax.php';
 
 			// Plugin conflict ajax hooks.

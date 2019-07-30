@@ -3,9 +3,9 @@
 
         <h3 class="hndle">
             <span v-if="!editingLabel"
-                @click="settings.hasOwnProperty('searchwp_engine_label') ? editingLabel = true : editingLabel = false"
-                :class="{ 'searchwp-hndle-default' : ! settings.hasOwnProperty('searchwp_engine_label') }">{{ label }}
-                <span class="dashicons dashicons-edit" v-if="settings.hasOwnProperty('searchwp_engine_label')"></span>
+                @click="settings.hasOwnProperty('searchwp_engine_label') && !isAdminEngine ? editingLabel = true : editingLabel = false"
+                :class="{ 'searchwp-hndle-default' : ! settings.hasOwnProperty('searchwp_engine_label') || isAdminEngine }">{{ label }}
+                <span class="dashicons dashicons-edit" v-if="settings.hasOwnProperty('searchwp_engine_label') && !isAdminEngine"></span>
             </span>
             <input v-model="label"
                     @input="updateName()"
@@ -22,6 +22,7 @@
         <div class="inside">
 
             <p v-if="!settings.hasOwnProperty('searchwp_engine_label')" class="description searchwp-engine-note"><span class="dashicons dashicons-info"></span>{{ i18n.defaultEngineNote }}</p>
+            <p v-else-if="isAdminEngine" class="description searchwp-engine-note"><span class="dashicons dashicons-lightbulb"></span>{{ i18n.adminEngineNote }}</p>
             <p v-else class="description searchwp-engine-note">{{ i18n.engineNote }}</p>
 
             <p v-if="!hasPostTypes" class="description searchwp-engine-note"><strong>{{ i18n.note }}</strong> {{ i18n.engineNoteNone }}</p>
@@ -295,7 +296,7 @@
                         :position="'below'"
                         :buttonText="i18n.addPostType"/>
                 </li>
-                <li v-if="model.name !== 'default'" class="searchwp-remove-engine">
+                <li v-if="model.name !== 'default' && !isAdminEngine" class="searchwp-remove-engine">
                     <searchwp-remove :text="i18n.deleteEngine" @click.native.prevent="removeEngine()"></searchwp-remove>
                 </li>
             </ul>
@@ -623,6 +624,7 @@ export default {
                 addContentType: _SEARCHWP_VARS.i18n.add_content_type,
                 addLimitExcludeRule: _SEARCHWP_VARS.i18n.add_limit_exclude_rule,
                 addPostType: _SEARCHWP_VARS.i18n.add_post_type,
+                adminEngineNote: _SEARCHWP_VARS.i18n.admin_engine_note,
                 anyCustomField: _SEARCHWP_VARS.i18n.any_custom_field,
                 assignWeightTo: _SEARCHWP_VARS.i18n.assign_weight_to,
                 attribute: _SEARCHWP_VARS.i18n.attribute,
@@ -677,6 +679,10 @@ export default {
             type: String,
             default: 'default',
             required: true
+        },
+        isAdminEngine: {
+            type: Boolean,
+            default: false
         }
     },
     created: function() {

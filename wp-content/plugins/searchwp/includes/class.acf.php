@@ -25,7 +25,7 @@ class SearchWP_ACF {
 		add_action( 'searchwp_settings_before\default', array( $this, 'init_meta_groups' ) );
 
 		// Prevent interference with ACF oEmbed.
-		add_filter( 'searchwp_short_circuit', array( $this, 'oembed_compat' ), 5 );
+		add_filter( 'searchwp_short_circuit', array( $this, 'maybe_short_circuit' ), 5 );
 	}
 
 	/**
@@ -255,12 +255,18 @@ class SearchWP_ACF {
 	}
 
 	/**
-	 * Callback to short circuit SearchWP if ACF is performing its oEmbed functionality
+	 * Callback to short circuit SearchWP if ACF is performing internal functionality.
 	 *
 	 * @since 3.0
 	 */
-	public function oembed_compat( $short_circuit ) {
-		return $short_circuit ? $short_circuit : isset( $_REQUEST['action'] ) && 'acf/fields/oembed/search' === $_REQUEST['action'];
+	public function maybe_short_circuit( $short_circuit ) {
+		$acf_actions = apply_filters( 'searchwp_acf_short_circuit_actions', array(
+			'acf/fields/oembed/search',
+			'acf/fields/post_object/query',
+			'acf/fields/relationship/query',
+		) );
+
+		return $short_circuit ? $short_circuit : isset( $_REQUEST['action'] ) && in_array( $_REQUEST['action'], $acf_actions );
 	}
 }
 

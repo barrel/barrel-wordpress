@@ -301,7 +301,7 @@ class SearchWPHighlighter {
 		$content = $this->pre_process_content( $content );
 
 		// Step 1: See if there's a whole match for the original query.
-		$whole_match = SWP()->original_query;
+		$whole_match = preg_quote( SWP()->original_query, '/' );
 
 		if ( apply_filters( 'searchwp_th_partial_matches', false ) ) {
 			$maybe_highlight = preg_replace( "/$whole_match(?!([^<]+)?>)/iu", "<" . $this->highlight_el . " class='searchwp-highlight'>$0</" . $this->highlight_el . ">", $content );
@@ -400,45 +400,67 @@ class SearchWPHighlighter {
 
 		// grab all of the content and break it out into a clean array
 		$haystack = empty( $excerpt ) ? $post->post_content : $excerpt;
+		$haystack = preg_replace( "/\r\n|\r|\n/", ' ', $haystack );
 		$haystack = $this->pre_process_content( $haystack );
-		$haystack = strip_tags( $haystack );
+		$haystack = wp_strip_all_tags( $haystack );
+
+		$haystack_tmp = $haystack;
+
 		$haystack = explode( ' ', $haystack );
+		$haystack = array_filter( $haystack );
+		$haystack = array_values( $haystack );
 
 		$haystack_lower = function_exists( 'mb_strtolower' ) ? array_map( 'mb_strtolower', $haystack ) : array_map( 'strtolower', $haystack );
 
 		$terms = function_exists( 'mb_strtolower' ) ? array_map( 'mb_strtolower', $terms ) : array_map( 'strtolower', $terms );
 
 		// First check for a whole match, that'd be the least amount of work to do
-		$haystack_check = implode( ' ', $haystack_lower );
-		if ( false !== strpos( $haystack_check, $original_terms_lower ) ) {
+		$terms_pos = stripos( $haystack_tmp, $original_terms_lower );
+		if ( false !== $terms_pos ) {
 
-			$whole_match_flag = explode( $original_terms_lower, $excerpt );
+			$original_terms_in_excerpt = substr( $haystack_tmp, $terms_pos, strlen( implode( ' ', $original_terms ) ) );
+			$whole_match_flag_alpha    = substr( $haystack_tmp, 0, $terms_pos );
+			$whole_match_flag_beta     = substr( $haystack_tmp, $terms_pos + strlen( $original_terms_in_excerpt) );
 
-			if ( isset( $whole_match_flag[0] ) && ! empty( $whole_match_flag[0] ) && isset( $whole_match_flag[1] ) && ! empty( $whole_match_flag[1] ) ) {
+			// we're going to piece together our match using the two generated chunks, concatenated with the original search
+			$chunks_1 = explode( ' ', trim( $whole_match_flag_alpha ) );
+			$chunks_1 = count( $chunks_1 ) == 1 && empty( $chunks_1[0] ) ? array() : $chunks_1;
+			$chunks_2 = explode( ' ', trim( $whole_match_flag_beta ) );
+			$chunks_2 = count( $chunks_2 ) == 1 && empty( $chunks_2[0] ) ? array() : $chunks_2;
 
-				// we're going to piece together our match using the two generated chunks, concatenated with the original search
-				$chunks_1 = explode( ' ', $whole_match_flag[0] );
-				$chunks_2 = explode( ' ', $whole_match_flag[1] );
+			$buffer       = floor( ( $this->number_of_words - str_word_count( $original_terms_lower ) ) / 2 );
+			$buffer_alpha = count( $chunks_2 ) < $buffer ? $buffer + ( $buffer - count( $chunks_2 ) ) : $buffer;
+			$buffer_alpha = empty( $chunks_1 ) ? 0 : $buffer_alpha;
+			$buffer_beta  = count( $chunks_1 ) < $buffer ? $buffer + ( $buffer - count( $chunks_1 ) ) : $buffer;
+			$buffer_beta  = empty( $chunks_2 ) ? 0 : $buffer_beta;
 
-				$buffer = floor( ( $this->number_of_words - 1 ) / 3 );
-				$excerpt_alpha = array_slice( $chunks_1, 0 - $buffer );
-				$excerpt_beta = array_slice( $chunks_2, 0, $buffer );
+			$excerpt_alpha = $buffer_alpha ? array_slice( $chunks_1, 0 - $buffer_alpha ) : array();
+			$excerpt_beta  = $buffer_beta ? array_slice( $chunks_2, 0, $buffer_beta ) : array();
 
-				$excerpt = implode( ' ', $excerpt_alpha );
-				$excerpt .= '<' . $this->highlight_el . ' class="searchwp-highlight">' . esc_html( implode( ' ', $original_terms ) ) . '</' . $this->highlight_el . '>';
-				$excerpt .= implode( ' ', $excerpt_beta );
+			$excerpt = implode( ' ', $excerpt_alpha ) . ' ';
+			$excerpt .= '<' . $this->highlight_el . ' class="searchwp-highlight">' . esc_html( $original_terms_in_excerpt ) . '</' . $this->highlight_el . '>';
 
-				if ( $apply_native_wp_filter ) {
-					$excerpt = apply_filters( 'get_the_excerpt', $excerpt );
+			// Pad with a trailing space unless the first item in $excerpt_beta is punctuation.
+			// TODO: This may not always be applicable/true, but our use case was a period after the highlight.
+			$trailing_pad = ' ';
+			if ( ! empty( $excerpt_beta ) && ! empty( $excerpt_beta[0] ) && 0 === strlen( $excerpt_beta[0] ) ) {
+				if ( preg_match( '/([[:punct:]])/iu', (string) preg_quote( $excerpt_beta[0], '/' ) ) ) {
+					$trailing_pad = '';
 				}
-
-				return $excerpt;
 			}
+
+			$excerpt .= $trailing_pad . implode( ' ', $excerpt_beta );
+
+			if ( $apply_native_wp_filter ) {
+				$excerpt = apply_filters( 'get_the_excerpt', $excerpt );
+			}
+
+			return $excerpt;
 		}
 
 		// find the first applicable search term (based on character length)
 		$flag = false;
-		foreach ( $terms as $termkey => $term ) {
+		foreach ( $terms as $term ) {
 			if (
 				! in_array( $term, $this->common, true )
 				&& $this->min_word_length <= strlen( $term )
@@ -454,11 +476,11 @@ class SearchWPHighlighter {
 		if ( empty( $flag ) ) {
 			// put the string back to find the match itself
 			$haystack_tmp = implode( ' ', $haystack_lower );
-			foreach ( $terms as $termkey => $term ) {
+			foreach ( $terms as $term ) {
 				if ( false !== strpos( $haystack_tmp, $term ) ) {
 					// this term is in the string somewhere, find the first occurrence
 					$pattern = "/\b([[:punct:]]*" . $term . "[[:punct:]]*)\b/iu";
-					preg_match( $pattern, $haystack_tmp, $matches );
+					preg_match( $pattern, preg_quote( $haystack_tmp, '/' ), $matches );
 					if ( ! empty( $matches ) ) {
 						// use this new flag
 						$flag = $matches[0];
@@ -470,7 +492,7 @@ class SearchWPHighlighter {
 
 		// Determine which occurrence of the flag to utilize when scouting a highlight
 		$flag_occurrence = absint( apply_filters( 'searchwp_term_highlight_occurrence', 1, array(
-			'query' => $original_terms
+			'query' => $original_terms,
 		) ) );
 
 		// There's a chance the occurrence is too high (e.g. there's only one match but the dev wants the 2nd)
@@ -483,7 +505,7 @@ class SearchWPHighlighter {
 
 				if ( ! apply_filters( 'searchwp_th_partial_matches', false ) ) {
 					// find an exact match
-					$found_occurrence = preg_replace("/\p{P}/u", '', $haystack_term ) === $flag;
+					$found_occurrence = preg_replace( "/\p{P}/u", '', $haystack_term ) === $flag;
 				} else {
 					// find a partial match
 					$found_occurrence = false !== strpos( $haystack_term, $flag );
@@ -507,34 +529,38 @@ class SearchWPHighlighter {
 				$flag_occurrence = count( $occurrences );
 			}
 
-			$haystack_key = $occurrences[ $flag_occurrence - 1 ];
+			preg_match( '/' . preg_quote( $haystack_term, '/' ) . '/i', $haystack_tmp, $term_pos, PREG_OFFSET_CAPTURE );
 
-			// our buffer is going to be 1/3 the total number of words in hopes of snagging one or two more
-			// highlighted terms in the second and third thirds
-			$buffer = floor( ( $this->number_of_words - 1 ) / 3 ); // -1 to accommodate the search term itself
+			$occurrence_position = absint( $term_pos[ $flag_occurrence - 1 ][1] );
 
-			// find the start point
-			$start = 0;
-			$underflow = 0;
-			if ( $haystack_key < $buffer ) {
-				// the match occurred too early to get a proper first buffer
-				$underflow = $buffer - $haystack_key;
-			} else {
-				// there is enough room to grab a proper first buffer
-				$start = $haystack_key - $buffer;
-			}
+			$original_terms_in_excerpt = substr( $haystack_tmp, $occurrence_position, strlen( $haystack_term ) );
 
-			// find the end point
-			$end = count( $haystack );
-			if ( $end > ( $haystack_key + ( $buffer * 2 ) ) ) {
-				$end = $haystack_key + ( $buffer * 2 );
-			}
+			$match_flag_alpha = substr( $haystack_tmp, 0, $occurrence_position );
+			$match_flag_beta  = substr( $haystack_tmp, $occurrence_position + strlen( $haystack_term ) );
 
-			// if we had an underflow (e.g. the first buffer wasn't fully included) grab more at the end
-			$end += $underflow;
+			// we're going to piece together our match using the two generated chunks, concatenated with the original search
+			$chunks_1 = explode( ' ', trim( $match_flag_alpha ) );
+			$chunks_1 = array_filter( $chunks_1 );
+			$chunks_1 = array_values( $chunks_1 );
+			$chunks_1 = count( $chunks_1 ) == 1 && empty( $chunks_1[0] ) ? array() : $chunks_1;
 
-			$excerpt = array_slice( $haystack, $start, $end - $start );
-			$excerpt = implode( ' ', $excerpt );
+			$chunks_2 = explode( ' ', trim( $match_flag_beta ) );
+			$chunks_2 = array_filter( $chunks_2 );
+			$chunks_2 = array_values( $chunks_2 );
+			$chunks_2 = count( $chunks_2 ) == 1 && empty( $chunks_2[0] ) ? array() : $chunks_2;
+
+			$buffer       = floor( ( $this->number_of_words - 1 ) / 2 );
+			$buffer_alpha = count( $chunks_2 ) < $buffer ? $buffer + ( $buffer - count( $chunks_2 ) ) : $buffer;
+			$buffer_alpha = empty( $chunks_1 ) ? 0 : $buffer_alpha;
+			$buffer_beta  = count( $chunks_1 ) < $buffer ? $buffer + ( $buffer - count( $chunks_1 ) ) : $buffer;
+			$buffer_beta  = empty( $chunks_2 ) ? 0 : $buffer_beta;
+
+			$excerpt_alpha = $buffer_alpha ? array_slice( $chunks_1, 0 - $buffer_alpha ) : array();
+			$excerpt_beta  = $buffer_beta ? array_slice( $chunks_2, 0, $buffer_beta ) : array();
+
+			$excerpt = implode( ' ', $excerpt_alpha ) . ' ';
+			$excerpt .= $original_terms_in_excerpt;
+			$excerpt .= ' ' . implode( ' ', $excerpt_beta );
 
 			$excerpt = $this->apply_highlight( $excerpt, $terms );
 		} else {
@@ -614,6 +640,7 @@ function searchwp_init_global_highlight_functions() {
 			global $post;
 
 			$highlighter = new SearchWPHighlighter();
+			$highlighter->init();
 
 			if ( empty( $post ) || is_null( $post ) || ! class_exists( 'SearchWPIndexer' ) ) {
 				return '';
@@ -621,13 +648,19 @@ function searchwp_init_global_highlight_functions() {
 
 			$original_post = $post;
 
-			if ( empty( $post_id ) && isset( $post->ID ) ) {
-				$post_id = $post->ID;
-			} else {
-				if ( function_exists( 'get_the_ID' ) ) {
-					$post_id = get_the_ID();
+			if ( empty( $post_id ) ) {
+				// Use global post ID if available.
+				if ( isset( $post->ID ) && ! empty( $post->ID ) ) {
+					$post_id = $post->ID;
 				} else {
-					// couldn't retrieve the post ID so we need to short circuit
+					// Get global post ID instead.
+					if ( function_exists( 'get_the_ID' ) ) {
+						$post_id = get_the_ID();
+					}
+				}
+
+				// couldn't retrieve the post ID so we need to short circuit.
+				if ( empty( $post_id ) ) {
 					return '';
 				}
 			}
@@ -734,7 +767,7 @@ function searchwp_init_global_highlight_functions() {
 			$proper_excerpt = $excerpt; // save this for later in case the post
 			// content doesn't have a match either
 			if ( false === strpos( $excerpt, 'searchwp-highlight' ) ) {
-				$post_content = isset( $post->post_content ) ? apply_filters( 'the_content', $post->post_content ) : $excerpt;
+				$post_content = ! empty( $post->post_content ) ? apply_filters( 'the_content', $post->post_content ) : $excerpt;
 				$post_content = $highlighter->pre_process_content( $post_content );
 
 				$excerpt = $highlighter->get_the_excerpt( $query, $post_content );

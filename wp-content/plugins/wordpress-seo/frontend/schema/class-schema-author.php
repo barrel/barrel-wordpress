@@ -13,6 +13,7 @@
  * @property WPSEO_Schema_Context $context A value object with context variables.
  */
 class WPSEO_Schema_Author extends WPSEO_Schema_Person implements WPSEO_Graph_Piece {
+
 	/**
 	 * A value object with context variables.
 	 *
@@ -21,14 +22,21 @@ class WPSEO_Schema_Author extends WPSEO_Schema_Person implements WPSEO_Graph_Pie
 	private $context;
 
 	/**
-	 * WPSEO_Schema_Breadcrumb constructor.
+	 * The Schema type we use for this class.
+	 *
+	 * @var string[]
+	 */
+	protected $type = array( 'Person' );
+
+	/**
+	 * WPSEO_Schema_Author constructor.
 	 *
 	 * @param WPSEO_Schema_Context $context A value object with context variables.
 	 */
 	public function __construct( WPSEO_Schema_Context $context ) {
 		parent::__construct( $context );
-		$this->context   = $context;
-		$this->logo_hash = WPSEO_Schema_IDs::AUTHOR_LOGO_HASH;
+		$this->context    = $context;
+		$this->image_hash = WPSEO_Schema_IDs::AUTHOR_LOGO_HASH;
 	}
 
 	/**
@@ -54,16 +62,18 @@ class WPSEO_Schema_Author extends WPSEO_Schema_Person implements WPSEO_Graph_Pie
 		return false;
 	}
 
-
 	/**
-	 * Builds our array of Schema Person data for a given user ID.
+	 * Returns Person Schema data.
 	 *
-	 * @param int $user_id The user ID to use.
-	 *
-	 * @return array An array of Schema Person data.
+	 * @return bool|array Person data on success, false on failure.
 	 */
-	protected function build_person_data( $user_id ) {
-		$data = parent::build_person_data( $user_id );
+	public function generate() {
+		$user_id = $this->determine_user_id();
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		$data = $this->build_person_data( $user_id );
 
 		// If this is an author page, the Person object is the main object, so we set it as such here.
 		if ( is_author() ) {
@@ -105,7 +115,7 @@ class WPSEO_Schema_Author extends WPSEO_Schema_Person implements WPSEO_Graph_Pie
 				$user_id = get_queried_object_id();
 				break;
 			default:
-				$post = get_post( $this->context->id );
+				$post    = get_post( $this->context->id );
 				$user_id = (int) $post->post_author;
 				break;
 		}
@@ -119,13 +129,23 @@ class WPSEO_Schema_Author extends WPSEO_Schema_Person implements WPSEO_Graph_Pie
 	}
 
 	/**
-	 * Returns the string to use in Schema's `@id`.
+	 * An author should not have an image from options, this only applies to persons.
 	 *
-	 * @param int $user_id The user ID if we're on a user page.
+	 * @param array  $data      The Person schema.
+	 * @param string $schema_id The string used in the `@id` for the schema.
 	 *
-	 * @return string The `@id` string value.
+	 * @return array The Person schema.
 	 */
-	protected function determine_schema_id( $user_id ) {
-		return get_author_posts_url( $user_id ) . WPSEO_Schema_IDs::AUTHOR_HASH;
+	private function set_image_from_options( $data, $schema_id ) {
+		return $data;
+	}
+
+	/**
+	 * Gets the Schema type we use for this class.
+	 *
+	 * @return string[] The schema type.
+	 */
+	public static function get_type() {
+		return self::$type;
 	}
 }

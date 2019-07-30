@@ -102,11 +102,11 @@ class SearchWP_Stopwords {
 			$args['existing_stopwords'] = array();
 		}
 
+		$db_prefix = $wpdb->prefix . SEARCHWP_DBPREFIX;
+
 		if ( ! array_key_exists( 'total_post_count', $args ) ) {
 			$args['total_post_count'] = $wpdb->get_var( "SELECT COUNT(DISTINCT post_id) FROM {$db_prefix}index" );
 		}
-
-		$db_prefix = $wpdb->prefix . SEARCHWP_DBPREFIX;
 
 		$hashes_to_exclude = array_map( 'md5', (array) $args['existing_stopwords'] );
 

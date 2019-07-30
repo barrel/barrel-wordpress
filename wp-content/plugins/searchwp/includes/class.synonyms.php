@@ -112,16 +112,22 @@ class SearchWP_Synonyms {
 
 		if ( is_array( $term ) && is_array( $synonyms ) && ! empty( $synonyms ) ) {
 			foreach ( $synonyms as $synonym ) {
-				if ( in_array( $synonym['term'], $term ) ) {
+				$whole_phrase_match = strtolower( trim( implode( ' ', $term ) ) ) === strtolower( trim( $synonym['term'] ) );
+
+				if ( $whole_phrase_match || in_array( $synonym['term'], $term, true ) ) {
 
 					// there is a match, handle it
 
 					// break out where applicable
 					if ( is_array( $synonym['synonyms'] ) && ! empty( $synonym['synonyms'] ) ) {
-						foreach ( $synonym['synonyms'] as $maybe_synonym ) {
+						foreach ( $synonym['synonyms'] as $key => $maybe_synonym ) {
 							if ( false !== strpos( $maybe_synonym, ' ' ) ) {
 								$maybe_synonym = explode( ' ', $maybe_synonym );
-								$synonym['synonyms'] = $maybe_synonym;
+
+								unset( $synonym['synonyms'][ $key ] );
+
+								$synonym['synonyms'] = array_merge( $synonym['synonyms'], $maybe_synonym );
+								$synonym['synonyms'] = array_values( $synonym['synonyms'] );
 							}
 						}
 					}
