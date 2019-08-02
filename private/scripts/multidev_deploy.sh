@@ -34,7 +34,7 @@ fi
 
 TARGET=$(echo $CI_COMMIT_REF_NAME | cut -d'/' -f2)
 ENV=$(echo ${TARGET:0:11} | tr '[:upper:]' '[:lower:]') 
-ENVIRONMENT="${ENV//-}"
+ENVIRONMENT="${ENV%-}"
 
 echo -e "${YELLOW}Checking which database should be used...${DEFAULT}"
 
