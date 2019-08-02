@@ -18,7 +18,7 @@ ENVIRONMENT_REQ_HEADER="PRIVATE-TOKEN: $GITLAB_PRIVATE_TOKEN"
 ENV_ID_REQ_URL="$GITLAB_API_URL/$CI_PROJECT_ID/environments"
 
 echo "${YELLOW}Retrieving list of GitLab CI Environments with '$CI_PROJECT_ID' CI Project ID...${DEFAULT}"
-JSON=$(curl -s --header "$ENVIRONMENT_REQ_HEADER" "$ENV_ID_REQ_URL")
+JSON=$(curl -s --header "$ENVIRONMENT_REQ_HEADER" "$ENV_ID_REQ_URL?search=$CI_ENVIRONMENT_NAME")
 echo $DONE
 
 echo "${YELLOW}Looking for CI Environment ID matching '$CI_ENVIRONMENT_NAME' environment name in list of environments...${DEFAULT}"
