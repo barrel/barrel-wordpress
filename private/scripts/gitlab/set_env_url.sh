@@ -11,7 +11,7 @@ source $SCRIPT_PATH/../colors.sh
 
 TARGET=$(echo $CI_COMMIT_REF_NAME | cut -d'/' -f2)
 ENV=$(echo ${TARGET:0:11} | tr '[:upper:]' '[:lower:]') 
-ENVIRONMENT="${ENV//-}"
+ENVIRONMENT="${ENV%-}"
 ENVURL="https://$ENVIRONMENT-$PANTHEON_SITE_ID.pantheonsite.io"
 GITLAB_API_URL="https://gitlab.com/api/v4/projects"
 ENVIRONMENT_REQ_HEADER="PRIVATE-TOKEN: $GITLAB_PRIVATE_TOKEN"
