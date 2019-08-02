@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.3.1 - 2019-08-02
+### CHANGED:
+- Modify set env url script to leverage the search parameter only for the initial lookup 
+- Update scripts that reference the environment name to only trim the last hyphen 
+
 ## 3.3.0 - 2019-07-30
 ### CHANGED:
 - Update clone script procedures 
