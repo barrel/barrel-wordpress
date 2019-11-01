@@ -45,6 +45,9 @@ module.exports = function backstopConfig(nonProductionBaseUrl, productionBaseUrl
             'engine_scripts': `${rootPath}/inc/${siteName}`
         },
         'engine': 'puppeteer',
+        'engineOptions': {
+            'args': ['--no-sandbox']
+        },
         'report': ['browser', 'json'],
         'casperFlags': [],
         'debug': false,
