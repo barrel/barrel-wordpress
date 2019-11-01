@@ -28,6 +28,16 @@ test_modules:
   stage: test
   script: 
     - bash private/scripts/test_modules.sh
+test_visual_regression:
+  <<: *BRANCH_PREFIXES
+  stage: test
+  script: 
+    - bash private/scripts/test_visual_regression.sh
+  artifacts:
+    when: always
+    paths:
+      - private/scripts/backstopjs/backstop_data
+    expire_in: 1 week
 
 # multidev
 multidev_deploy:
