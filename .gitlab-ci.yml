@@ -50,7 +50,6 @@ pages:
   <<: *BRANCH_PREFIXES
   stage: deploy
   script:
-    - ls /var/opt/gitlab/gitlab-rails/shared/artifacts
     - ls -l private/scripts/backstopjs/backstop_data/barrel-base-theme/html_report
   artifacts:
     paths:
