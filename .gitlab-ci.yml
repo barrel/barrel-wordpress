@@ -38,7 +38,9 @@ test_visual_regression:
   artifacts:
     when: always
     paths:
-      - private/scripts/backstopjs/backstop_data
+      - private/scripts/backstopjs/backstop_data/barrel-base-theme/html_report
+    reports:
+      - index.html
     expire_in: 1 week
 
 # multidev
