@@ -39,10 +39,12 @@ test_visual_regression:
       libatk1.0-0 libatk-bridge2.0-0 libpangocairo-1.0-0 libgtk-3-0
   script: 
     - bash private/scripts/test_visual_regression.sh
+    - mv private/scripts/backstopjs/backstop_data/barrel-base-theme public
+    - ls public
   artifacts:
     when: always
     paths:
-      - private/scripts/backstopjs/backstop_data/barrel-base-theme/html_report
+      - public
     expire_in: 1 week
 
 # This job collects artifacts from other jobs; triggers pages build
@@ -50,10 +52,10 @@ pages:
   <<: *BRANCH_PREFIXES
   stage: deploy
   script:
-    - ls -l private/scripts/backstopjs/backstop_data/barrel-base-theme/html_report
+    - ls -l public
   artifacts:
     paths:
-      - private/scripts/backstopjs/backstop_data/barrel-base-theme/html_report
+      - public
 
 # multidev
 multidev_deploy:
