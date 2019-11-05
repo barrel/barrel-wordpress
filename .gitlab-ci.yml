@@ -39,7 +39,7 @@ test_visual_regression:
       libatk1.0-0 libatk-bridge2.0-0 libpangocairo-1.0-0 libgtk-3-0
   script: 
     - bash private/scripts/test_visual_regression.sh
-    # - mv private/scripts/backstopjs/backstop_data/barrel-base-theme public
+    # - mv private/scripts/backstopjs/backstop_data/$PANTHEON_SITE_ID public
   artifacts:
     when: always
     paths:

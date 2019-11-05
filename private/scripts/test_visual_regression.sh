@@ -6,7 +6,7 @@ source $SCRIPT_PATH/colors.sh
 echo "${YELLOW}Starting visual regression test suite...${DEFAULT}"
 cd ./private/scripts/backstopjs/
 npm ci
-npm start -- --site=barrel-base-theme
+npm start -- --site=$PANTHEON_SITE_ID
 EXIT_CODE="$?"
 if [[ "$EXIT_CODE" -ne 0 ]]; then
   echo "${RED}Visual regressions potentially detected!${DEFAULT}"
