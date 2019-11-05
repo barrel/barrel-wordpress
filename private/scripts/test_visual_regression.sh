@@ -15,7 +15,7 @@ cd ./private/scripts/backstopjs/
 npm ci
 npm start -- --site=$PANTHEON_SITE_ID
 EXIT_CODE="$?"
-echo "The URL for this report: \n${YELLOW}$ARTIFACT_URL${DEFAULT}"
+echo $'The URL for this report: \n'"${YELLOW}$ARTIFACT_URL${DEFAULT}"
 if [[ "$EXIT_CODE" -ne 0 ]]; then
   echo "${RED}Visual regressions potentially detected!${DEFAULT}"
   exit $EXIT_CODE
