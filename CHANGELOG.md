@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.4.0 - 2019-11-06
+### CHANGED:
+- Add visual regression test suite 
+- Update pantheon.upstream.yml to default to PHP73 and include auto-https enforcement 
+
 ## 3.3.1 - 2019-08-02
 ### CHANGED:
 - Modify set env url script to leverage the search parameter only for the initial lookup 
