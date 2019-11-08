@@ -13,7 +13,7 @@ stages:
   only: 
     - /(feature|bugfix|hotfix)\/?(.*)/
 
-image: barrelny/multipurpose-ci:0.0.13
+image: barrelny/multipurpose-ci:0.0.14
 # cache:
 #   key: ${CI_COMMIT_REF_SLUG}
 #   paths:
@@ -31,30 +31,13 @@ test_modules:
 test_visual_regression:
   <<: *BRANCH_PREFIXES
   stage: test
-  before_script:
-    - apt-get update
-    - >
-      apt-get install -y libnss3 libcups2 libasound2 libx11-xcb1 libxcomposite1 
-      libxcursor1 libxdamage1 libxi6 libxtst6 libxss1 libxrandr2 
-      libatk1.0-0 libatk-bridge2.0-0 libpangocairo-1.0-0 libgtk-3-0
   script: 
     - bash private/scripts/test_visual_regression.sh
-    # - mv private/scripts/backstopjs/backstop_data/$PANTHEON_SITE_ID public
   artifacts:
     when: always
     paths:
       - private/scripts/backstopjs/backstop_data
     expire_in: 1 week
-
-# This job collects artifacts from other jobs; triggers pages build
-# pages:
-#   <<: *BRANCH_PREFIXES
-#   stage: deploy
-#   script:
-#     - ls -l public
-#   artifacts:
-#     paths:
-#       - public
 
 # multidev
 multidev_deploy:
