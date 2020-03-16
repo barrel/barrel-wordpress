@@ -1,12 +1,20 @@
 stages:
   - test
   - deploy
+  - release
   - merge_request
 
+.git_flow: &GIT_FLOW
+  stage: release
+  only:
+    - develop
+  when: manual
+    
 .import_git: &IMPORT_GIT
   before_script:
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - git remote set-url --push origin $(perl -pe 's#.*@(.+?(\:\d+)?)/#git@\1:#' <<< $CI_REPOSITORY_URL)
     - bash private/scripts/import_git_remote.sh
 
 .branch_prefixes: &BRANCH_PREFIXES
@@ -28,16 +36,29 @@ test_modules:
   stage: test
   script: 
     - bash private/scripts/test_modules.sh
-test_visual_regression:
-  <<: *BRANCH_PREFIXES
-  stage: test
-  script: 
-    - bash private/scripts/test_visual_regression.sh
-  artifacts:
-    when: always
-    paths:
-      - private/scripts/backstopjs/backstop_data
-    expire_in: 1 week
+
+live_deploy:
+  stage: deploy
+  only: 
+    - master
+  when: manual
+  <<: *IMPORT_GIT
+  script:
+    - bash private/scripts/live_deploy.sh
+  environment:
+    name: live
+    url: https://$CI_ENVIRONMENT_SLUG-$PANTHEON_SITE_ID.pantheonsite.io
+
+dev_test_deploy:
+  stage: deploy
+  only: 
+    - master
+  <<: *IMPORT_GIT
+  script:
+    - bash private/scripts/dev_test_deploy.sh
+  environment:
+    name: test
+    url: https://$CI_ENVIRONMENT_SLUG-$PANTHEON_SITE_ID.pantheonsite.io
 
 # multidev
 multidev_deploy:
@@ -71,3 +92,19 @@ create_merge_request:
   when: manual
   script:
     - ./private/scripts/merge_request.sh
+
+prepare_patch_release:
+  <<: *GIT_FLOW
+  <<: *IMPORT_GIT
+  script:
+    - ./private/scripts/prepare.sh -v=patch -f=release -s=yes -y
+prepare_minor_release:
+  <<: *GIT_FLOW
+  <<: *IMPORT_GIT
+  script:
+    - ./private/scripts/prepare.sh -v=minor -f=release -s=yes -y
+prepare_major_release:
+  <<: *GIT_FLOW
+  <<: *IMPORT_GIT
+  script:
+    - ./private/scripts/prepare.sh -v=major -f=release -s=yes -y

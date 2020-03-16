@@ -56,3 +56,6 @@ else
 	fi
 fi
 echo $DONE
+
+# clean up any cached commits per ci branch
+git fetch origin && git reset --hard origin/$CI_COMMIT_REF_NAME && git clean -f -d
