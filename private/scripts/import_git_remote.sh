@@ -58,4 +58,4 @@ fi
 echo $DONE
 
 # clean up any cached commits per ci branch
-git fetch origin && git reset --hard origin/$CI_COMMIT_REF_NAME && git clean -f -d
+git fetch origin && git reset --hard $CI_COMMIT_SHA && git clean -f -d
