@@ -49,7 +49,7 @@ final class WP_Customize_Selective_Refresh {
 	 * Keep track of the current partial being rendered.
 	 *
 	 * @since 4.5.0
-	 * @var string
+	 * @var string|null
 	 */
 	protected $current_partial_id;
 
@@ -58,11 +58,11 @@ final class WP_Customize_Selective_Refresh {
 	 *
 	 * @since 4.5.0
 	 *
-	 * @param WP_Customize_Manager $manager Manager instance.
+	 * @param WP_Customize_Manager $manager Customizer bootstrap instance.
 	 */
 	public function __construct( WP_Customize_Manager $manager ) {
 		$this->manager = $manager;
-		require_once( ABSPATH . WPINC . '/customize/class-wp-customize-partial.php' );
+		require_once ABSPATH . WPINC . '/customize/class-wp-customize-partial.php';
 
 		add_action( 'customize_preview_init', array( $this, 'init_preview' ) );
 	}

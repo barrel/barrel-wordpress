@@ -56,7 +56,7 @@ class WP_Widget_RSS extends WP_Widget {
 			return;
 		}
 
-		// self-url destruction sequence
+		// Self-URL destruction sequence.
 		if ( in_array( untrailingslashit( $url ), array( site_url(), home_url() ) ) ) {
 			return;
 		}
@@ -67,7 +67,7 @@ class WP_Widget_RSS extends WP_Widget {
 		$link  = '';
 
 		if ( ! is_wp_error( $rss ) ) {
-			$desc = esc_attr( strip_tags( @html_entity_decode( $rss->get_description(), ENT_QUOTES, get_option( 'blog_charset' ) ) ) );
+			$desc = esc_attr( strip_tags( html_entity_decode( $rss->get_description(), ENT_QUOTES, get_option( 'blog_charset' ) ) ) );
 			if ( empty( $title ) ) {
 				$title = strip_tags( $rss->get_title() );
 			}

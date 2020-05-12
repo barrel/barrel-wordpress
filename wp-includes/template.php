@@ -428,7 +428,8 @@ function get_page_template() {
 	$pagename = get_query_var( 'pagename' );
 
 	if ( ! $pagename && $id ) {
-		// If a static page is set as the front page, $pagename will not be set. Retrieve it from the queried object
+		// If a static page is set as the front page, $pagename will not be set.
+		// Retrieve it from the queried object.
 		$post = get_queried_object();
 		if ( $post ) {
 			$pagename = $post->post_name;
@@ -684,15 +685,15 @@ function locate_template( $template_names, $load = false, $require_once = true )
  * @since 1.5.0
  *
  * @global array      $posts
- * @global WP_Post    $post
+ * @global WP_Post    $post          Global post object.
  * @global bool       $wp_did_header
- * @global WP_Query   $wp_query
- * @global WP_Rewrite $wp_rewrite
- * @global wpdb       $wpdb
+ * @global WP_Query   $wp_query      WordPress Query object.
+ * @global WP_Rewrite $wp_rewrite    WordPress rewrite component.
+ * @global wpdb       $wpdb          WordPress database abstraction object.
  * @global string     $wp_version
- * @global WP         $wp
+ * @global WP         $wp            Current WordPress environment instance.
  * @global int        $id
- * @global WP_Comment $comment
+ * @global WP_Comment $comment       Global comment object.
  * @global int        $user_ID
  *
  * @param string $_template_file Path to template file.
@@ -719,8 +720,8 @@ function load_template( $_template_file, $require_once = true ) {
 	}
 
 	if ( $require_once ) {
-		require_once( $_template_file );
+		require_once $_template_file;
 	} else {
-		require( $_template_file );
+		require $_template_file;
 	}
 }

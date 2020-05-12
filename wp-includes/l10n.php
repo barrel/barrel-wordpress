@@ -22,8 +22,8 @@
  *
  * @since 1.5.0
  *
- * @global string $locale
- * @global string $wp_local_package
+ * @global string $locale           The current locale.
+ * @global string $wp_local_package Locale code of the package.
  *
  * @return string The locale of the blog or from the {@see 'locale'} hook.
  */
@@ -53,16 +53,21 @@ function get_locale() {
 	// If multisite, check options.
 	if ( is_multisite() ) {
 		// Don't check blog option when installing.
-		if ( wp_installing() || ( false === $ms_locale = get_option( 'WPLANG' ) ) ) {
+		if ( wp_installing() ) {
 			$ms_locale = get_site_option( 'WPLANG' );
+		} else {
+			$ms_locale = get_option( 'WPLANG' );
+			if ( false === $ms_locale ) {
+				$ms_locale = get_site_option( 'WPLANG' );
+			}
 		}
 
-		if ( $ms_locale !== false ) {
+		if ( false !== $ms_locale ) {
 			$locale = $ms_locale;
 		}
 	} else {
 		$db_locale = get_option( 'WPLANG' );
-		if ( $db_locale !== false ) {
+		if ( false !== $db_locale ) {
 			$locale = $db_locale;
 		}
 	}
@@ -121,7 +126,7 @@ function determine_locale() {
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param string|null The locale to return and short-circuit, or null as default.
+	 * @param string|null $locale The locale to return and short-circuit. Default null.
 	 */
 	$determined_locale = apply_filters( 'pre_determine_locale', null );
 	if ( ! empty( $determined_locale ) && is_string( $determined_locale ) ) {
@@ -164,7 +169,7 @@ function determine_locale() {
  * @param string $text   Text to translate.
  * @param string $domain Optional. Text domain. Unique identifier for retrieving translated strings.
  *                       Default 'default'.
- * @return string Translated text
+ * @return string Translated text.
  */
 function translate( $text, $domain = 'default' ) {
 	$translations = get_translations_for_domain( $domain );
@@ -205,8 +210,7 @@ function before_last_bar( $string ) {
 /**
  * Retrieve the translation of $text in the context defined in $context.
  *
- * If there is no translation, or the text domain isn't loaded the original
- * text is returned.
+ * If there is no translation, or the text domain isn't loaded, the original text is returned.
  *
  * *Note:* Don't use translate_with_gettext_context() directly, use _x() or related functions.
  *
@@ -277,7 +281,7 @@ function esc_attr__( $text, $domain = 'default' ) {
  * @param string $text   Text to translate.
  * @param string $domain Optional. Text domain. Unique identifier for retrieving translated strings.
  *                       Default 'default'.
- * @return string Translated text
+ * @return string Translated text.
  */
 function esc_html__( $text, $domain = 'default' ) {
 	return esc_html( translate( $text, $domain ) );
@@ -299,6 +303,11 @@ function _e( $text, $domain = 'default' ) {
 /**
  * Display translated text that has been escaped for safe use in an attribute.
  *
+ * Encodes `< > & " '` (less than, greater than, ampersand, double quote, single quote).
+ * Will never double encode entities.
+ *
+ * If you need the value for use in PHP, use esc_attr__().
+ *
  * @since 2.8.0
  *
  * @param string $text   Text to translate.
@@ -311,6 +320,11 @@ function esc_attr_e( $text, $domain = 'default' ) {
 
 /**
  * Display translated text that has been escaped for safe use in HTML output.
+ *
+ * If there is no translation, or the text domain isn't loaded, the original text
+ * is escaped and displayed.
+ *
+ * If you need the value for use in PHP, use esc_html__().
  *
  * @since 2.8.0
  *
@@ -361,13 +375,16 @@ function _ex( $text, $context, $domain = 'default' ) {
 /**
  * Translate string with gettext context, and escapes it for safe use in an attribute.
  *
+ * If there is no translation, or the text domain isn't loaded, the original text
+ * is escaped and returned.
+ *
  * @since 2.8.0
  *
  * @param string $text    Text to translate.
  * @param string $context Context information for the translators.
  * @param string $domain  Optional. Text domain. Unique identifier for retrieving translated strings.
  *                        Default 'default'.
- * @return string Translated text
+ * @return string Translated text.
  */
 function esc_attr_x( $text, $context, $domain = 'default' ) {
 	return esc_attr( translate_with_gettext_context( $text, $context, $domain ) );
@@ -375,6 +392,9 @@ function esc_attr_x( $text, $context, $domain = 'default' ) {
 
 /**
  * Translate string with gettext context, and escapes it for safe use in HTML output.
+ *
+ * If there is no translation, or the text domain isn't loaded, the original text
+ * is escaped and returned.
  *
  * @since 2.9.0
  *
@@ -906,8 +926,7 @@ function load_child_theme_textdomain( $domain, $path = false ) {
  * @param string $handle Name of the script to register a translation domain to.
  * @param string $domain Optional. Text domain. Default 'default'.
  * @param string $path   Optional. The full file path to the directory containing translation files.
- *
- * @return false|string False if the script textdomain could not be loaded, the translated strings
+ * @return string|false False if the script textdomain could not be loaded, the translated strings
  *                      in JSON encoding otherwise.
  */
 function load_script_textdomain( $handle, $domain = 'default', $path = null ) {
@@ -921,7 +940,7 @@ function load_script_textdomain( $handle, $domain = 'default', $path = null ) {
 	$locale = determine_locale();
 
 	// If a path was given and the handle file exists simply return it.
-	$file_base       = $domain === 'default' ? $locale : $domain . '-' . $locale;
+	$file_base       = 'default' === $domain ? $locale : $domain . '-' . $locale;
 	$handle_filename = $file_base . '-' . $handle . '.json';
 
 	if ( $path ) {
@@ -943,20 +962,43 @@ function load_script_textdomain( $handle, $domain = 'default', $path = null ) {
 
 	$src_url     = wp_parse_url( $src );
 	$content_url = wp_parse_url( content_url() );
+	$plugins_url = wp_parse_url( plugins_url() );
 	$site_url    = wp_parse_url( site_url() );
 
 	// If the host is the same or it's a relative URL.
 	if (
-		strpos( $src_url['path'], $content_url['path'] ) === 0 &&
+		( ! isset( $content_url['path'] ) || strpos( $src_url['path'], $content_url['path'] ) === 0 ) &&
 		( ! isset( $src_url['host'] ) || $src_url['host'] === $content_url['host'] )
 	) {
 		// Make the src relative the specific plugin or theme.
-		$relative = trim( substr( $src_url['path'], strlen( $content_url['path'] ) ), '/' );
+		if ( isset( $content_url['path'] ) ) {
+			$relative = substr( $src_url['path'], strlen( $content_url['path'] ) );
+		} else {
+			$relative = $src_url['path'];
+		}
+		$relative = trim( $relative, '/' );
 		$relative = explode( '/', $relative );
 
 		$languages_path = WP_LANG_DIR . '/' . $relative[0];
 
-		$relative = array_slice( $relative, 2 );
+		$relative = array_slice( $relative, 2 ); // Remove plugins/<plugin name> or themes/<theme name>.
+		$relative = implode( '/', $relative );
+	} elseif (
+		( ! isset( $plugins_url['path'] ) || strpos( $src_url['path'], $plugins_url['path'] ) === 0 ) &&
+		( ! isset( $src_url['host'] ) || $src_url['host'] === $plugins_url['host'] )
+	) {
+		// Make the src relative the specific plugin.
+		if ( isset( $plugins_url['path'] ) ) {
+			$relative = substr( $src_url['path'], strlen( $plugins_url['path'] ) );
+		} else {
+			$relative = $src_url['path'];
+		}
+		$relative = trim( $relative, '/' );
+		$relative = explode( '/', $relative );
+
+		$languages_path = WP_LANG_DIR . '/plugins';
+
+		$relative = array_slice( $relative, 1 ); // Remove <plugin name>.
 		$relative = implode( '/', $relative );
 	} elseif ( ! isset( $src_url['host'] ) || $src_url['host'] === $site_url['host'] ) {
 		if ( ! isset( $site_url['path'] ) ) {
@@ -973,8 +1015,8 @@ function load_script_textdomain( $handle, $domain = 'default', $path = null ) {
 	 *
 	 * @since 5.0.2
 	 *
-	 * @param string $relative The relative path of the script. False if it could not be determined.
-	 * @param string $src      The full source url of the script.
+	 * @param string|false $relative The relative path of the script. False if it could not be determined.
+	 * @param string       $src      The full source URL of the script.
 	 */
 	$relative = apply_filters( 'load_script_textdomain_relative_path', $relative, $src );
 
@@ -1025,10 +1067,10 @@ function load_script_translations( $file, $handle, $domain ) {
 	 *
 	 * @since 5.0.2
 	 *
-	 * @param string|false $translations JSON-encoded translation data. Default null.
-	 * @param string|false $file         Path to the translation file to load. False if there isn't one.
-	 * @param string       $handle       Name of the script to register a translation domain to.
-	 * @param string       $domain       The text domain.
+	 * @param string|false|null $translations JSON-encoded translation data. Default null.
+	 * @param string|false      $file         Path to the translation file to load. False if there isn't one.
+	 * @param string            $handle       Name of the script to register a translation domain to.
+	 * @param string            $domain       The text domain.
 	 */
 	$translations = apply_filters( 'pre_load_script_translations', null, $file, $handle, $domain );
 
@@ -1254,7 +1296,7 @@ function translate_user_role( $name, $domain = 'default' ) {
  *
  * @param string $dir A directory to search for language files.
  *                    Default WP_LANG_DIR.
- * @return array An array of language codes or an empty array if no languages are present. Language codes are formed by stripping the .mo extension from the language file names.
+ * @return string[] An array of language codes or an empty array if no languages are present. Language codes are formed by stripping the .mo extension from the language file names.
  */
 function get_available_languages( $dir = null ) {
 	$languages = array();
@@ -1275,8 +1317,8 @@ function get_available_languages( $dir = null ) {
 	 *
 	 * @since 4.7.0
 	 *
-	 * @param array  $languages An array of available language codes.
-	 * @param string $dir       The directory where the language files were found.
+	 * @param string[] $languages An array of available language codes.
+	 * @param string   $dir       The directory where the language files were found.
 	 */
 	return apply_filters( 'get_available_languages', $languages, $dir );
 }
@@ -1293,7 +1335,7 @@ function get_available_languages( $dir = null ) {
  * @return array Array of language data.
  */
 function wp_get_installed_translations( $type ) {
-	if ( $type !== 'themes' && $type !== 'plugins' && $type !== 'core' ) {
+	if ( 'themes' !== $type && 'plugins' !== $type && 'core' !== $type ) {
 		return array();
 	}
 
@@ -1343,7 +1385,7 @@ function wp_get_installed_translations( $type ) {
  * @since 3.7.0
  *
  * @param string $po_file Path to PO file.
- * @return array PO file headers.
+ * @return string[] Array of PO file header values keyed by header name.
  */
 function wp_get_pomo_file_data( $po_file ) {
 	$headers = get_file_data(
@@ -1389,7 +1431,7 @@ function wp_get_pomo_file_data( $po_file ) {
  *     @type bool     $show_option_site_default     Whether to show an option to fall back to the site's locale. Default false.
  *     @type bool     $show_option_en_us            Whether to show an option for English (United States). Default true.
  * }
- * @return string HTML content
+ * @return string HTML dropdown list of languages.
  */
 function wp_dropdown_languages( $args = array() ) {
 
@@ -1420,7 +1462,7 @@ function wp_dropdown_languages( $args = array() ) {
 
 	$translations = $parsed_args['translations'];
 	if ( empty( $translations ) ) {
-		require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
+		require_once ABSPATH . 'wp-admin/includes/translation-install.php';
 		$translations = wp_get_available_translations();
 	}
 
@@ -1525,7 +1567,7 @@ function wp_dropdown_languages( $args = array() ) {
  *
  * @since 3.0.0
  *
- * @global WP_Locale $wp_locale
+ * @global WP_Locale $wp_locale WordPress date and time locale object.
  *
  * @return bool Whether locale is RTL.
  */
@@ -1542,7 +1584,7 @@ function is_rtl() {
  *
  * @since 4.7.0
  *
- * @global WP_Locale_Switcher $wp_locale_switcher
+ * @global WP_Locale_Switcher $wp_locale_switcher WordPress locale switcher object.
  *
  * @param string $locale The locale.
  * @return bool True on success, false on failure.
@@ -1559,7 +1601,7 @@ function switch_to_locale( $locale ) {
  *
  * @since 4.7.0
  *
- * @global WP_Locale_Switcher $wp_locale_switcher
+ * @global WP_Locale_Switcher $wp_locale_switcher WordPress locale switcher object.
  *
  * @return string|false Locale on success, false on error.
  */
@@ -1575,7 +1617,7 @@ function restore_previous_locale() {
  *
  * @since 4.7.0
  *
- * @global WP_Locale_Switcher $wp_locale_switcher
+ * @global WP_Locale_Switcher $wp_locale_switcher WordPress locale switcher object.
  *
  * @return string|false Locale on success, false on error.
  */
@@ -1591,7 +1633,7 @@ function restore_current_locale() {
  *
  * @since 4.7.0
  *
- * @global WP_Locale_Switcher $wp_locale_switcher
+ * @global WP_Locale_Switcher $wp_locale_switcher WordPress locale switcher object.
  *
  * @return bool True if the locale has been switched, false otherwise.
  */

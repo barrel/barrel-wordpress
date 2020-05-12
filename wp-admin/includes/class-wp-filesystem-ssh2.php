@@ -9,7 +9,7 @@
  * Complie libssh2 (Note: Only 0.14 is officaly working with PHP 5.2.6+ right now, But many users have found the latest versions work)
  *
  * cd /usr/src
- * wget http://surfnet.dl.sourceforge.net/sourceforge/libssh2/libssh2-0.14.tar.gz
+ * wget https://www.libssh2.org/download/libssh2-0.14.tar.gz
  * tar -zxvf libssh2-0.14.tar.gz
  * cd libssh2-0.14/
  * ./configure
@@ -64,7 +64,7 @@ class WP_Filesystem_SSH2 extends WP_Filesystem_Base {
 		$this->method = 'ssh2';
 		$this->errors = new WP_Error();
 
-		//Check if possible to use ssh2 functions.
+		// Check if possible to use ssh2 functions.
 		if ( ! extension_loaded( 'ssh2' ) ) {
 			$this->errors->add( 'no_ssh2_ext', __( 'The ssh2 PHP extension is not available' ) );
 			return;
@@ -137,8 +137,8 @@ class WP_Filesystem_SSH2 extends WP_Filesystem_Base {
 		if ( ! $this->link ) {
 			$this->errors->add(
 				'connect',
-				/* translators: %s: hostname:port */
 				sprintf(
+					/* translators: %s: hostname:port */
 					__( 'Failed to connect to SSH2 Server %s' ),
 					$this->options['hostname'] . ':' . $this->options['port']
 				)
@@ -150,8 +150,8 @@ class WP_Filesystem_SSH2 extends WP_Filesystem_Base {
 			if ( ! @ssh2_auth_password( $this->link, $this->options['username'], $this->options['password'] ) ) {
 				$this->errors->add(
 					'auth',
-					/* translators: %s: username */
 					sprintf(
+						/* translators: %s: Username. */
 						__( 'Username/Password incorrect for %s' ),
 						$this->options['username']
 					)
@@ -162,8 +162,8 @@ class WP_Filesystem_SSH2 extends WP_Filesystem_Base {
 			if ( ! @ssh2_auth_pubkey_file( $this->link, $this->options['username'], $this->options['public_key'], $this->options['private_key'], $this->options['password'] ) ) {
 				$this->errors->add(
 					'auth',
-					/* translators: %s: username */
 					sprintf(
+						/* translators: %s: Username. */
 						__( 'Public and Private keys incorrect for %s' ),
 						$this->options['username']
 					)
@@ -176,8 +176,8 @@ class WP_Filesystem_SSH2 extends WP_Filesystem_Base {
 		if ( ! $this->sftp_link ) {
 			$this->errors->add(
 				'connect',
-				/* translators: %s: hostname:port */
 				sprintf(
+					/* translators: %s: hostname:port */
 					__( 'Failed to initialize a SFTP subsystem session with the SSH2 Server %s' ),
 					$this->options['hostname'] . ':' . $this->options['port']
 				)
@@ -221,11 +221,12 @@ class WP_Filesystem_SSH2 extends WP_Filesystem_Base {
 			return false;
 		}
 
-		if ( ! ( $stream = ssh2_exec( $this->link, $command ) ) ) {
+		$stream = ssh2_exec( $this->link, $command );
+		if ( ! $stream ) {
 			$this->errors->add(
 				'command',
-				/* translators: %s: command */
 				sprintf(
+					/* translators: %s: Command. */
 					__( 'Unable to perform command: %s' ),
 					$command
 				)
@@ -237,7 +238,7 @@ class WP_Filesystem_SSH2 extends WP_Filesystem_Base {
 			fclose( $stream );
 
 			if ( $returnbool ) {
-				return ( $data === false ) ? false : '' != trim( $data );
+				return ( false === $data ) ? false : '' != trim( $data );
 			} else {
 				return $data;
 			}
@@ -284,7 +285,7 @@ class WP_Filesystem_SSH2 extends WP_Filesystem_Base {
 	public function put_contents( $file, $contents, $mode = false ) {
 		$ret = file_put_contents( $this->sftp_path( $file ), $contents );
 
-		if ( $ret !== strlen( $contents ) ) {
+		if ( strlen( $contents ) !== $ret ) {
 			return false;
 		}
 
@@ -349,7 +350,7 @@ class WP_Filesystem_SSH2 extends WP_Filesystem_Base {
 	 * @param string    $file      Path to the file.
 	 * @param int|false $mode      Optional. The permissions as octal number, usually 0644 for files,
 	 *                             0755 for directories. Default false.
-	 * @param bool      $recursive Optional. If set to true, changes file group recursively.
+	 * @param bool      $recursive Optional. If set to true, changes file permissions recursively.
 	 *                             Default false.
 	 * @return bool True on success, false on failure.
 	 */
@@ -483,7 +484,17 @@ class WP_Filesystem_SSH2 extends WP_Filesystem_Base {
 	 * @return bool True on success, false on failure.
 	 */
 	public function move( $source, $destination, $overwrite = false ) {
-		return @ssh2_sftp_rename( $this->sftp_link, $source, $destination );
+		if ( $this->exists( $destination ) ) {
+			if ( $overwrite ) {
+				// We need to remove the destination file before we can rename the source.
+				$this->delete( $destination, false, 'f' );
+			} else {
+				// If we're not overwriting, the rename will fail, so return early.
+				return false;
+			}
+		}
+
+		return ssh2_sftp_rename( $this->sftp_link, $source, $destination );
 	}
 
 	/**
@@ -492,7 +503,7 @@ class WP_Filesystem_SSH2 extends WP_Filesystem_Base {
 	 * @since 2.7.0
 	 *
 	 * @param string       $file      Path to the file or directory.
-	 * @param bool         $recursive Optional. If set to true, changes file group recursively.
+	 * @param bool         $recursive Optional. If set to true, deletes files and folders recursively.
 	 *                                Default false.
 	 * @param string|false $type      Type of resource. 'f' for file, 'd' for directory.
 	 *                                Default false.
@@ -571,7 +582,7 @@ class WP_Filesystem_SSH2 extends WP_Filesystem_Base {
 	 * @return bool Whether $file is writable.
 	 */
 	public function is_writable( $file ) {
-		// PHP will base it's writable checks on system_user === file_owner, not ssh_user === file_owner
+		// PHP will base its writable checks on system_user === file_owner, not ssh_user === file_owner.
 		return true;
 	}
 
@@ -710,12 +721,12 @@ class WP_Filesystem_SSH2 extends WP_Filesystem_Base {
 			$limit_file = false;
 		}
 
-		if ( ! $this->is_dir( $path ) ) {
+		if ( ! $this->is_dir( $path ) || ! $this->is_readable( $path ) ) {
 			return false;
 		}
 
 		$ret = array();
-		$dir = @dir( $this->sftp_path( $path ) );
+		$dir = dir( $this->sftp_path( $path ) );
 
 		if ( ! $dir ) {
 			return false;
@@ -726,7 +737,7 @@ class WP_Filesystem_SSH2 extends WP_Filesystem_Base {
 			$struc['name'] = $entry;
 
 			if ( '.' == $struc['name'] || '..' == $struc['name'] ) {
-				continue; //Do not care about these folders.
+				continue; // Do not care about these folders.
 			}
 
 			if ( ! $include_hidden && '.' == $struc['name'][0] ) {
@@ -744,8 +755,8 @@ class WP_Filesystem_SSH2 extends WP_Filesystem_Base {
 			$struc['group']       = $this->group( $path . '/' . $entry );
 			$struc['size']        = $this->size( $path . '/' . $entry );
 			$struc['lastmodunix'] = $this->mtime( $path . '/' . $entry );
-			$struc['lastmod']     = date( 'M j', $struc['lastmodunix'] );
-			$struc['time']        = date( 'h:i:s', $struc['lastmodunix'] );
+			$struc['lastmod']     = gmdate( 'M j', $struc['lastmodunix'] );
+			$struc['time']        = gmdate( 'h:i:s', $struc['lastmodunix'] );
 			$struc['type']        = $this->is_dir( $path . '/' . $entry ) ? 'd' : 'f';
 
 			if ( 'd' == $struc['type'] ) {

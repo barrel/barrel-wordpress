@@ -11,9 +11,9 @@ if ( ! defined( 'IFRAME_REQUEST' ) && isset( $_GET['action'] ) && in_array( $_GE
 }
 
 /** WordPress Administration Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
-include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' );
+require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
 if ( isset( $_GET['action'] ) ) {
 	$plugin = isset( $_REQUEST['plugin'] ) ? trim( $_REQUEST['plugin'] ) : '';
@@ -60,7 +60,7 @@ if ( isset( $_GET['action'] ) ) {
 		$submenu_file = 'plugins.php';
 
 		wp_enqueue_script( 'updates' );
-		require_once( ABSPATH . 'wp-admin/admin-header.php' );
+		require_once ABSPATH . 'wp-admin/admin-header.php';
 
 		$nonce = 'upgrade-plugin_' . $plugin;
 		$url   = 'update.php?action=upgrade-plugin&plugin=' . urlencode( $plugin );
@@ -68,7 +68,7 @@ if ( isset( $_GET['action'] ) ) {
 		$upgrader = new Plugin_Upgrader( new Plugin_Upgrader_Skin( compact( 'title', 'nonce', 'url', 'plugin' ) ) );
 		$upgrader->upgrade( $plugin );
 
-		include( ABSPATH . 'wp-admin/admin-footer.php' );
+		require_once ABSPATH . 'wp-admin/admin-footer.php';
 
 	} elseif ( 'activate-plugin' == $action ) {
 		if ( ! current_user_can( 'update_plugins' ) ) {
@@ -91,9 +91,9 @@ if ( isset( $_GET['action'] ) ) {
 			echo '<p>' . __( 'Plugin failed to reactivate due to a fatal error.' ) . '</p>';
 
 			error_reporting( E_CORE_ERROR | E_CORE_WARNING | E_COMPILE_ERROR | E_ERROR | E_WARNING | E_PARSE | E_USER_ERROR | E_USER_WARNING | E_RECOVERABLE_ERROR );
-			@ini_set( 'display_errors', true ); //Ensure that Fatal errors are displayed.
+			ini_set( 'display_errors', true ); // Ensure that fatal errors are displayed.
 			wp_register_plugin_realpath( WP_PLUGIN_DIR . '/' . $plugin );
-			include( WP_PLUGIN_DIR . '/' . $plugin );
+			include WP_PLUGIN_DIR . '/' . $plugin;
 		}
 		iframe_footer();
 	} elseif ( 'install-plugin' == $action ) {
@@ -102,7 +102,7 @@ if ( isset( $_GET['action'] ) ) {
 			wp_die( __( 'Sorry, you are not allowed to install plugins on this site.' ) );
 		}
 
-		include_once( ABSPATH . 'wp-admin/includes/plugin-install.php' ); //for plugins_api..
+		include_once ABSPATH . 'wp-admin/includes/plugin-install.php'; // For plugins_api().
 
 		check_admin_referer( 'install-plugin_' . $plugin );
 		$api = plugins_api(
@@ -122,8 +122,9 @@ if ( isset( $_GET['action'] ) ) {
 		$title        = __( 'Plugin Installation' );
 		$parent_file  = 'plugins.php';
 		$submenu_file = 'plugin-install.php';
-		require_once( ABSPATH . 'wp-admin/admin-header.php' );
+		require_once ABSPATH . 'wp-admin/admin-header.php';
 
+		/* translators: %s: Plugin name and version. */
 		$title = sprintf( __( 'Installing Plugin: %s' ), $api->name . ' ' . $api->version );
 		$nonce = 'install-plugin_' . $plugin;
 		$url   = 'update.php?action=install-plugin&plugin=' . urlencode( $plugin );
@@ -131,12 +132,12 @@ if ( isset( $_GET['action'] ) ) {
 			$url .= '&from=' . urlencode( stripslashes( $_GET['from'] ) );
 		}
 
-		$type = 'web'; //Install plugin type, From Web or an Upload.
+		$type = 'web'; // Install plugin type, From Web or an Upload.
 
 		$upgrader = new Plugin_Upgrader( new Plugin_Installer_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ) );
 		$upgrader->install( $api->download_link );
 
-		include( ABSPATH . 'wp-admin/admin-footer.php' );
+		require_once ABSPATH . 'wp-admin/admin-footer.php';
 
 	} elseif ( 'upload-plugin' == $action ) {
 
@@ -151,12 +152,13 @@ if ( isset( $_GET['action'] ) ) {
 		$title        = __( 'Upload Plugin' );
 		$parent_file  = 'plugins.php';
 		$submenu_file = 'plugin-install.php';
-		require_once( ABSPATH . 'wp-admin/admin-header.php' );
+		require_once ABSPATH . 'wp-admin/admin-header.php';
 
+		/* translators: %s: File name. */
 		$title = sprintf( __( 'Installing Plugin from uploaded file: %s' ), esc_html( basename( $file_upload->filename ) ) );
 		$nonce = 'plugin-upload';
 		$url   = add_query_arg( array( 'package' => $file_upload->id ), 'update.php?action=upload-plugin' );
-		$type  = 'upload'; //Install plugin type, From Web or an Upload.
+		$type  = 'upload'; // Install plugin type, From Web or an Upload.
 
 		$upgrader = new Plugin_Upgrader( new Plugin_Installer_Skin( compact( 'type', 'title', 'nonce', 'url' ) ) );
 		$result   = $upgrader->install( $file_upload->package );
@@ -165,7 +167,7 @@ if ( isset( $_GET['action'] ) ) {
 			$file_upload->cleanup();
 		}
 
-		include( ABSPATH . 'wp-admin/admin-footer.php' );
+		require_once ABSPATH . 'wp-admin/admin-footer.php';
 
 	} elseif ( 'upgrade-theme' == $action ) {
 
@@ -180,7 +182,7 @@ if ( isset( $_GET['action'] ) ) {
 		$title        = __( 'Update Theme' );
 		$parent_file  = 'themes.php';
 		$submenu_file = 'themes.php';
-		require_once( ABSPATH . 'wp-admin/admin-header.php' );
+		require_once ABSPATH . 'wp-admin/admin-header.php';
 
 		$nonce = 'upgrade-theme_' . $theme;
 		$url   = 'update.php?action=upgrade-theme&theme=' . urlencode( $theme );
@@ -188,7 +190,7 @@ if ( isset( $_GET['action'] ) ) {
 		$upgrader = new Theme_Upgrader( new Theme_Upgrader_Skin( compact( 'title', 'nonce', 'url', 'theme' ) ) );
 		$upgrader->upgrade( $theme );
 
-		include( ABSPATH . 'wp-admin/admin-footer.php' );
+		require_once ABSPATH . 'wp-admin/admin-footer.php';
 	} elseif ( 'update-selected-themes' == $action ) {
 		if ( ! current_user_can( 'update_themes' ) ) {
 			wp_die( __( 'Sorry, you are not allowed to update themes for this site.' ) );
@@ -222,7 +224,7 @@ if ( isset( $_GET['action'] ) ) {
 			wp_die( __( 'Sorry, you are not allowed to install themes on this site.' ) );
 		}
 
-		include_once( ABSPATH . 'wp-admin/includes/class-wp-upgrader.php' ); //for themes_api..
+		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php'; // For themes_api().
 
 		check_admin_referer( 'install-theme_' . $theme );
 		$api = themes_api(
@@ -234,7 +236,7 @@ if ( isset( $_GET['action'] ) ) {
 					'tags'     => false,
 				),
 			)
-		); //Save on a bit of bandwidth.
+		); // Save on a bit of bandwidth.
 
 		if ( is_wp_error( $api ) ) {
 			wp_die( $api );
@@ -243,17 +245,18 @@ if ( isset( $_GET['action'] ) ) {
 		$title        = __( 'Install Themes' );
 		$parent_file  = 'themes.php';
 		$submenu_file = 'themes.php';
-		require_once( ABSPATH . 'wp-admin/admin-header.php' );
+		require_once ABSPATH . 'wp-admin/admin-header.php';
 
+		/* translators: %s: Theme name and version. */
 		$title = sprintf( __( 'Installing Theme: %s' ), $api->name . ' ' . $api->version );
 		$nonce = 'install-theme_' . $theme;
 		$url   = 'update.php?action=install-theme&theme=' . urlencode( $theme );
-		$type  = 'web'; //Install theme type, From Web or an Upload.
+		$type  = 'web'; // Install theme type, From Web or an Upload.
 
 		$upgrader = new Theme_Upgrader( new Theme_Installer_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ) );
 		$upgrader->install( $api->download_link );
 
-		include( ABSPATH . 'wp-admin/admin-footer.php' );
+		require_once ABSPATH . 'wp-admin/admin-footer.php';
 
 	} elseif ( 'upload-theme' == $action ) {
 
@@ -269,12 +272,13 @@ if ( isset( $_GET['action'] ) ) {
 		$parent_file  = 'themes.php';
 		$submenu_file = 'theme-install.php';
 
-		require_once( ABSPATH . 'wp-admin/admin-header.php' );
+		require_once ABSPATH . 'wp-admin/admin-header.php';
 
+		/* translators: %s: File name. */
 		$title = sprintf( __( 'Installing Theme from uploaded file: %s' ), esc_html( basename( $file_upload->filename ) ) );
 		$nonce = 'theme-upload';
 		$url   = add_query_arg( array( 'package' => $file_upload->id ), 'update.php?action=upload-theme' );
-		$type  = 'upload'; //Install plugin type, From Web or an Upload.
+		$type  = 'upload'; // Install theme type, From Web or an Upload.
 
 		$upgrader = new Theme_Upgrader( new Theme_Installer_Skin( compact( 'type', 'title', 'nonce', 'url' ) ) );
 		$result   = $upgrader->install( $file_upload->package );
@@ -283,7 +287,7 @@ if ( isset( $_GET['action'] ) ) {
 			$file_upload->cleanup();
 		}
 
-		include( ABSPATH . 'wp-admin/admin-footer.php' );
+		require_once ABSPATH . 'wp-admin/admin-footer.php';
 
 	} else {
 		/**
@@ -295,6 +299,6 @@ if ( isset( $_GET['action'] ) ) {
 		 *
 		 * @since 2.8.0
 		 */
-		do_action( "update-custom_{$action}" );
+		do_action( "update-custom_{$action}" ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 	}
 }

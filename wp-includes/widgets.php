@@ -10,8 +10,8 @@
  * This functionality was found in a plugin before the WordPress 2.2 release, which
  * included it in the core from that point on.
  *
- * @link https://codex.wordpress.org/Plugins/WordPress_Widgets WordPress Widgets
- * @link https://codex.wordpress.org/Plugins/WordPress_Widgets_Api Widgets API
+ * @link https://wordpress.org/support/article/wordpress-widgets/
+ * @link https://developer.wordpress.org/themes/functionality/widgets/
  *
  * @package WordPress
  * @subpackage Widgets
@@ -19,7 +19,7 @@
  */
 
 //
-// Global Variables
+// Global Variables.
 //
 
 /** @ignore */
@@ -91,7 +91,7 @@ $GLOBALS['_wp_deprecated_widgets_callbacks'] = array(
 );
 
 //
-// Template tags & API functions
+// Template tags & API functions.
 //
 
 /**
@@ -175,16 +175,21 @@ function register_sidebars( $number = 1, $args = array() ) {
 		$_args = $args;
 
 		if ( $number > 1 ) {
-			$_args['name'] = isset( $args['name'] ) ? sprintf( $args['name'], $i ) : sprintf( __( 'Sidebar %d' ), $i );
+			if ( isset( $args['name'] ) ) {
+				$_args['name'] = sprintf( $args['name'], $i );
+			} else {
+				/* translators: %d: Sidebar number. */
+				$_args['name'] = sprintf( __( 'Sidebar %d' ), $i );
+			}
 		} else {
 			$_args['name'] = isset( $args['name'] ) ? $args['name'] : __( 'Sidebar' );
 		}
 
 		// Custom specified ID's are suffixed if they exist already.
-		// Automatically generated sidebar names need to be suffixed regardless starting at -0
+		// Automatically generated sidebar names need to be suffixed regardless starting at -0.
 		if ( isset( $args['id'] ) ) {
 			$_args['id'] = $args['id'];
-			$n           = 2; // Start at -2 for conflicting custom ID's
+			$n           = 2; // Start at -2 for conflicting custom IDs.
 			while ( is_registered_sidebar( $_args['id'] ) ) {
 				$_args['id'] = $args['id'] . '-' . $n++;
 			}
@@ -247,6 +252,7 @@ function register_sidebar( $args = array() ) {
 	$id_is_empty = empty( $args['id'] );
 
 	$defaults = array(
+		/* translators: %d: Sidebar number. */
 		'name'          => sprintf( __( 'Sidebar %d' ), $i ),
 		'id'            => "sidebar-$i",
 		'description'   => '',
@@ -257,11 +263,29 @@ function register_sidebar( $args = array() ) {
 		'after_title'   => "</h2>\n",
 	);
 
-	$sidebar = wp_parse_args( $args, $defaults );
+	/**
+	 * Filters the sidebar default arguments.
+	 *
+	 * @since 5.3.0
+	 *
+	 * @see register_sidebar()
+	 *
+	 * @param array $defaults The default sidebar arguments.
+	 */
+	$sidebar = wp_parse_args( $args, apply_filters( 'register_sidebar_defaults', $defaults ) );
 
 	if ( $id_is_empty ) {
-		/* translators: 1: the id argument, 2: sidebar name, 3: recommended id value */
-		_doing_it_wrong( __FUNCTION__, sprintf( __( 'No %1$s was set in the arguments array for the "%2$s" sidebar. Defaulting to "%3$s". Manually set the %1$s to "%3$s" to silence this notice and keep existing sidebar content.' ), '<code>id</code>', $sidebar['name'], $sidebar['id'] ), '4.2.0' );
+		_doing_it_wrong(
+			__FUNCTION__,
+			sprintf(
+				/* translators: 1: The 'id' argument, 2: Sidebar name, 3: Recommended 'id' value. */
+				__( 'No %1$s was set in the arguments array for the "%2$s" sidebar. Defaulting to "%3$s". Manually set the %1$s to "%3$s" to silence this notice and keep existing sidebar content.' ),
+				'<code>id</code>',
+				$sidebar['name'],
+				$sidebar['id']
+			),
+			'4.2.0'
+		);
 	}
 
 	$wp_registered_sidebars[ $sidebar['id'] ] = $sidebar;
@@ -320,6 +344,8 @@ function is_registered_sidebar( $sidebar_id ) {
  * parameter is an empty string.
  *
  * @since 2.2.0
+ * @since 5.3.0 Formalized the existing and already documented `...$params` parameter
+ *              by adding it to the function signature.
  *
  * @global array $wp_registered_widgets            Uses stored registered widgets.
  * @global array $wp_registered_widget_controls    Stores the registered widget controls (options).
@@ -337,8 +363,9 @@ function is_registered_sidebar( $sidebar_id ) {
  *     @type string $description Widget description for display in the widget administration
  *                               panel and/or theme.
  * }
+ * @param mixed      ...$params       Optional additional parameters to pass to the callback function when it's called.
  */
-function wp_register_sidebar_widget( $id, $name, $output_callback, $options = array() ) {
+function wp_register_sidebar_widget( $id, $name, $output_callback, $options = array(), ...$params ) {
 	global $wp_registered_widgets, $wp_registered_widget_controls, $wp_registered_widget_updates, $_wp_deprecated_widgets_callbacks;
 
 	$id = strtolower( $id );
@@ -361,7 +388,7 @@ function wp_register_sidebar_widget( $id, $name, $output_callback, $options = ar
 		'name'     => $name,
 		'id'       => $id,
 		'callback' => $output_callback,
-		'params'   => array_slice( func_get_args(), 4 ),
+		'params'   => $params,
 	);
 	$widget   = array_merge( $widget, $options );
 
@@ -456,18 +483,18 @@ function wp_unregister_sidebar_widget( $id ) {
  * Registers widget control callback for customizing options.
  *
  * @since 2.2.0
- *
- * @todo `$params` parameter?
+ * @since 5.3.0 Formalized the existing and already documented `...$params` parameter
+ *              by adding it to the function signature.
  *
  * @global array $wp_registered_widget_controls
  * @global array $wp_registered_widget_updates
  * @global array $wp_registered_widgets
  * @global array $_wp_deprecated_widgets_callbacks
  *
- * @param int|string   $id               Sidebar ID.
- * @param string       $name             Sidebar display name.
- * @param callable     $control_callback Run when sidebar is displayed.
- * @param array $options {
+ * @param int|string $id               Sidebar ID.
+ * @param string     $name             Sidebar display name.
+ * @param callable   $control_callback Run when sidebar is displayed.
+ * @param array      $options {
  *     Optional. Array or string of control options. Default empty array.
  *
  *     @type int        $height  Never used. Default 200.
@@ -476,8 +503,9 @@ function wp_unregister_sidebar_widget( $id ) {
  *     @type int|string $id_base Required for multi-widgets, i.e widgets that allow multiple instances such as the
  *                               text widget. The widget id will end up looking like `{$id_base}-{$unique_number}`.
  * }
+ * @param mixed      ...$params        Optional additional parameters to pass to the callback function when it's called.
  */
-function wp_register_widget_control( $id, $name, $control_callback, $options = array() ) {
+function wp_register_widget_control( $id, $name, $control_callback, $options = array(), ...$params ) {
 	global $wp_registered_widget_controls, $wp_registered_widget_updates, $wp_registered_widgets, $_wp_deprecated_widgets_callbacks;
 
 	$id      = strtolower( $id );
@@ -501,7 +529,7 @@ function wp_register_widget_control( $id, $name, $control_callback, $options = a
 	$defaults          = array(
 		'width'  => 250,
 		'height' => 200,
-	); // height is never used
+	); // Height is never used.
 	$options           = wp_parse_args( $options, $defaults );
 	$options['width']  = (int) $options['width'];
 	$options['height'] = (int) $options['height'];
@@ -510,7 +538,7 @@ function wp_register_widget_control( $id, $name, $control_callback, $options = a
 		'name'     => $name,
 		'id'       => $id,
 		'callback' => $control_callback,
-		'params'   => array_slice( func_get_args(), 4 ),
+		'params'   => $params,
 	);
 	$widget = array_merge( $widget, $options );
 
@@ -532,6 +560,8 @@ function wp_register_widget_control( $id, $name, $control_callback, $options = a
  * Registers the update callback for a widget.
  *
  * @since 2.8.0
+ * @since 5.3.0 Formalized the existing and already documented `...$params` parameter
+ *              by adding it to the function signature.
  *
  * @global array $wp_registered_widget_updates
  *
@@ -539,8 +569,9 @@ function wp_register_widget_control( $id, $name, $control_callback, $options = a
  * @param callable $update_callback Update callback method for the widget.
  * @param array    $options         Optional. Widget control options. See wp_register_widget_control().
  *                                  Default empty array.
+ * @param mixed    ...$params       Optional additional parameters to pass to the callback function when it's called.
  */
-function _register_widget_update_callback( $id_base, $update_callback, $options = array() ) {
+function _register_widget_update_callback( $id_base, $update_callback, $options = array(), ...$params ) {
 	global $wp_registered_widget_updates;
 
 	if ( isset( $wp_registered_widget_updates[ $id_base ] ) ) {
@@ -552,7 +583,7 @@ function _register_widget_update_callback( $id_base, $update_callback, $options 
 
 	$widget = array(
 		'callback' => $update_callback,
-		'params'   => array_slice( func_get_args(), 3 ),
+		'params'   => $params,
 	);
 
 	$widget                                   = array_merge( $widget, $options );
@@ -563,6 +594,8 @@ function _register_widget_update_callback( $id_base, $update_callback, $options 
  * Registers the form callback for a widget.
  *
  * @since 2.8.0
+ * @since 5.3.0 Formalized the existing and already documented `...$params` parameter
+ *              by adding it to the function signature.
  *
  * @global array $wp_registered_widget_controls
  *
@@ -571,8 +604,10 @@ function _register_widget_update_callback( $id_base, $update_callback, $options 
  * @param callable   $form_callback Form callback.
  * @param array      $options       Optional. Widget control options. See wp_register_widget_control().
  *                                  Default empty array.
+ * @param mixed      ...$params     Optional additional parameters to pass to the callback function when it's called.
  */
-function _register_widget_form_callback( $id, $name, $form_callback, $options = array() ) {
+
+function _register_widget_form_callback( $id, $name, $form_callback, $options = array(), ...$params ) {
 	global $wp_registered_widget_controls;
 
 	$id = strtolower( $id );
@@ -598,7 +633,7 @@ function _register_widget_form_callback( $id, $name, $form_callback, $options = 
 		'name'     => $name,
 		'id'       => $id,
 		'callback' => $form_callback,
-		'params'   => array_slice( func_get_args(), 4 ),
+		'params'   => $params,
 	);
 	$widget = array_merge( $widget, $options );
 
@@ -639,7 +674,7 @@ function dynamic_sidebar( $index = 1 ) {
 	} else {
 		$index = sanitize_title( $index );
 		foreach ( (array) $wp_registered_sidebars as $key => $value ) {
-			if ( sanitize_title( $value['name'] ) == $index ) {
+			if ( sanitize_title( $value['name'] ) === $index ) {
 				$index = $key;
 				break;
 			}
@@ -691,7 +726,7 @@ function dynamic_sidebar( $index = 1 ) {
 			(array) $wp_registered_widgets[ $id ]['params']
 		);
 
-		// Substitute HTML id and class attributes into before_widget
+		// Substitute HTML `id` and `class` attributes into `before_widget`.
 		$classname_ = '';
 		foreach ( (array) $wp_registered_widgets[ $id ]['classname'] as $cn ) {
 			if ( is_string( $cn ) ) {
@@ -841,8 +876,8 @@ function is_active_widget( $callback = false, $widget_id = false, $id_base = fal
 
 			if ( is_array( $widgets ) ) {
 				foreach ( $widgets as $widget ) {
-					if ( ( $callback && isset( $wp_registered_widgets[ $widget ]['callback'] ) && $wp_registered_widgets[ $widget ]['callback'] == $callback ) || ( $id_base && _get_widget_id_base( $widget ) == $id_base ) ) {
-						if ( ! $widget_id || $widget_id == $wp_registered_widgets[ $widget ]['id'] ) {
+					if ( ( $callback && isset( $wp_registered_widgets[ $widget ]['callback'] ) && $wp_registered_widgets[ $widget ]['callback'] === $callback ) || ( $id_base && _get_widget_id_base( $widget ) === $id_base ) ) {
+						if ( ! $widget_id || $widget_id === $wp_registered_widgets[ $widget ]['id'] ) {
 							return $sidebar;
 						}
 					}
@@ -912,7 +947,7 @@ function is_active_sidebar( $index ) {
 }
 
 //
-// Internal Functions
+// Internal Functions.
 //
 
 /**
@@ -931,7 +966,7 @@ function is_active_sidebar( $index ) {
  * @return array Upgraded list of widgets to version 3 array format when called from the admin.
  */
 function wp_get_sidebars_widgets( $deprecated = true ) {
-	if ( $deprecated !== true ) {
+	if ( true !== $deprecated ) {
 		_deprecated_argument( __FUNCTION__, '2.8.1' );
 	}
 
@@ -1021,12 +1056,13 @@ function wp_get_widget_defaults() {
  */
 function wp_convert_widget_settings( $base_name, $option_name, $settings ) {
 	// This test may need expanding.
-	$single = $changed = false;
+	$single  = false;
+	$changed = false;
 	if ( empty( $settings ) ) {
 		$single = true;
 	} else {
 		foreach ( array_keys( $settings ) as $number ) {
-			if ( 'number' == $number ) {
+			if ( 'number' === $number ) {
 				continue;
 			}
 			if ( ! is_numeric( $number ) ) {
@@ -1039,7 +1075,7 @@ function wp_convert_widget_settings( $base_name, $option_name, $settings ) {
 	if ( $single ) {
 		$settings = array( 2 => $settings );
 
-		// If loading from the front page, update sidebar in memory but don't save to options
+		// If loading from the front page, update sidebar in memory but don't save to options.
 		if ( is_admin() ) {
 			$sidebars_widgets = get_option( 'sidebars_widgets' );
 		} else {
@@ -1052,7 +1088,7 @@ function wp_convert_widget_settings( $base_name, $option_name, $settings ) {
 		foreach ( (array) $sidebars_widgets as $index => $sidebar ) {
 			if ( is_array( $sidebar ) ) {
 				foreach ( $sidebar as $i => $name ) {
-					if ( $base_name == $name ) {
+					if ( $base_name === $name ) {
 						$sidebars_widgets[ $index ][ $i ] = "$name-2";
 						$changed                          = true;
 						break 2;
@@ -1100,8 +1136,15 @@ function the_widget( $widget, $instance = array(), $args = array() ) {
 	global $wp_widget_factory;
 
 	if ( ! isset( $wp_widget_factory->widgets[ $widget ] ) ) {
-		/* translators: %s: register_widget() */
-		_doing_it_wrong( __FUNCTION__, sprintf( __( 'Widgets need to be registered using %s, before they can be displayed.' ), '<code>register_widget()</code>' ), '4.9.0' );
+		_doing_it_wrong(
+			__FUNCTION__,
+			sprintf(
+				/* translators: %s: register_widget() */
+				__( 'Widgets need to be registered using %s, before they can be displayed.' ),
+				'<code>register_widget()</code>'
+			),
+			'4.9.0'
+		);
 		return;
 	}
 
@@ -1120,6 +1163,13 @@ function the_widget( $widget, $instance = array(), $args = array() ) {
 	$args['before_widget'] = sprintf( $args['before_widget'], $widget_obj->widget_options['classname'] );
 
 	$instance = wp_parse_args( $instance );
+
+	/** This filter is documented in wp-includes/class-wp-widget.php */
+	$instance = apply_filters( 'widget_display_callback', $instance, $widget_obj, $args );
+
+	if ( false === $instance ) {
+		return;
+	}
 
 	/**
 	 * Fires before rendering the requested widget.
@@ -1326,11 +1376,11 @@ function wp_map_sidebars_widgets( $existing_sidebars_widgets ) {
 								// Go back and check the next new sidebar.
 								continue 3;
 							}
-						} // endforeach ( $slug_group as $slug )
-					} // endforeach ( $existing_sidebars_widgets as $sidebar => $widgets )
-				} // endforeach foreach ( $wp_registered_sidebars as $new_sidebar => $args )
-			} // endforeach ( $slug_group as $slug )
-		} // endforeach ( $common_slug_groups as $slug_group )
+						} // End foreach ( $slug_group as $slug ).
+					} // End foreach ( $existing_sidebars_widgets as $sidebar => $widgets ).
+				} // End foreach ( $wp_registered_sidebars as $new_sidebar => $args ).
+			} // End foreach ( $slug_group as $slug ).
+		} // End foreach ( $common_slug_groups as $slug_group ).
 	}
 
 	// Move any left over widgets to inactive sidebar.
@@ -1390,11 +1440,11 @@ function wp_map_sidebars_widgets( $existing_sidebars_widgets ) {
 								// ...otherwise remove it from the old sidebar and keep it in the new one.
 								unset( $old_sidebars_widgets[ $old_sidebar ][ $key ] );
 							}
-						} // endif ( $active_key )
-					} // endforeach ( $old_widgets as $key => $widget_id )
-				} // endforeach ( $new_sidebars_widgets as $new_sidebar => $new_widgets )
-			} // endforeach ( $old_sidebars_widgets as $old_sidebar => $old_widgets )
-		} // endif ( ! empty( $old_sidebars_widgets ) )
+						} // End if ( $active_key ).
+					} // End foreach ( $old_widgets as $key => $widget_id ).
+				} // End foreach ( $new_sidebars_widgets as $new_sidebar => $new_widgets ).
+			} // End foreach ( $old_sidebars_widgets as $old_sidebar => $old_widgets ).
+		} // End if ( ! empty( $old_sidebars_widgets ) ).
 
 		// Restore widget settings from when theme was previously active.
 		$new_sidebars_widgets = array_merge( $new_sidebars_widgets, $old_sidebars_widgets );
@@ -1477,7 +1527,7 @@ function wp_widget_rss_output( $rss, $args = array() ) {
 	echo '<ul>';
 	foreach ( $rss->get_items( 0, $items ) as $item ) {
 		$link = $item->get_link();
-		while ( stristr( $link, 'http' ) != $link ) {
+		while ( stristr( $link, 'http' ) !== $link ) {
 			$link = substr( $link, 1 );
 		}
 		$link = esc_url( strip_tags( $link ) );
@@ -1487,7 +1537,7 @@ function wp_widget_rss_output( $rss, $args = array() ) {
 			$title = __( 'Untitled' );
 		}
 
-		$desc = @html_entity_decode( $item->get_description(), ENT_QUOTES, get_option( 'blog_charset' ) );
+		$desc = html_entity_decode( $item->get_description(), ENT_QUOTES, get_option( 'blog_charset' ) );
 		$desc = esc_attr( wp_trim_words( $desc, 55, ' [&hellip;]' ) );
 
 		$summary = '';
@@ -1495,7 +1545,7 @@ function wp_widget_rss_output( $rss, $args = array() ) {
 			$summary = $desc;
 
 			// Change existing [...] to [&hellip;].
-			if ( '[...]' == substr( $summary, -5 ) ) {
+			if ( '[...]' === substr( $summary, -5 ) ) {
 				$summary = substr( $summary, 0, -5 ) . '[&hellip;]';
 			}
 
@@ -1520,7 +1570,7 @@ function wp_widget_rss_output( $rss, $args = array() ) {
 			}
 		}
 
-		if ( $link == '' ) {
+		if ( '' === $link ) {
 			echo "<li>$title{$date}{$summary}{$author}</li>";
 		} elseif ( $show_summary ) {
 			echo "<li><a class='rsswidget' href='$link'>$title</a>{$date}{$summary}{$author}</li>";
@@ -1645,7 +1695,7 @@ function wp_widget_rss_process( $widget_rss, $check_feed = true ) {
 			$error = $rss->get_error_message();
 		} else {
 			$link = esc_url( strip_tags( $rss->get_permalink() ) );
-			while ( stristr( $link, 'http' ) != $link ) {
+			while ( stristr( $link, 'http' ) !== $link ) {
 				$link = substr( $link, 1 );
 			}
 

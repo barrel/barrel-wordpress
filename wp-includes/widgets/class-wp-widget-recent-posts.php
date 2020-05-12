@@ -56,18 +56,18 @@ class WP_Widget_Recent_Posts extends WP_Widget {
 		}
 		$show_date = isset( $instance['show_date'] ) ? $instance['show_date'] : false;
 
-		/**
-		 * Filters the arguments for the Recent Posts widget.
-		 *
-		 * @since 3.4.0
-		 * @since 4.9.0 Added the `$instance` parameter.
-		 *
-		 * @see WP_Query::get_posts()
-		 *
-		 * @param array $args     An array of arguments used to retrieve the recent posts.
-		 * @param array $instance Array of settings for the current widget.
-		 */
 		$r = new WP_Query(
+			/**
+			 * Filters the arguments for the Recent Posts widget.
+			 *
+			 * @since 3.4.0
+			 * @since 4.9.0 Added the `$instance` parameter.
+			 *
+			 * @see WP_Query::get_posts()
+			 *
+			 * @param array $args     An array of arguments used to retrieve the recent posts.
+			 * @param array $instance Array of settings for the current widget.
+			 */
 			apply_filters(
 				'widget_posts_args',
 				array(
@@ -93,11 +93,16 @@ class WP_Widget_Recent_Posts extends WP_Widget {
 		<ul>
 			<?php foreach ( $r->posts as $recent_post ) : ?>
 				<?php
-				$post_title = get_the_title( $recent_post->ID );
-				$title      = ( ! empty( $post_title ) ) ? $post_title : __( '(no title)' );
+				$post_title   = get_the_title( $recent_post->ID );
+				$title        = ( ! empty( $post_title ) ) ? $post_title : __( '(no title)' );
+				$aria_current = '';
+
+				if ( get_queried_object_id() === $recent_post->ID ) {
+					$aria_current = ' aria-current="page"';
+				}
 				?>
 				<li>
-					<a href="<?php the_permalink( $recent_post->ID ); ?>"><?php echo $title; ?></a>
+					<a href="<?php the_permalink( $recent_post->ID ); ?>"<?php echo $aria_current; ?>><?php echo $title; ?></a>
 					<?php if ( $show_date ) : ?>
 						<span class="post-date"><?php echo get_the_date( '', $recent_post->ID ); ?></span>
 					<?php endif; ?>

@@ -16,7 +16,7 @@
  */
 
 /** WordPress Administration Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 $title       = __( 'Settings' );
 $this_file   = 'options.php';
@@ -47,12 +47,12 @@ if ( empty( $option_page ) ) {
 if ( ! current_user_can( $capability ) ) {
 	wp_die(
 		'<h1>' . __( 'You need a higher level of permission.' ) . '</h1>' .
-		'<p>' . __( 'Sorry, you are not allowed to manage these options.' ) . '</p>',
+		'<p>' . __( 'Sorry, you are not allowed to manage options for this site.' ) . '</p>',
 		403
 	);
 }
 
-// Handle admin email change requests
+// Handle admin email change requests.
 if ( ! empty( $_GET['adminhash'] ) ) {
 	$new_admin_details = get_option( 'adminhash' );
 	$redirect          = 'options-general.php?updated=false';
@@ -80,7 +80,7 @@ if ( is_multisite() && ! current_user_can( 'manage_network_options' ) && 'update
 	);
 }
 
-$whitelist_options         = array(
+$whitelist_options            = array(
 	'general'    => array(
 		'blogname',
 		'blogdescription',
@@ -146,7 +146,9 @@ $whitelist_options         = array(
 		'default_post_format',
 	),
 );
-$whitelist_options['misc'] = $whitelist_options['options'] = $whitelist_options['privacy'] = array();
+$whitelist_options['misc']    = array();
+$whitelist_options['options'] = array();
+$whitelist_options['privacy'] = array();
 
 $mail_options = array( 'mailserver_url', 'mailserver_port', 'mailserver_login', 'mailserver_pass' );
 
@@ -194,18 +196,15 @@ if ( ! is_multisite() ) {
 }
 
 /**
- * Filters the options white list.
+ * Filters the options whitelist.
  *
  * @since 2.7.0
  *
- * @param array $whitelist_options White list options.
+ * @param array $whitelist_options The options whitelist.
  */
 $whitelist_options = apply_filters( 'whitelist_options', $whitelist_options );
 
-/*
- * If $_GET['action'] == 'update' we are saving settings sent from a settings page
- */
-if ( 'update' == $action ) {
+if ( 'update' == $action ) { // We are saving settings sent from a settings page.
 	if ( 'options' == $option_page && ! isset( $_POST['option_page'] ) ) { // This is for back compat and will eventually be removed.
 		$unregistered = true;
 		check_admin_referer( 'update-options' );
@@ -215,7 +214,13 @@ if ( 'update' == $action ) {
 	}
 
 	if ( ! isset( $whitelist_options[ $option_page ] ) ) {
-		wp_die( __( '<strong>ERROR</strong>: options page not found.' ) );
+		wp_die(
+			sprintf(
+				/* translators: %s: The options page name. */
+				__( '<strong>Error</strong>: Options page %s not found in the options whitelist.' ),
+				'<code>' . esc_html( $option_page ) . '</code>'
+			)
+		);
 	}
 
 	if ( 'options' == $option_page ) {
@@ -244,7 +249,7 @@ if ( 'update' == $action ) {
 
 		// Handle translation installation.
 		if ( ! empty( $_POST['WPLANG'] ) && current_user_can( 'install_languages' ) ) {
-			require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );
+			require_once ABSPATH . 'wp-admin/includes/translation-install.php';
 
 			if ( wp_can_install_language_pack() ) {
 				$language = wp_download_language_pack( $_POST['WPLANG'] );
@@ -264,9 +269,9 @@ if ( 'update' == $action ) {
 					'options.php',
 					'2.7.0',
 					sprintf(
-						/* translators: %s: the option/setting */
-						__( 'The %s setting is unregistered. Unregistered settings are deprecated. See https://codex.wordpress.org/Settings_API' ),
-						'<code>' . $option . '</code>'
+						/* translators: %s: The option/setting. */
+						__( 'The %s setting is unregistered. Unregistered settings are deprecated. See https://developer.wordpress.org/plugins/settings/settings-api/' ),
+						'<code>' . esc_html( $option ) . '</code>'
 					)
 				);
 			}
@@ -295,38 +300,42 @@ if ( 'update' == $action ) {
 		}
 	}
 
-	/**
-	 * Handle settings errors and return to options page
+	/*
+	 * Handle settings errors and return to options page.
 	 */
+
 	// If no settings errors were registered add a general 'updated' message.
 	if ( ! count( get_settings_errors() ) ) {
-		add_settings_error( 'general', 'settings_updated', __( 'Settings saved.' ), 'updated' );
+		add_settings_error( 'general', 'settings_updated', __( 'Settings saved.' ), 'success' );
 	}
 	set_transient( 'settings_errors', get_settings_errors(), 30 );
 
-	/**
-	 * Redirect back to the settings page that was submitted
-	 */
+	// Redirect back to the settings page that was submitted.
 	$goback = add_query_arg( 'settings-updated', 'true', wp_get_referer() );
 	wp_redirect( $goback );
 	exit;
 }
 
-include( ABSPATH . 'wp-admin/admin-header.php' ); ?>
+require_once ABSPATH . 'wp-admin/admin-header.php'; ?>
 
 <div class="wrap">
 	<h1><?php esc_html_e( 'All Settings' ); ?></h1>
+
+	<div class="notice notice-warning">
+		<p><strong><?php _e( 'WARNING!' ); ?></strong> <?php _e( 'This page allows direct access to your site settings. You can break things here. Please be cautious!' ); ?></p>
+	</div>
+
 	<form name="form" action="options.php" method="post" id="all-options">
 		<?php wp_nonce_field( 'options-options' ); ?>
 		<input type="hidden" name="action" value="update" />
 		<input type="hidden" name="option_page" value="options" />
-		<table class="form-table">
+		<table class="form-table" role="presentation">
 <?php
 $options = $wpdb->get_results( "SELECT * FROM $wpdb->options ORDER BY option_name" );
 
 foreach ( (array) $options as $option ) :
 	$disabled = false;
-	if ( $option->option_name == '' ) {
+	if ( '' == $option->option_name ) {
 		continue;
 	}
 	if ( is_serialized( $option->option_value ) ) {
@@ -367,4 +376,4 @@ foreach ( (array) $options as $option ) :
 </div>
 
 <?php
-include( ABSPATH . 'wp-admin/admin-footer.php' );
+require_once ABSPATH . 'wp-admin/admin-footer.php';

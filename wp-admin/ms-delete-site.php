@@ -7,7 +7,7 @@
  * @since 3.0.0
  */
 
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 if ( ! is_multisite() ) {
 	wp_die( __( 'Multisite support is not enabled.' ) );
@@ -17,10 +17,16 @@ if ( ! current_user_can( 'delete_site' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to delete this site.' ) );
 }
 
-if ( isset( $_GET['h'] ) && $_GET['h'] != '' && get_option( 'delete_blog_hash' ) != false ) {
+if ( isset( $_GET['h'] ) && '' != $_GET['h'] && false != get_option( 'delete_blog_hash' ) ) {
 	if ( hash_equals( get_option( 'delete_blog_hash' ), $_GET['h'] ) ) {
 		wpmu_delete_blog( get_current_blog_id() );
-		wp_die( sprintf( __( 'Thank you for using %s, your site has been deleted. Happy trails to you until we meet again.' ), get_network()->site_name ) );
+		wp_die(
+			sprintf(
+				/* translators: %s: Network title. */
+				__( 'Thank you for using %s, your site has been deleted. Happy trails to you until we meet again.' ),
+				get_network()->site_name
+			)
+		);
 	} else {
 		wp_die( __( 'Sorry, the link you clicked is stale. Please select another option.' ) );
 	}
@@ -31,12 +37,12 @@ $user = wp_get_current_user();
 
 $title       = __( 'Delete Site' );
 $parent_file = 'tools.php';
-require_once( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 
 echo '<div class="wrap">';
 echo '<h1>' . esc_html( $title ) . '</h1>';
 
-if ( isset( $_POST['action'] ) && $_POST['action'] == 'deleteblog' && isset( $_POST['confirmdelete'] ) && $_POST['confirmdelete'] == '1' ) {
+if ( isset( $_POST['action'] ) && 'deleteblog' == $_POST['action'] && isset( $_POST['confirmdelete'] ) && '1' == $_POST['confirmdelete'] ) {
 	check_admin_referer( 'delete-blog' );
 
 	$hash = wp_generate_password( 20, false );
@@ -78,7 +84,15 @@ Webmaster
 	$content = str_replace( '###URL_DELETE###', $url_delete, $content );
 	$content = str_replace( '###SITE_NAME###', get_network()->site_name, $content );
 
-	wp_mail( get_option( 'admin_email' ), '[ ' . wp_specialchars_decode( get_option( 'blogname' ) ) . ' ] ' . __( 'Delete My Site' ), $content );
+	wp_mail(
+		get_option( 'admin_email' ),
+		sprintf(
+			/* translators: %s: Site title. */
+			__( '[%s] Delete My Site' ),
+			wp_specialchars_decode( get_option( 'blogname' ) )
+		),
+		$content
+	);
 
 	if ( $switched_locale ) {
 		restore_previous_locale();
@@ -90,7 +104,15 @@ Webmaster
 	<?php
 } else {
 	?>
-	<p><?php printf( __( 'If you do not want to use your %s site any more, you can delete it using the form below. When you click <strong>Delete My Site Permanently</strong> you will be sent an email with a link in it. Click on this link to delete your site.' ), get_network()->site_name ); ?></p>
+	<p>
+	<?php
+		printf(
+			/* translators: %s: Network title. */
+			__( 'If you do not want to use your %s site any more, you can delete it using the form below. When you click <strong>Delete My Site Permanently</strong> you will be sent an email with a link in it. Click on this link to delete your site.' ),
+			get_network()->site_name
+		);
+	?>
+	</p>
 	<p><?php _e( 'Remember, once deleted your site cannot be restored.' ); ?></p>
 
 	<form method="post" name="deletedirect">
@@ -99,7 +121,7 @@ Webmaster
 		<p><input id="confirmdelete" type="checkbox" name="confirmdelete" value="1" /> <label for="confirmdelete"><strong>
 		<?php
 			printf(
-				/* translators: %s: site address */
+				/* translators: %s: Site address. */
 				__( "I'm sure I want to permanently disable my site, and I am aware I can never get it back or use %s again." ),
 				$blog->domain . $blog->path
 			);
@@ -111,4 +133,4 @@ Webmaster
 }
 echo '</div>';
 
-include( ABSPATH . 'wp-admin/admin-footer.php' );
+require_once ABSPATH . 'wp-admin/admin-footer.php';
