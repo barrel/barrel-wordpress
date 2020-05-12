@@ -179,6 +179,7 @@ class Base_Theme extends BB_Theme {
     $version = empty( $git_version ) ? wp_get_theme()->get( 'Version' ) : $git_version;
 
     try {
+      // @todo: make this a theme setting
       jquery_deregister();
     }
     catch ( Exception $ex ){}
