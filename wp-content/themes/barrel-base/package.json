@@ -1,6 +1,6 @@
 {
   "name": "barrel-base",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "scripts": {
     "start": "brrl -w",
     "build": "brrl -b -e production; npm run build:lazy-css",
