@@ -77,8 +77,8 @@ case $i in
     FLOW="${i#*=}"
     shift # past argument=value
     ;;
-    -s=*|--start=*|-s)
-    START="${i#*=}"
+    -s)
+    START="yes"
     shift # past argument=value
     ;;
     -y=*|--auto=*|-y)
