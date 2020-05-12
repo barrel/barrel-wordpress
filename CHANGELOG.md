@@ -1,6 +1,24 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.0.0 - 2020-05-12
+### CHANGED:
+- Update to WordPress 5.4.1. For more information, see https://wordpress.org/news/2020/04/wordpress-5-4-1/ 
+- Upstream update notice improvements 
+- Update to WordPress 5.4. For more information, see https://wordpress.org/news/2020/03/adderley/ 
+- Update to WordPress 5.3.2. For more information, see https://wordpress.org/news/2019/12/wordpress-5-3-1-security-and-maintenance-release/ 
+- Update to WordPress 5.3.1. For more information, see https://wordpress.org/news/2019/12/wordpress-5-3-1-security-and-maintenance-release/ 
+- Update to WordPress 5.3. For more information, see https://wordpress.org/news/2019/11/kirk/ 
+- Update to WordPress 5.2.4. For more information, see https://wordpress.org/news/2019/10/wordpress-5-2-4-security-release/ 
+- Enforce HTTPS. For more info see https://pantheon.io/blog/pantheon-now-enforces-https-default-plus-really-simple-hsts 
+- Update .gitignore 
+- Update to WordPress 5.2.3. For more information, see https://wordpress.org/news/2019/09/wordpress-5-2-3-security-and-maintenance-release/ 
+- Remove `max-age` from logged-in responses 
+- Improve WordPress dashboard Custom Upstream update notifications 
+- Remove the Try Gutenberg callout code 
+- Update to WordPress 5.2.2. For more information, see https://wordpress.org/news/2019/06/wordpress-5-2-2-maintenance-release/ 
+- Update to WordPress 5.2.1. For more information, see https://wordpress.org/news/2019/05/jaco/ 
+
 ## 3.5.0 - 2020-05-12
 ### CHANGED:
 - Modify prepare script to default variable of START with an 's' parameter 
