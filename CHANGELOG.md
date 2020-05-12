@@ -1,6 +1,15 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.5.0 - 2020-05-12
+### CHANGED:
+- Modify prepare script to default variable of START with an 's' parameter 
+- Add todo for later theme setting 
+- Modify git import script 
+- Add visual regression test job back and allow to fail 
+- CI Script updates 
+- Update CI docker image 
+
 ## 3.4.0 - 2019-11-06
 ### CHANGED:
 - Add visual regression test suite 
