@@ -8,7 +8,7 @@
  */
 
 /** Load WordPress Administration Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'manage_sites' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to access this page.' ), 403 );
@@ -42,7 +42,7 @@ get_current_screen()->add_help_tab(
 
 get_current_screen()->set_help_sidebar(
 	'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
-	'<p>' . __( '<a href="https://codex.wordpress.org/Network_Admin_Sites_Screen">Documentation on Site Management</a>' ) . '</p>' .
+	'<p>' . __( '<a href="https://wordpress.org/support/article/network-admin-sites-screen/">Documentation on Site Management</a>' ) . '</p>' .
 	'<p>' . __( '<a href="https://wordpress.org/support/forum/multisite/">Support Forums</a>' ) . '</p>'
 );
 
@@ -61,14 +61,23 @@ if ( isset( $_GET['action'] ) ) {
 
 	// A list of valid actions and their associated messaging for confirmation output.
 	$manage_actions = array(
+		/* translators: %s: Site URL. */
 		'activateblog'   => __( 'You are about to activate the site %s.' ),
+		/* translators: %s: Site URL. */
 		'deactivateblog' => __( 'You are about to deactivate the site %s.' ),
+		/* translators: %s: Site URL. */
 		'unarchiveblog'  => __( 'You are about to unarchive the site %s.' ),
+		/* translators: %s: Site URL. */
 		'archiveblog'    => __( 'You are about to archive the site %s.' ),
+		/* translators: %s: Site URL. */
 		'unspamblog'     => __( 'You are about to unspam the site %s.' ),
+		/* translators: %s: Site URL. */
 		'spamblog'       => __( 'You are about to mark the site %s as spam.' ),
+		/* translators: %s: Site URL. */
 		'deleteblog'     => __( 'You are about to delete the site %s.' ),
+		/* translators: %s: Site URL. */
 		'unmatureblog'   => __( 'You are about to mark the site %s as mature.' ),
+		/* translators: %s: Site URL. */
 		'matureblog'     => __( 'You are about to mark the site %s as not mature.' ),
 	);
 
@@ -99,7 +108,7 @@ if ( isset( $_GET['action'] ) ) {
 		$site_details = get_site( $id );
 		$site_address = untrailingslashit( $site_details->domain . $site_details->path );
 
-		require_once( ABSPATH . 'wp-admin/admin-header.php' );
+		require_once ABSPATH . 'wp-admin/admin-header.php';
 		?>
 			<div class="wrap">
 				<h1><?php _e( 'Confirm your action' ); ?></h1>
@@ -113,7 +122,7 @@ if ( isset( $_GET['action'] ) ) {
 				</form>
 			</div>
 		<?php
-		require_once( ABSPATH . 'wp-admin/admin-footer.php' );
+		require_once ABSPATH . 'wp-admin/admin-footer.php';
 		exit();
 	} elseif ( array_key_exists( $_GET['action'], $manage_actions ) ) {
 		$action = $_GET['action'];
@@ -132,7 +141,7 @@ if ( isset( $_GET['action'] ) ) {
 			}
 
 			$updated_action = 'not_deleted';
-			if ( $id != '0' && $id != get_network()->site_id && current_user_can( 'delete_site', $id ) ) {
+			if ( '0' != $id && get_network()->site_id != $id && current_user_can( 'delete_site', $id ) ) {
 				wpmu_delete_blog( $id, true );
 				$updated_action = 'delete';
 			}
@@ -144,7 +153,7 @@ if ( isset( $_GET['action'] ) ) {
 			foreach ( (array) $_POST['site_ids'] as $site_id ) {
 				$site_id = (int) $site_id;
 
-				if ( $site_id == get_network()->site_id ) {
+				if ( get_network()->site_id == $site_id ) {
 					continue;
 				}
 
@@ -152,7 +161,14 @@ if ( isset( $_GET['action'] ) ) {
 					$site         = get_site( $site_id );
 					$site_address = untrailingslashit( $site->domain . $site->path );
 
-					wp_die( sprintf( __( 'Sorry, you are not allowed to delete the site %s.' ), $site_address ), 403 );
+					wp_die(
+						sprintf(
+							/* translators: %s: Site URL. */
+							__( 'Sorry, you are not allowed to delete the site %s.' ),
+							$site_address
+						),
+						403
+					);
 				}
 
 				$updated_action = 'all_delete';
@@ -162,13 +178,13 @@ if ( isset( $_GET['action'] ) ) {
 
 		case 'allblogs':
 			if ( ( isset( $_POST['action'] ) || isset( $_POST['action2'] ) ) && isset( $_POST['allblogs'] ) ) {
-				$doaction = $_POST['action'] != -1 ? $_POST['action'] : $_POST['action2'];
+				$doaction = -1 != $_POST['action'] ? $_POST['action'] : $_POST['action2'];
 
 				foreach ( (array) $_POST['allblogs'] as $key => $val ) {
-					if ( $val != '0' && $val != get_network()->site_id ) {
+					if ( '0' != $val && get_network()->site_id != $val ) {
 						switch ( $doaction ) {
 							case 'delete':
-								require_once( ABSPATH . 'wp-admin/admin-header.php' );
+								require_once ABSPATH . 'wp-admin/admin-header.php';
 								?>
 								<div class="wrap">
 									<h1><?php _e( 'Confirm your action' ); ?></h1>
@@ -193,7 +209,7 @@ if ( isset( $_GET['action'] ) ) {
 									</form>
 								</div>
 								<?php
-								require_once( ABSPATH . 'wp-admin/admin-footer.php' );
+								require_once ABSPATH . 'wp-admin/admin-footer.php';
 								exit();
 							break;
 
@@ -211,18 +227,20 @@ if ( isset( $_GET['action'] ) ) {
 					$redirect_to = wp_get_referer();
 					$blogs       = (array) $_POST['allblogs'];
 					/** This action is documented in wp-admin/network/site-themes.php */
-					$redirect_to = apply_filters( 'handle_network_bulk_actions-' . get_current_screen()->id, $redirect_to, $doaction, $blogs, $id );
+					$redirect_to = apply_filters( 'handle_network_bulk_actions-' . get_current_screen()->id, $redirect_to, $doaction, $blogs, $id ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 					wp_safe_redirect( $redirect_to );
 					exit();
 				}
 			} else {
-				$location = network_admin_url( 'sites.php' );
-				if ( ! empty( $_REQUEST['paged'] ) ) {
-					$location = add_query_arg( 'paged', (int) $_REQUEST['paged'], $location );
-				}
+				// Process query defined by WP_MS_Site_List_Table::extra_table_nav().
+				$location = remove_query_arg(
+					array( '_wp_http_referer', '_wpnonce' ),
+					add_query_arg( $_POST, network_admin_url( 'sites.php' ) )
+				);
 				wp_redirect( $location );
-				exit();
+				exit;
 			}
+
 			break;
 
 		case 'archiveblog':
@@ -336,7 +354,7 @@ if ( isset( $_GET['updated'] ) ) {
 
 $wp_list_table->prepare_items();
 
-require_once( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
 
 <div class="wrap">
@@ -348,12 +366,14 @@ require_once( ABSPATH . 'wp-admin/admin-header.php' );
 
 <?php
 if ( isset( $_REQUEST['s'] ) && strlen( $_REQUEST['s'] ) ) {
-	/* translators: %s: search keywords */
+	/* translators: %s: Search query. */
 	printf( '<span class="subtitle">' . __( 'Search results for &#8220;%s&#8221;' ) . '</span>', esc_html( $s ) );
 }
 ?>
 
 <hr class="wp-header-end">
+
+<?php $wp_list_table->views(); ?>
 
 <?php echo $msg; ?>
 
@@ -368,4 +388,4 @@ if ( isset( $_REQUEST['s'] ) && strlen( $_REQUEST['s'] ) ) {
 </div>
 <?php
 
-require_once( ABSPATH . 'wp-admin/admin-footer.php' ); ?>
+require_once ABSPATH . 'wp-admin/admin-footer.php'; ?>

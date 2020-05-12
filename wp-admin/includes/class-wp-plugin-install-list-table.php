@@ -85,7 +85,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 	 * @global string $term
 	 */
 	public function prepare_items() {
-		include( ABSPATH . 'wp-admin/includes/plugin-install.php' );
+		include_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 
 		global $tabs, $tab, $paged, $type, $term;
 
@@ -95,13 +95,13 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 
 		$per_page = 36;
 
-		// These are the tabs which are shown on the page
+		// These are the tabs which are shown on the page.
 		$tabs = array();
 
 		if ( 'search' === $tab ) {
 			$tabs['search'] = __( 'Search Results' );
 		}
-		if ( $tab === 'beta' || false !== strpos( get_bloginfo( 'version' ), '-' ) ) {
+		if ( 'beta' === $tab || false !== strpos( get_bloginfo( 'version' ), '-' ) ) {
 			$tabs['beta'] = _x( 'Beta Testing', 'Plugin Installer' );
 		}
 		$tabs['featured']    = _x( 'Featured', 'Plugin Installer' );
@@ -333,7 +333,11 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Override the parent display() so we can provide a different container.
+	 * Displays the plugin install table.
+	 *
+	 * Overrides the parent display() method to provide a different container.
+	 *
+	 * @since 4.0.0
 	 */
 	public function display() {
 		$singular = $this->_args['singular'];
@@ -365,7 +369,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 	 * @param string $which
 	 */
 	protected function display_tablenav( $which ) {
-		if ( $GLOBALS['tab'] === 'featured' ) {
+		if ( 'featured' === $GLOBALS['tab'] ) {
 			return;
 		}
 
@@ -467,7 +471,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 				$plugin = (array) $plugin;
 			}
 
-			// Display the group heading if there is one
+			// Display the group heading if there is one.
 			if ( isset( $plugin['group'] ) && $plugin['group'] != $group ) {
 				if ( isset( $this->groups[ $plugin['group'] ] ) ) {
 					$group_name = $this->groups[ $plugin['group'] ];
@@ -478,13 +482,13 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 					$group_name = $plugin['group'];
 				}
 
-				// Starting a new group, close off the divs of the last one
+				// Starting a new group, close off the divs of the last one.
 				if ( ! empty( $group ) ) {
 					echo '</div></div>';
 				}
 
 				echo '<div class="plugin-group"><h3>' . esc_html( $group_name ) . '</h3>';
-				// needs an extra wrapping div for nth-child selectors to work
+				// Needs an extra wrapping div for nth-child selectors to work.
 				echo '<div class="plugin-items">';
 
 				$group = $plugin['group'];
@@ -499,6 +503,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 
 			$author = wp_kses( $plugin['author'], $plugins_allowedtags );
 			if ( ! empty( $author ) ) {
+				/* translators: %s: Plugin author. */
 				$author = ' <cite>' . sprintf( __( 'By %s' ), $author ) . '</cite>';
 			}
 
@@ -522,7 +527,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 									'<a class="install-now button" data-slug="%s" href="%s" aria-label="%s" data-name="%s">%s</a>',
 									esc_attr( $plugin['slug'] ),
 									esc_url( $status['url'] ),
-									/* translators: %s: plugin name and version */
+									/* translators: %s: Plugin name and version. */
 									esc_attr( sprintf( __( 'Install %s now' ), $name ) ),
 									esc_attr( $name ),
 									__( 'Install Now' )
@@ -544,7 +549,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 									esc_attr( $status['file'] ),
 									esc_attr( $plugin['slug'] ),
 									esc_url( $status['url'] ),
-									/* translators: %s: plugin name and version */
+									/* translators: %s: Plugin name and version. */
 									esc_attr( sprintf( __( 'Update %s now' ), $name ) ),
 									esc_attr( $name ),
 									__( 'Update Now' )
@@ -567,7 +572,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 							);
 						} elseif ( current_user_can( 'activate_plugin', $status['file'] ) ) {
 							$button_text = __( 'Activate' );
-							/* translators: %s: plugin name */
+							/* translators: %s: Plugin name. */
 							$button_label = _x( 'Activate %s', 'plugin' );
 							$activate_url = add_query_arg(
 								array(
@@ -580,7 +585,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 
 							if ( is_network_admin() ) {
 								$button_text = __( 'Network Activate' );
-								/* translators: %s: plugin name */
+								/* translators: %s: Plugin name. */
 								$button_label = _x( 'Network Activate %s', 'plugin' );
 								$activate_url = add_query_arg( array( 'networkwide' => 1 ), $activate_url );
 							}
@@ -609,7 +614,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 			$action_links[] = sprintf(
 				'<a href="%s" class="thickbox open-plugin-details-modal" aria-label="%s" data-title="%s">%s</a>',
 				esc_url( $details_link ),
-				/* translators: %s: plugin name and version */
+				/* translators: %s: Plugin name and version. */
 				esc_attr( sprintf( __( 'More information about %s' ), $name ) ),
 				esc_attr( $name ),
 				__( 'More Details' )
@@ -645,7 +650,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 					_e( 'This plugin doesn&#8217;t work with your versions of WordPress and PHP.' );
 					if ( current_user_can( 'update_core' ) && current_user_can( 'update_php' ) ) {
 						printf(
-							/* translators: 1: "Update WordPress" screen URL, 2: "Update PHP" page URL */
+							/* translators: 1: URL to WordPress Updates screen, 2: URL to Update PHP page. */
 							' ' . __( '<a href="%1$s">Please update WordPress</a>, and then <a href="%2$s">learn more about updating PHP</a>.' ),
 							self_admin_url( 'update-core.php' ),
 							esc_url( wp_get_update_php_url() )
@@ -653,13 +658,13 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 						wp_update_php_annotation( '</p><p><em>', '</em>' );
 					} elseif ( current_user_can( 'update_core' ) ) {
 						printf(
-							/* translators: %s: "Update WordPress" screen URL */
+							/* translators: %s: URL to WordPress Updates screen. */
 							' ' . __( '<a href="%s">Please update WordPress</a>.' ),
 							self_admin_url( 'update-core.php' )
 						);
 					} elseif ( current_user_can( 'update_php' ) ) {
 						printf(
-							/* translators: %s: "Update PHP" page URL */
+							/* translators: %s: URL to Update PHP page. */
 							' ' . __( '<a href="%s">Learn more about updating PHP</a>.' ),
 							esc_url( wp_get_update_php_url() )
 						);
@@ -669,7 +674,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 					_e( 'This plugin doesn&#8217;t work with your version of WordPress.' );
 					if ( current_user_can( 'update_core' ) ) {
 						printf(
-							/* translators: %s: "Update WordPress" screen URL */
+							/* translators: %s: URL to WordPress Updates screen. */
 							' ' . __( '<a href="%s">Please update WordPress</a>.' ),
 							self_admin_url( 'update-core.php' )
 						);
@@ -678,7 +683,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 					_e( 'This plugin doesn&#8217;t work with your version of PHP.' );
 					if ( current_user_can( 'update_php' ) ) {
 						printf(
-							/* translators: %s: "Update PHP" page URL */
+							/* translators: %s: URL to Update PHP page. */
 							' ' . __( '<a href="%s">Learn more about updating PHP</a>.' ),
 							esc_url( wp_get_update_php_url() )
 						);
@@ -723,13 +728,18 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 					<span class="num-ratings" aria-hidden="true">(<?php echo number_format_i18n( $plugin['num_ratings'] ); ?>)</span>
 				</div>
 				<div class="column-updated">
-					<strong><?php _e( 'Last Updated:' ); ?></strong> <?php printf( __( '%s ago' ), human_time_diff( $last_updated_timestamp ) ); ?>
+					<strong><?php _e( 'Last Updated:' ); ?></strong>
+					<?php
+						/* translators: %s: Human-readable time difference. */
+						printf( __( '%s ago' ), human_time_diff( $last_updated_timestamp ) );
+					?>
 				</div>
 				<div class="column-downloaded">
 					<?php
 					if ( $plugin['active_installs'] >= 1000000 ) {
 						$active_installs_millions = floor( $plugin['active_installs'] / 1000000 );
 						$active_installs_text     = sprintf(
+							/* translators: %s: Number of millions. */
 							_nx( '%s+ Million', '%s+ Million', $active_installs_millions, 'Active plugin installations' ),
 							number_format_i18n( $active_installs_millions )
 						);
@@ -738,6 +748,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 					} else {
 						$active_installs_text = number_format_i18n( $plugin['active_installs'] ) . '+';
 					}
+					/* translators: %s: Number of installations. */
 					printf( __( '%s Active Installations' ), $active_installs_text );
 					?>
 				</div>
@@ -757,7 +768,7 @@ class WP_Plugin_Install_List_Table extends WP_List_Table {
 			<?php
 		}
 
-		// Close off the group divs of the last one
+		// Close off the group divs of the last one.
 		if ( ! empty( $group ) ) {
 			echo '</div></div>';
 		}

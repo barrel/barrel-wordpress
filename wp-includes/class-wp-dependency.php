@@ -37,7 +37,7 @@ class _WP_Dependency {
 	 * An array of handle dependencies.
 	 *
 	 * @since 2.6.0
-	 * @var array
+	 * @var string[]
 	 */
 	public $deps = array();
 
@@ -87,9 +87,13 @@ class _WP_Dependency {
 	 * Setup dependencies.
 	 *
 	 * @since 2.6.0
+	 * @since 5.3.0 Formalized the existing `...$args` parameter by adding it
+	 *              to the function signature.
+	 *
+	 * @param ...$args Dependency information.
 	 */
-	public function __construct() {
-		@list( $this->handle, $this->src, $this->deps, $this->ver, $this->args ) = func_get_args();
+	public function __construct( ...$args ) {
+		list( $this->handle, $this->src, $this->deps, $this->ver, $this->args ) = $args;
 		if ( ! is_array( $this->deps ) ) {
 			$this->deps = array();
 		}
@@ -119,7 +123,6 @@ class _WP_Dependency {
 	 *
 	 * @param string $domain The translation textdomain.
 	 * @param string $path   Optional. The full file path to the directory containing translation files.
-	 *
 	 * @return bool False if $domain is not a string, true otherwise.
 	 */
 	public function set_translations( $domain, $path = null ) {

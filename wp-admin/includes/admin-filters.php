@@ -45,11 +45,6 @@ add_action( 'admin_head', 'wp_color_scheme_settings' );
 add_action( 'admin_head', 'wp_site_icon' );
 add_action( 'admin_head', '_ipad_meta' );
 
-// Privacy tools
-add_action( 'admin_menu', '_wp_privacy_hook_requests_page' );
-add_action( 'load-tools_page_export_personal_data', '_wp_privacy_requests_screen_options' );
-add_action( 'load-tools_page_remove_personal_data', '_wp_privacy_requests_screen_options' );
-
 // Prerendering.
 if ( ! is_customize_preview() ) {
 	add_filter( 'admin_print_styles', 'wp_resource_hints', 1 );
@@ -133,7 +128,7 @@ add_action( 'upgrader_process_complete', 'wp_version_check', 10, 0 );
 add_action( 'upgrader_process_complete', 'wp_update_plugins', 10, 0 );
 add_action( 'upgrader_process_complete', 'wp_update_themes', 10, 0 );
 
-// Privacy hooks
+// Privacy hooks.
 add_filter( 'wp_privacy_personal_data_erasure_page', 'wp_privacy_process_personal_data_erasure_page', 10, 5 );
 add_filter( 'wp_privacy_personal_data_export_page', 'wp_privacy_process_personal_data_export_page', 10, 7 );
 add_action( 'wp_privacy_personal_data_export_file', 'wp_privacy_generate_personal_data_export_file', 10 );

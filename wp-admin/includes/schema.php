@@ -11,7 +11,7 @@
 /**
  * Declare these as global in case schema.php is included from a function.
  *
- * @global wpdb   $wpdb
+ * @global wpdb   $wpdb            WordPress database abstraction object.
  * @global array  $wp_queries
  * @global string $charset_collate
  */
@@ -52,7 +52,7 @@ function wp_get_db_schema( $scope = 'all', $blog_id = null ) {
 	 */
 	$max_index_length = 191;
 
-	// Blog specific tables.
+	// Blog-specific tables.
 	$blog_tables = "CREATE TABLE $wpdb->termmeta (
 	meta_id bigint(20) unsigned NOT NULL auto_increment,
 	term_id bigint(20) unsigned NOT NULL default '0',
@@ -144,7 +144,8 @@ CREATE TABLE $wpdb->options (
 	option_value longtext NOT NULL,
 	autoload varchar(20) NOT NULL default 'yes',
 	PRIMARY KEY  (option_id),
-	UNIQUE KEY option_name (option_name)
+	UNIQUE KEY option_name (option_name),
+	KEY autoload (autoload)
 ) $charset_collate;
 CREATE TABLE $wpdb->postmeta (
 	meta_id bigint(20) unsigned NOT NULL auto_increment,
@@ -204,7 +205,7 @@ CREATE TABLE $wpdb->posts (
 	KEY user_email (user_email)
 ) $charset_collate;\n";
 
-	// Multisite users table
+	// Multisite users table.
 	$users_multi_table = "CREATE TABLE $wpdb->users (
 	ID bigint(20) unsigned NOT NULL auto_increment,
 	user_login varchar(60) NOT NULL default '',
@@ -235,7 +236,7 @@ CREATE TABLE $wpdb->posts (
 	KEY meta_key (meta_key($max_index_length))
 ) $charset_collate;\n";
 
-	// Global tables
+	// Global tables.
 	if ( $is_multisite ) {
 		$global_tables = $users_multi_table . $usermeta_table;
 	} else {
@@ -259,13 +260,6 @@ CREATE TABLE $wpdb->posts (
 	PRIMARY KEY  (blog_id),
 	KEY domain (domain(50),path(5)),
 	KEY lang_id (lang_id)
-) $charset_collate;
-CREATE TABLE $wpdb->blog_versions (
-	blog_id bigint(20) NOT NULL default '0',
-	db_version varchar(20) NOT NULL default '',
-	last_updated datetime NOT NULL default '0000-00-00 00:00:00',
-	PRIMARY KEY  (blog_id),
-	KEY db_version (db_version)
 ) $charset_collate;
 CREATE TABLE $wpdb->blogmeta (
 	meta_id bigint(20) unsigned NOT NULL auto_increment,
@@ -358,9 +352,9 @@ $wp_queries = wp_get_db_schema( 'all' );
  * @since 1.5.0
  * @since 5.1.0 The $options parameter has been added.
  *
- * @global wpdb $wpdb WordPress database abstraction object.
- * @global int  $wp_db_version
- * @global int  $wp_current_db_version
+ * @global wpdb $wpdb                  WordPress database abstraction object.
+ * @global int  $wp_db_version         WordPress database version.
+ * @global int  $wp_current_db_version The old (current) database version.
  *
  * @param array $options Optional. Custom option $key => $value pairs to use. Default empty array.
  */
@@ -400,7 +394,7 @@ function populate_options( array $options = array() ) {
 	$gmt_offset      = 0;
 	/*
 	 * translators: default GMT offset or timezone string. Must be either a valid offset (-12 to 14)
-	 * or a valid timezone string (America/New_York). See https://secure.php.net/manual/en/timezones.php
+	 * or a valid timezone string (America/New_York). See https://www.php.net/manual/en/timezones.php
 	 * for all timezone strings supported by PHP.
 	 */
 	$offset_or_tz = _x( '0', 'default GMT offset or timezone string' ); // phpcs:ignore WordPress.WP.I18n.NoEmptyStrings
@@ -414,11 +408,11 @@ function populate_options( array $options = array() ) {
 		'siteurl'                         => $guessurl,
 		'home'                            => $guessurl,
 		'blogname'                        => __( 'My Site' ),
-		/* translators: site tagline */
+		/* translators: Site tagline. */
 		'blogdescription'                 => __( 'Just another WordPress site' ),
 		'users_can_register'              => 0,
 		'admin_email'                     => 'you@example.com',
-		/* translators: default start of the week. 0 = Sunday, 1 = Monday */
+		/* translators: Default start of the week. 0 = Sunday, 1 = Monday. */
 		'start_of_week'                   => _x( '1', 'start of week' ),
 		'use_balanceTags'                 => 0,
 		'use_smilies'                     => 1,
@@ -435,11 +429,11 @@ function populate_options( array $options = array() ) {
 		'default_ping_status'             => 'open',
 		'default_pingback_flag'           => 1,
 		'posts_per_page'                  => 10,
-		/* translators: default date format, see https://secure.php.net/date */
+		/* translators: Default date format, see https://www.php.net/date */
 		'date_format'                     => __( 'F j, Y' ),
-		/* translators: default time format, see https://secure.php.net/date */
+		/* translators: Default time format, see https://www.php.net/date */
 		'time_format'                     => __( 'g:i a' ),
-		/* translators: links last updated date format, see https://secure.php.net/date */
+		/* translators: Links last updated date format, see https://www.php.net/date */
 		'links_updated_date_format'       => __( 'F j, Y g:i a' ),
 		'comment_moderation'              => 0,
 		'moderation_notify'               => 1,
@@ -542,6 +536,9 @@ function populate_options( array $options = array() ) {
 
 		// 4.9.8
 		'show_comments_cookies_opt_in'    => 1,
+
+		// 5.3.0
+		'admin_email_lifespan'            => ( time() + 6 * MONTH_IN_SECONDS ),
 	);
 
 	// 3.3
@@ -550,16 +547,16 @@ function populate_options( array $options = array() ) {
 			? $wp_current_db_version : $wp_db_version;
 	}
 
-	// 3.0 multisite
+	// 3.0 multisite.
 	if ( is_multisite() ) {
-		/* translators: site tagline */
+		/* translators: %s: Network title. */
 		$defaults['blogdescription']     = sprintf( __( 'Just another %s site' ), get_network()->site_name );
 		$defaults['permalink_structure'] = '/%year%/%monthnum%/%day%/%postname%/';
 	}
 
 	$options = wp_parse_args( $options, $defaults );
 
-	// Set autoload to no for these options
+	// Set autoload to no for these options.
 	$fat_options = array( 'moderation_keys', 'recently_edited', 'blacklist_keys', 'uninstall_plugins' );
 
 	$keys             = "'" . implode( "', '", array_keys( $options ) ) . "'";
@@ -680,7 +677,7 @@ function populate_options( array $options = array() ) {
 	// Delete obsolete magpie stuff.
 	$wpdb->query( "DELETE FROM $wpdb->options WHERE option_name REGEXP '^rss_[0-9a-f]{32}(_ts)?$'" );
 
-	// Clear expired transients
+	// Clear expired transients.
 	delete_expired_transients( true );
 }
 
@@ -706,15 +703,14 @@ function populate_roles() {
  * @since 2.0.0
  */
 function populate_roles_160() {
-	// Add roles
-
+	// Add roles.
 	add_role( 'administrator', 'Administrator' );
 	add_role( 'editor', 'Editor' );
 	add_role( 'author', 'Author' );
 	add_role( 'contributor', 'Contributor' );
 	add_role( 'subscriber', 'Subscriber' );
 
-	// Add caps for Administrator role
+	// Add caps for Administrator role.
 	$role = get_role( 'administrator' );
 	$role->add_cap( 'switch_themes' );
 	$role->add_cap( 'edit_themes' );
@@ -747,7 +743,7 @@ function populate_roles_160() {
 	$role->add_cap( 'level_1' );
 	$role->add_cap( 'level_0' );
 
-	// Add caps for Editor role
+	// Add caps for Editor role.
 	$role = get_role( 'editor' );
 	$role->add_cap( 'moderate_comments' );
 	$role->add_cap( 'manage_categories' );
@@ -769,7 +765,7 @@ function populate_roles_160() {
 	$role->add_cap( 'level_1' );
 	$role->add_cap( 'level_0' );
 
-	// Add caps for Author role
+	// Add caps for Author role.
 	$role = get_role( 'author' );
 	$role->add_cap( 'upload_files' );
 	$role->add_cap( 'edit_posts' );
@@ -780,14 +776,14 @@ function populate_roles_160() {
 	$role->add_cap( 'level_1' );
 	$role->add_cap( 'level_0' );
 
-	// Add caps for Contributor role
+	// Add caps for Contributor role.
 	$role = get_role( 'contributor' );
 	$role->add_cap( 'edit_posts' );
 	$role->add_cap( 'read' );
 	$role->add_cap( 'level_1' );
 	$role->add_cap( 'level_0' );
 
-	// Add caps for Subscriber role
+	// Add caps for Subscriber role.
 	$role = get_role( 'subscriber' );
 	$role->add_cap( 'read' );
 	$role->add_cap( 'level_0' );
@@ -947,9 +943,9 @@ endif;
  *
  * @since 3.0.0
  *
- * @global wpdb       $wpdb
+ * @global wpdb       $wpdb         WordPress database abstraction object.
  * @global object     $current_site
- * @global WP_Rewrite $wp_rewrite
+ * @global WP_Rewrite $wp_rewrite   WordPress rewrite component.
  *
  * @param int    $network_id        ID of network to populate.
  * @param string $domain            The domain name for the network (eg. "example.com").
@@ -1081,18 +1077,18 @@ function populate_network( $network_id = 1, $domain = '', $email = '', $site_nam
 			$msg = '<p><strong>' . __( 'Warning! Wildcard DNS may not be configured correctly!' ) . '</strong></p>';
 
 			$msg .= '<p>' . sprintf(
-				/* translators: %s: host name */
+				/* translators: %s: Host name. */
 				__( 'The installer attempted to contact a random hostname (%s) on your domain.' ),
 				'<code>' . $hostname . '</code>'
 			);
 			if ( ! empty( $errstr ) ) {
-				/* translators: %s: error message */
+				/* translators: %s: Error message. */
 				$msg .= ' ' . sprintf( __( 'This resulted in an error message: %s' ), '<code>' . $errstr . '</code>' );
 			}
 			$msg .= '</p>';
 
 			$msg .= '<p>' . sprintf(
-				/* translators: %s: asterisk symbol (*) */
+				/* translators: %s: Asterisk symbol (*). */
 				__( 'To use a subdomain configuration, you must have a wildcard entry in your DNS. This usually means adding a %s hostname record pointing at your web server in your DNS configuration tool.' ),
 				'<code>*</code>'
 			) . '</p>';
@@ -1153,6 +1149,12 @@ function populate_network_meta( $network_id, array $meta = array() ) {
 		if ( $core_default ) {
 			$allowed_themes[ $core_default->get_stylesheet() ] = true;
 		}
+	}
+
+	if ( function_exists( 'clean_network_cache' ) ) {
+		clean_network_cache( $network_id );
+	} else {
+		wp_cache_delete( $network_id, 'networks' );
 	}
 
 	wp_cache_delete( 'networks_have_paths', 'site-options' );
@@ -1239,9 +1241,9 @@ We hope you enjoy your new site. Thanks!
 		'illegal_names'               => array( 'www', 'web', 'root', 'admin', 'main', 'invite', 'administrator', 'files' ),
 		'wpmu_upgrade_site'           => $wp_db_version,
 		'welcome_email'               => $welcome_email,
-		/* translators: %s: site link */
+		/* translators: %s: Site link. */
 		'first_post'                  => __( 'Welcome to %s. This is your first post. Edit or delete it, then start writing!' ),
-		// @todo - network admins should have a method of editing the network siteurl (used for cookie hash)
+		// @todo - Network admins should have a method of editing the network siteurl (used for cookie hash).
 		'siteurl'                     => get_option( 'siteurl' ) . '/',
 		'add_new_users'               => '0',
 		'upload_space_check_disabled' => is_multisite() ? get_site_option( 'upload_space_check_disabled' ) : '1',

@@ -29,7 +29,7 @@ function _wp_post_revision_fields( $post = array(), $deprecated = false ) {
 	}
 
 	if ( is_null( $fields ) ) {
-		// Allow these to be versioned
+		// Allow these to be versioned.
 		$fields = array(
 			'post_title'   => __( 'Title' ),
 			'post_content' => __( 'Content' ),
@@ -55,7 +55,7 @@ function _wp_post_revision_fields( $post = array(), $deprecated = false ) {
 	 */
 	$fields = apply_filters( '_wp_post_revision_fields', $fields, $post );
 
-	// WP uses these internally either in versioning or elsewhere - they cannot be versioned
+	// WP uses these internally either in versioning or elsewhere - they cannot be versioned.
 	foreach ( array( 'ID', 'post_name', 'post_parent', 'post_date', 'post_date_gmt', 'post_status', 'post_type', 'comment_count', 'post_author' ) as $protect ) {
 		unset( $fields[ $protect ] );
 	}
@@ -90,7 +90,7 @@ function _wp_post_revision_data( $post = array(), $autosave = false ) {
 	$revision_data['post_parent']   = $post['ID'];
 	$revision_data['post_status']   = 'inherit';
 	$revision_data['post_type']     = 'revision';
-	$revision_data['post_name']     = $autosave ? "$post[ID]-autosave-v1" : "$post[ID]-revision-v1"; // "1" is the revisioning system version
+	$revision_data['post_name']     = $autosave ? "$post[ID]-autosave-v1" : "$post[ID]-revision-v1"; // "1" is the revisioning system version.
 	$revision_data['post_date']     = isset( $post['post_modified'] ) ? $post['post_modified'] : '';
 	$revision_data['post_date_gmt'] = isset( $post['post_modified_gmt'] ) ? $post['post_modified_gmt'] : '';
 
@@ -113,7 +113,8 @@ function wp_save_post_revision( $post_id ) {
 		return;
 	}
 
-	if ( ! $post = get_post( $post_id ) ) {
+	$post = get_post( $post_id );
+	if ( ! $post ) {
 		return;
 	}
 
@@ -129,11 +130,14 @@ function wp_save_post_revision( $post_id ) {
 		return;
 	}
 
-	// Compare the proposed update with the last stored revision verifying that
-	// they are different, unless a plugin tells us to always save regardless.
-	// If no previous revisions, save one
-	if ( $revisions = wp_get_post_revisions( $post_id ) ) {
-		// grab the last revision, but not an autosave
+	/*
+	 * Compare the proposed update with the last stored revision verifying that
+	 * they are different, unless a plugin tells us to always save regardless.
+	 * If no previous revisions, save one.
+	 */
+	$revisions = wp_get_post_revisions( $post_id );
+	if ( $revisions ) {
+		// Grab the last revision, but not an autosave.
 		foreach ( $revisions as $revision ) {
 			if ( false !== strpos( $revision->post_name, "{$revision->post_parent}-revision" ) ) {
 				$last_revision = $revision;
@@ -154,11 +158,11 @@ function wp_save_post_revision( $post_id ) {
 		 * @param WP_Post $last_revision     The last revision post object.
 		 * @param WP_Post $post              The post object.
 		 */
-		if ( isset( $last_revision ) && apply_filters( 'wp_save_post_revision_check_for_changes', $check_for_changes = true, $last_revision, $post ) ) {
+		if ( isset( $last_revision ) && apply_filters( 'wp_save_post_revision_check_for_changes', true, $last_revision, $post ) ) {
 			$post_has_changed = false;
 
 			foreach ( array_keys( _wp_post_revision_fields( $post ) ) as $field ) {
-				if ( normalize_whitespace( $post->$field ) != normalize_whitespace( $last_revision->$field ) ) {
+				if ( normalize_whitespace( $post->$field ) !== normalize_whitespace( $last_revision->$field ) ) {
 					$post_has_changed = true;
 					break;
 				}
@@ -178,7 +182,7 @@ function wp_save_post_revision( $post_id ) {
 			 */
 			$post_has_changed = (bool) apply_filters( 'wp_save_post_revision_post_has_changed', $post_has_changed, $last_revision, $post );
 
-			//don't save revision if post unchanged
+			// Don't save revision if post unchanged.
 			if ( ! $post_has_changed ) {
 				return;
 			}
@@ -251,10 +255,11 @@ function wp_get_post_autosave( $post_id, $user_id = 0 ) {
  * @since 2.6.0
  *
  * @param int|WP_Post $post Post ID or post object.
- * @return false|int False if not a revision, ID of revision's parent otherwise.
+ * @return int|false ID of revision's parent on success, false if not a revision.
  */
 function wp_is_post_revision( $post ) {
-	if ( ! $post = wp_get_post_revision( $post ) ) {
+	$post = wp_get_post_revision( $post );
+	if ( ! $post ) {
 		return false;
 	}
 
@@ -267,10 +272,11 @@ function wp_is_post_revision( $post ) {
  * @since 2.6.0
  *
  * @param int|WP_Post $post Post ID or post object.
- * @return false|int False if not a revision, ID of autosave's parent otherwise
+ * @return int|false ID of autosave's parent on success, false if not a revision.
  */
 function wp_is_post_autosave( $post ) {
-	if ( ! $post = wp_get_post_revision( $post ) ) {
+	$post = wp_get_post_revision( $post );
+	if ( ! $post ) {
 		return false;
 	}
 
@@ -307,7 +313,7 @@ function _wp_put_post_revision( $post = null, $autosave = false ) {
 	}
 
 	$post = _wp_post_revision_data( $post, $autosave );
-	$post = wp_slash( $post ); //since data is from db
+	$post = wp_slash( $post ); // Since data is from DB.
 
 	$revision_id = wp_insert_post( $post );
 	if ( is_wp_error( $revision_id ) ) {
@@ -340,19 +346,20 @@ function _wp_put_post_revision( $post = null, $autosave = false ) {
  * @return WP_Post|array|null WP_Post (or array) on success, or null on failure.
  */
 function wp_get_post_revision( &$post, $output = OBJECT, $filter = 'raw' ) {
-	if ( ! $revision = get_post( $post, OBJECT, $filter ) ) {
+	$revision = get_post( $post, OBJECT, $filter );
+	if ( ! $revision ) {
 		return $revision;
 	}
 	if ( 'revision' !== $revision->post_type ) {
 		return null;
 	}
 
-	if ( $output == OBJECT ) {
+	if ( OBJECT == $output ) {
 		return $revision;
-	} elseif ( $output == ARRAY_A ) {
+	} elseif ( ARRAY_A == $output ) {
 		$_revision = get_object_vars( $revision );
 		return $_revision;
-	} elseif ( $output == ARRAY_N ) {
+	} elseif ( ARRAY_N == $output ) {
 		$_revision = array_values( get_object_vars( $revision ) );
 		return $_revision;
 	}
@@ -372,7 +379,8 @@ function wp_get_post_revision( &$post, $output = OBJECT, $filter = 'raw' ) {
  * @return int|false|null Null if error, false if no fields to restore, (int) post ID if success.
  */
 function wp_restore_post_revision( $revision_id, $fields = null ) {
-	if ( ! $revision = wp_get_post_revision( $revision_id, ARRAY_A ) ) {
+	$revision = wp_get_post_revision( $revision_id, ARRAY_A );
+	if ( ! $revision ) {
 		return $revision;
 	}
 
@@ -391,14 +399,14 @@ function wp_restore_post_revision( $revision_id, $fields = null ) {
 
 	$update['ID'] = $revision['post_parent'];
 
-	$update = wp_slash( $update ); //since data is from db
+	$update = wp_slash( $update ); // Since data is from DB.
 
 	$post_id = wp_update_post( $update );
 	if ( ! $post_id || is_wp_error( $post_id ) ) {
 		return $post_id;
 	}
 
-	// Update last edit user
+	// Update last edit user.
 	update_post_meta( $post_id, '_edit_last', get_current_user_id() );
 
 	/**
@@ -425,7 +433,8 @@ function wp_restore_post_revision( $revision_id, $fields = null ) {
  * @return array|false|WP_Post|WP_Error|null Null or WP_Error if error, deleted post if success.
  */
 function wp_delete_post_revision( $revision_id ) {
-	if ( ! $revision = wp_get_post_revision( $revision_id ) ) {
+	$revision = wp_get_post_revision( $revision_id );
+	if ( ! $revision ) {
 		return $revision;
 	}
 
@@ -436,8 +445,8 @@ function wp_delete_post_revision( $revision_id ) {
 		 *
 		 * @since 2.6.0
 		 *
-		 * @param int          $revision_id Post revision ID.
-		 * @param object|array $revision    Post revision object or array.
+		 * @param int     $revision_id Post revision ID.
+		 * @param WP_Post $revision    Post revision object.
 		 */
 		do_action( 'wp_delete_post_revision', $revision->ID, $revision );
 	}
@@ -482,7 +491,8 @@ function wp_get_post_revisions( $post_id = 0, $args = null ) {
 		)
 	);
 
-	if ( ! $revisions = get_children( $args ) ) {
+	$revisions = get_children( $args );
+	if ( ! $revisions ) {
 		return array();
 	}
 
@@ -601,7 +611,8 @@ function _show_post_preview() {
  * @return array
  */
 function _wp_preview_terms_filter( $terms, $post_id, $taxonomy ) {
-	if ( ! $post = get_post() ) {
+	$post = get_post();
+	if ( ! $post ) {
 		return $terms;
 	}
 
@@ -611,8 +622,11 @@ function _wp_preview_terms_filter( $terms, $post_id, $taxonomy ) {
 
 	if ( 'standard' == $_REQUEST['post_format'] ) {
 		$terms = array();
-	} elseif ( $term = get_term_by( 'slug', 'post-format-' . sanitize_key( $_REQUEST['post_format'] ), 'post_format' ) ) {
-		$terms = array( $term ); // Can only have one post format
+	} else {
+		$term = get_term_by( 'slug', 'post-format-' . sanitize_key( $_REQUEST['post_format'] ), 'post_format' );
+		if ( $term ) {
+			$terms = array( $term ); // Can only have one post format.
+		}
 	}
 
 	return $terms;
@@ -630,7 +644,8 @@ function _wp_preview_terms_filter( $terms, $post_id, $taxonomy ) {
  * @return null|array The default return value or the post thumbnail meta array.
  */
 function _wp_preview_post_thumbnail_filter( $value, $post_id, $meta_key ) {
-	if ( ! $post = get_post() ) {
+	$post = get_post();
+	if ( ! $post ) {
 		return $value;
 	}
 
@@ -690,25 +705,25 @@ function _wp_get_post_revision_version( $revision ) {
 function _wp_upgrade_revisions_of_post( $post, $revisions ) {
 	global $wpdb;
 
-	// Add post option exclusively
+	// Add post option exclusively.
 	$lock   = "revision-upgrade-{$post->ID}";
 	$now    = time();
 	$result = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, 'no') /* LOCK */", $lock, $now ) );
 	if ( ! $result ) {
-		// If we couldn't get a lock, see how old the previous lock is
+		// If we couldn't get a lock, see how old the previous lock is.
 		$locked = get_option( $lock );
 		if ( ! $locked ) {
 			// Can't write to the lock, and can't read the lock.
-			// Something broken has happened
+			// Something broken has happened.
 			return false;
 		}
 
 		if ( $locked > $now - 3600 ) {
-			// Lock is not too old: some other process may be upgrading this post.  Bail.
+			// Lock is not too old: some other process may be upgrading this post. Bail.
 			return false;
 		}
 
-		// Lock is too old - update it (below) and continue
+		// Lock is too old - update it (below) and continue.
 	}
 
 	// If we could get a lock, re-"add" the option to fire all the correct filters.
@@ -723,7 +738,7 @@ function _wp_upgrade_revisions_of_post( $post, $revisions ) {
 
 		$this_revision_version = _wp_get_post_revision_version( $this_revision );
 
-		// Something terrible happened
+		// Something terrible happened.
 		if ( false === $this_revision_version ) {
 			continue;
 		}
@@ -735,14 +750,16 @@ function _wp_upgrade_revisions_of_post( $post, $revisions ) {
 			continue;
 		}
 
-		// Always update the revision version
+		// Always update the revision version.
 		$update = array(
 			'post_name' => preg_replace( '/^(\d+-(?:autosave|revision))[\d-]*$/', '$1-v1', $this_revision->post_name ),
 		);
 
-		// If this revision is the oldest revision of the post, i.e. no $prev_revision,
-		// the correct post_author is probably $post->post_author, but that's only a good guess.
-		// Update the revision version only and Leave the author as-is.
+		/*
+		 * If this revision is the oldest revision of the post, i.e. no $prev_revision,
+		 * the correct post_author is probably $post->post_author, but that's only a good guess.
+		 * Update the revision version only and Leave the author as-is.
+		 */
 		if ( $prev_revision ) {
 			$prev_revision_version = _wp_get_post_revision_version( $prev_revision );
 
@@ -752,7 +769,7 @@ function _wp_upgrade_revisions_of_post( $post, $revisions ) {
 			}
 		}
 
-		// Upgrade this revision
+		// Upgrade this revision.
 		$result = $wpdb->update( $wpdb->posts, $update, array( 'ID' => $this_revision->ID ) );
 
 		if ( $result ) {

@@ -79,16 +79,17 @@ function edit_comment() {
 	}
 
 	if ( ! empty( $_POST['edit_date'] ) ) {
-		$aa                    = $_POST['aa'];
-		$mm                    = $_POST['mm'];
-		$jj                    = $_POST['jj'];
-		$hh                    = $_POST['hh'];
-		$mn                    = $_POST['mn'];
-		$ss                    = $_POST['ss'];
-		$jj                    = ( $jj > 31 ) ? 31 : $jj;
-		$hh                    = ( $hh > 23 ) ? $hh - 24 : $hh;
-		$mn                    = ( $mn > 59 ) ? $mn - 60 : $mn;
-		$ss                    = ( $ss > 59 ) ? $ss - 60 : $ss;
+		$aa = $_POST['aa'];
+		$mm = $_POST['mm'];
+		$jj = $_POST['jj'];
+		$hh = $_POST['hh'];
+		$mn = $_POST['mn'];
+		$ss = $_POST['ss'];
+		$jj = ( $jj > 31 ) ? 31 : $jj;
+		$hh = ( $hh > 23 ) ? $hh - 24 : $hh;
+		$mn = ( $mn > 59 ) ? $mn - 60 : $mn;
+		$ss = ( $ss > 59 ) ? $ss - 60 : $ss;
+
 		$_POST['comment_date'] = "$aa-$mm-$jj $hh:$mn:$ss";
 	}
 
@@ -104,7 +105,8 @@ function edit_comment() {
  * @return WP_Comment|false Comment if found. False on failure.
  */
 function get_comment_to_edit( $id ) {
-	if ( ! $comment = get_comment( $id ) ) {
+	$comment = get_comment( $id );
+	if ( ! $comment ) {
 		return false;
 	}
 
@@ -164,7 +166,7 @@ function get_pending_comments_num( $post_id ) {
 
 	$pending_keyed = array();
 
-	// Default to zero pending for all posts in request
+	// Default to zero pending for all posts in request.
 	foreach ( $post_id_array as $id ) {
 		$pending_keyed[ $id ] = 0;
 	}
@@ -207,6 +209,6 @@ function enqueue_comment_hotkeys_js() {
  */
 function comment_footer_die( $msg ) {
 	echo "<div class='wrap'><p>$msg</p></div>";
-	include( ABSPATH . 'wp-admin/admin-footer.php' );
+	require_once ABSPATH . 'wp-admin/admin-footer.php';
 	die;
 }

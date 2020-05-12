@@ -7,10 +7,10 @@
  */
 
 /** Load WordPress Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 /** Load WordPress dashboard API */
-require_once( ABSPATH . 'wp-admin/includes/dashboard.php' );
+require_once ABSPATH . 'wp-admin/includes/dashboard.php';
 
 wp_dashboard_setup();
 
@@ -44,7 +44,7 @@ $screen->add_help_tab(
 	)
 );
 
-// Help tabs
+// Help tabs.
 
 $help  = '<p>' . __( 'The left-hand navigation menu provides links to all of the WordPress administration screens, with submenu items displayed on hover. You can minimize this menu to a narrow icon strip by clicking on the Collapse Menu arrow at the bottom.' ) . '</p>';
 $help .= '<p>' . __( 'Links in the Toolbar at the top of the screen connect your dashboard and the front end of your site, and provide access to your profile and helpful WordPress information.' ) . '</p>';
@@ -83,7 +83,7 @@ if ( is_blog_admin() && current_user_can( 'edit_posts' ) ) {
 }
 
 $help .= '<p>' . sprintf(
-	/* translators: %s: WordPress Planet URL */
+	/* translators: %s: WordPress Planet URL. */
 	__( '<strong>WordPress Events and News</strong> &mdash; Upcoming events near you as well as the latest news from the official WordPress project and the <a href="%s">WordPress Planet</a>.' ),
 	__( 'https://planet.wordpress.org/' )
 ) . '</p>';
@@ -104,11 +104,11 @@ unset( $help );
 
 $screen->set_help_sidebar(
 	'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
-	'<p>' . __( '<a href="https://codex.wordpress.org/Dashboard_Screen">Documentation on Dashboard</a>' ) . '</p>' .
+	'<p>' . __( '<a href="https://wordpress.org/support/article/dashboard-screen/">Documentation on Dashboard</a>' ) . '</p>' .
 	'<p>' . __( '<a href="https://wordpress.org/support/">Support</a>' ) . '</p>'
 );
 
-include( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 ?>
 
 <div class="wrap">
@@ -119,7 +119,7 @@ if ( has_action( 'welcome_panel' ) && current_user_can( 'edit_theme_options' ) )
 	$classes = 'welcome-panel';
 
 	$option = get_user_meta( get_current_user_id(), 'show_welcome_panel', true );
-	// 0 = hide, 1 = toggled to show or single site creator, 2 = multisite site owner
+	// 0 = hide, 1 = toggled to show or single site creator, 2 = multisite site owner.
 	$hide = 0 == $option || ( 2 == $option && wp_get_current_user()->user_email != get_option( 'admin_email' ) );
 	if ( $hide ) {
 		$classes .= ' hidden';
@@ -153,4 +153,4 @@ if ( has_action( 'welcome_panel' ) && current_user_can( 'edit_theme_options' ) )
 <?php
 wp_print_community_events_templates();
 
-require( ABSPATH . 'wp-admin/admin-footer.php' );
+require_once ABSPATH . 'wp-admin/admin-footer.php';

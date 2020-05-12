@@ -130,7 +130,7 @@ class Walker_Page extends Walker {
 			} elseif ( $_current_page && $page->ID == $_current_page->post_parent ) {
 				$css_class[] = 'current_page_parent';
 			}
-		} elseif ( $page->ID == get_option( 'page_for_posts' ) ) {
+		} elseif ( get_option( 'page_for_posts' ) == $page->ID ) {
 			$css_class[] = 'current_page_parent';
 		}
 
@@ -151,7 +151,7 @@ class Walker_Page extends Walker {
 		$css_classes = $css_classes ? ' class="' . esc_attr( $css_classes ) . '"' : '';
 
 		if ( '' === $page->post_title ) {
-			/* translators: %d: ID of a post */
+			/* translators: %d: ID of a post. */
 			$page->post_title = sprintf( __( '#%d (no title)' ), $page->ID );
 		}
 
@@ -182,7 +182,7 @@ class Walker_Page extends Walker {
 
 		$attributes = '';
 		foreach ( $atts as $attr => $value ) {
-			if ( ! empty( $value ) ) {
+			if ( is_scalar( $value ) && '' !== $value && false !== $value ) {
 				$value       = ( 'href' === $attr ) ? esc_url( $value ) : esc_attr( $value );
 				$attributes .= ' ' . $attr . '="' . $value . '"';
 			}

@@ -7,14 +7,14 @@
  */
 
 /** Load WordPress Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 if ( ! current_user_can( 'export' ) ) {
 	wp_die( __( 'Sorry, you are not allowed to export the content of this site.' ) );
 }
 
 /** Load WordPress export API */
-require_once( ABSPATH . 'wp-admin/includes/export.php' );
+require_once ABSPATH . 'wp-admin/includes/export.php';
 $title = __( 'Export' );
 
 /**
@@ -26,17 +26,17 @@ function export_add_js() {
 	?>
 <script type="text/javascript">
 	jQuery(document).ready(function($){
-		 var form = $('#export-filters'),
-			 filters = form.find('.export-filters');
-		 filters.hide();
-		 form.find('input:radio').change(function() {
+		var form = $('#export-filters'),
+			filters = form.find('.export-filters');
+		filters.hide();
+		form.find('input:radio').change(function() {
 			filters.slideUp('fast');
 			switch ( $(this).val() ) {
 				case 'attachment': $('#attachment-filters').slideDown(); break;
 				case 'posts': $('#post-filters').slideDown(); break;
 				case 'pages': $('#page-filters').slideDown(); break;
 			}
-		 });
+		});
 	});
 </script>
 	<?php
@@ -54,7 +54,7 @@ get_current_screen()->add_help_tab(
 
 get_current_screen()->set_help_sidebar(
 	'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
-	'<p>' . __( '<a href="https://codex.wordpress.org/Tools_Export_Screen">Documentation on Export</a>' ) . '</p>' .
+	'<p>' . __( '<a href="https://wordpress.org/support/article/tools-export-screen/">Documentation on Export</a>' ) . '</p>' .
 	'<p>' . __( '<a href="https://wordpress.org/support/">Support</a>' ) . '</p>'
 );
 
@@ -122,13 +122,13 @@ if ( isset( $_GET['download'] ) ) {
 	die();
 }
 
-require_once( ABSPATH . 'wp-admin/admin-header.php' );
+require_once ABSPATH . 'wp-admin/admin-header.php';
 
 /**
  * Create the date options fields for exporting a given post type.
  *
  * @global wpdb      $wpdb      WordPress database abstraction object.
- * @global WP_Locale $wp_locale Date and Time Locale object.
+ * @global WP_Locale $wp_locale WordPress date and time locale object.
  *
  * @since 3.1.0
  *
@@ -180,7 +180,7 @@ function export_date_options( $post_type = 'post' ) {
 <p><label><input type="radio" name="content" value="all" checked="checked" aria-describedby="all-content-desc" /> <?php _e( 'All content' ); ?></label></p>
 <p class="description" id="all-content-desc"><?php _e( 'This will contain all of your posts, pages, comments, custom fields, terms, navigation menus, and custom posts.' ); ?></p>
 
-<p><label><input type="radio" name="content" value="posts" /> <?php _e( 'Posts' ); ?></label></p>
+<p><label><input type="radio" name="content" value="posts" /> <?php _ex( 'Posts', 'post type general name' ); ?></label></p>
 <ul id="post-filters" class="export-filters">
 	<li>
 		<label><span class="label-responsive"><?php _e( 'Categories:' ); ?></span>
@@ -321,4 +321,4 @@ do_action( 'export_filters' );
 </form>
 </div>
 
-<?php include( ABSPATH . 'wp-admin/admin-footer.php' ); ?>
+<?php require_once ABSPATH . 'wp-admin/admin-footer.php'; ?>

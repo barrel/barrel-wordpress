@@ -10,7 +10,7 @@
  */
 
 /** Load WordPress Administration Bootstrap */
-require_once( dirname( __FILE__ ) . '/admin.php' );
+require_once __DIR__ . '/admin.php';
 
 wp_reset_vars( array( 'action', 'cat_id', 'link_id' ) );
 
@@ -112,12 +112,13 @@ switch ( $action ) {
 
 		$link_id = (int) $_GET['link_id'];
 
-		if ( ! $link = get_link_to_edit( $link_id ) ) {
+		$link = get_link_to_edit( $link_id );
+		if ( ! $link ) {
 			wp_die( __( 'Link not found.' ) );
 		}
 
-		include( ABSPATH . 'wp-admin/edit-link-form.php' );
-		include( ABSPATH . 'wp-admin/admin-footer.php' );
+		require ABSPATH . 'wp-admin/edit-link-form.php';
+		require_once ABSPATH . 'wp-admin/admin-footer.php';
 		break;
 
 	default:
