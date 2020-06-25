@@ -70,7 +70,7 @@ class WPSEO_Product_Upsell_Notice {
 
 		$this->dismiss_notice();
 
-		wp_redirect( admin_url( 'admin.php?page=wpseo_dashboard' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=wpseo_dashboard' ) );
 		exit;
 	}
 
@@ -161,12 +161,12 @@ class WPSEO_Product_Upsell_Notice {
 
 		$notification = new Yoast_Notification(
 			$message,
-			array(
+			[
 				'type'         => Yoast_Notification::WARNING,
 				'id'           => 'wpseo-upsell-notice',
 				'capabilities' => 'wpseo_manage_options',
 				'priority'     => 0.8,
-			)
+			]
 		);
 
 		return $notification;

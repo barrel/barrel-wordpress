@@ -47,7 +47,7 @@ abstract class Red_Database_Upgrader {
 
 		$this->queries = [];
 		$this->live = false;
-		$this->$stage( $wpdb );
+		$this->$stage( $wpdb, false );
 		$this->live = true;
 
 		return $this->queries;
@@ -101,7 +101,7 @@ abstract class Red_Database_Upgrader {
 
 		if ( $result === false ) {
 			/* translators: 1: SQL string */
-			throw new Exception( sprintf( __( 'Failed to perform query "%s"' ), $sql ) );
+			throw new Exception( sprintf( 'Failed to perform query "%s"', $sql ) );
 		}
 
 		return true;

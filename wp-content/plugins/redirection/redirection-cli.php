@@ -9,7 +9,7 @@ class Redirection_Cli extends WP_CLI_Command {
 			$groups = Red_Group::get_filtered( array() );
 
 			if ( count( $groups['items'] ) > 0 ) {
-				return $groups['items'][ 0 ]['id'];
+				return $groups['items'][0]['id'];
 			}
 		} else {
 			$groups = Red_Group::get( $group_id );
@@ -19,6 +19,89 @@ class Redirection_Cli extends WP_CLI_Command {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Import from another plugin to Redirection.
+	 *
+	 * Supports:
+	 *   - wp-simple-redirect
+	 *   - seo-redirection
+	 *   - safe-redirect-manager
+	 *   - wordpress-old-slugs
+	 *   - rank-math
+	 *   - quick-redirects
+	 *
+	 * ## OPTIONS
+	 *
+	 * <name>
+	 * : The plugin name to import from (see above)
+	 *
+	 * [--group=<groupid>]
+	 * : The group ID to import into. Defaults to the first available group.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp redirection plugin quick-redirects
+	 */
+	public function plugin( $args, $extra ) {
+		include_once __DIR__ . '/models/importer.php';
+
+		$name = $args[0];
+		$group = $this->get_group( isset( $extra['group'] ) ? intval( $extra['group'], 10 ) : 0 );
+
+		$importer = Red_Plugin_Importer::get_importer( $name );
+		if ( $importer ) {
+			$count = $importer->import_plugin( $group );
+			WP_CLI::success( sprintf( 'Imported %d redirects from plugin %s', $count, $name ) );
+			return;
+		}
+
+		WP_CLI::error( 'Invalid plugin name' );
+	}
+
+	/**
+	 * Get or set a Redirection setting
+	 *
+	 * ## OPTIONS
+	 *
+	 * <name>
+	 * : The setting name to get or set
+	 *
+	 * [--set=<value>]
+	 * : The value to set
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp redirection setting name <value>
+	 */
+	public function setting( $args, $extra ) {
+		$name = $args[0];
+		$set = isset( $extra['set'] ) ? $extra['set'] : false;
+
+		$options = red_get_options();
+
+		if ( ! isset( $options[ $name ] ) ) {
+			WP_CLI::error( 'Unsupported setting: ' . $name );
+			return;
+		}
+
+		$value = $options[ $name ];
+
+		if ( $set ) {
+			$decoded = json_decode( $set, true );
+			if ( ! $decoded ) {
+				$decoded = $set;
+			}
+
+			$options = [];
+			$options[ $name ] = $decoded;
+
+			$options = red_set_options( $options );
+			$value = $options[ $name ];
+		}
+
+		WP_CLI::success( is_array( $value ) ? wp_json_encode( $value ) : $value );
 	}
 
 	/**
@@ -34,11 +117,11 @@ class Redirection_Cli extends WP_CLI_Command {
 	 *   contains it's own group
 	 *
 	 * [--format=<importformat>]
-	 * : The import format - csv, htaccess, or json. Defaults to json
+	 * : The import format - csv, apache, or json. Defaults to json
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp redirection import .htaccess --format=htaccess
+	 *     wp redirection import .htaccess --format=apache
 	 */
 	public function import( $args, $extra ) {
 		$format = isset( $extra['format'] ) ? $extra['format'] : 'json';
@@ -52,7 +135,7 @@ class Redirection_Cli extends WP_CLI_Command {
 		$importer = Red_FileIO::create( $format );
 
 		if ( ! $importer ) {
-			WP_CLI::error( 'Invalid import format - csv, json, or htaccess supported' );
+			WP_CLI::error( 'Invalid import format - csv, json, or apache supported' );
 			return;
 		}
 
@@ -100,7 +183,7 @@ class Redirection_Cli extends WP_CLI_Command {
 		$exporter = Red_FileIO::create( $format );
 
 		if ( ! $exporter ) {
-			WP_CLI::error( 'Invalid export format - json, csv, htaccess, or nginx supported' );
+			WP_CLI::error( 'Invalid export format - json, csv, apache, or nginx supported' );
 			return;
 		}
 
@@ -109,6 +192,7 @@ class Redirection_Cli extends WP_CLI_Command {
 			$export = Red_FileIO::export( $args[0], $format );
 
 			if ( $export === false ) {
+				// phpcs:ignore
 				WP_CLI::error( 'Invalid module - must be wordpress, apache, nginx, or all' );
 				return;
 			}
@@ -195,9 +279,11 @@ class Redirection_Cli extends WP_CLI_Command {
 }
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	WP_CLI::add_command( 'redirection import', array( 'Redirection_Cli', 'import' ) );
-	WP_CLI::add_command( 'redirection export', array( 'Redirection_Cli', 'export' ) );
-	WP_CLI::add_command( 'redirection database', array( 'Redirection_Cli', 'database' ) );
+	WP_CLI::add_command( 'redirection import', [ 'Redirection_Cli', 'import' ] );
+	WP_CLI::add_command( 'redirection export', [ 'Redirection_Cli', 'export' ] );
+	WP_CLI::add_command( 'redirection database', [ 'Redirection_Cli', 'database' ] );
+	WP_CLI::add_command( 'redirection setting', [ 'Redirection_Cli', 'setting' ] );
+	WP_CLI::add_command( 'redirection plugin', [ 'Redirection_Cli', 'plugin' ] );
 
 	add_action( Red_Flusher::DELETE_HOOK, function() {
 		$flusher = new Red_Flusher();
