@@ -7,7 +7,7 @@
  * Author URI:      https://pantheon.io
  * Text Domain:     pantheon-advanced-page-cache
  * Domain Path:     /languages
- * Version:         0.3.0
+ * Version:         1.0.0
  *
  * @package         Pantheon_Advanced_Page_Cache
  */
@@ -95,7 +95,7 @@ spl_autoload_register(
 			$last    = array_pop( $parts ); // File should be 'class-[...].php'.
 			$last    = 'class-' . $last . '.php';
 			$parts[] = $last;
-			$file    = dirname( __FILE__ ) . '/inc/' . str_replace( '_', '-', strtolower( implode( $parts, '/' ) ) );
+			$file    = dirname( __FILE__ ) . '/inc/' . str_replace( '_', '-', strtolower( implode( '/', $parts ) ) );
 		if ( file_exists( $file ) ) {
 			require $file;
 		}
