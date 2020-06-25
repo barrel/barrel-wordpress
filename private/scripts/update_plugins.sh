@@ -56,6 +56,10 @@ case "$response" in
     printf "\n\n$DONE\n\n"
 esac
 
+# @TODO - this could be broken by conflicts, which
+# would need to be resolved and then committed.
+# like `git mergetool` and `git merge --continue`
+
 read -r -p "Update plugins using Lando? [y/N] " response
 case "$response" in
     [yY][eE][sS]|[yY]) 
