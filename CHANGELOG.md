@@ -1,6 +1,22 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.1.0 - 2020-06-25
+### CHANGED:
+- Update gitlab-ci config with release theme name variable 
+- Update wordpress-seo plugin 
+- Update redirection plugin 
+- Update pantheon-advanced-page-cache plugin 
+- Update wp-native-php-sessions plugin 
+- Update custom-post-type-ui plugin 
+- Add note about break in update script process 
+- Update update_plugins.sh script to be executable 
+- Updates to gitlab/ci deployment scripting 
+- Amended WordPress 5.4.2 release. 
+- Update to WordPress 5.4.2. For more information, see https://wordpress.org/news/2020/06/wordpress-5-4-2-security-and-maintenance-release/ 
+- [OTTO-357] Add protected_web_paths to upstream 
+- change default for new sites from utf8 to utf8mb4  
+
 ## 4.0.0 - 2020-05-12
 ### CHANGED:
 - Update to WordPress 5.4.1. For more information, see https://wordpress.org/news/2020/04/wordpress-5-4-1/ 
