@@ -47,8 +47,26 @@ if [[ "$?" -ne 0 ]]; then
 fi
 echo $DONE
 
+# @todo Fix git push to Pantheon
+# @see https://forum.gitlab.com/t/src-refspec-master-does-not-match-any/24691/14
+#
+# The following block should work, but the following error has been observed:
+#
+# error: src refspec master does not match any.
+# error: failed to push some refs to 'ssh://repo.com/~/repository.git'
+#
+# BRANCH=$(git rev-parse --abbrev-ref HEAD)
+# if [ "$BRANCH" != "master" ]; then 
+#     echo "${YELLOW}Checking out 'master' branch...${DEFAULT}"
+#     git checkout master
+# fi
+
+# ADD VERBOSE OUTPUT ABOUT GIT BRANCH, WHICH SHOULD CONFIRM IF HEAD IS CHECKED OUT
+git branch
+
 echo "${YELLOW}Pushing to '$ENVIRONMENT' on Pantheon...${DEFAULT}"
-git push pantheon master
+
+git push -f pantheon HEAD:master
 if [[ "$?" -ne 0 ]]; then
     exit 1
 fi

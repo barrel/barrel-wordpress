@@ -108,14 +108,14 @@ prepare_patch_release:
   <<: *GIT_FLOW
   <<: *IMPORT_GIT
   script:
-    - ./private/scripts/prepare.sh -v=patch -f=release -s=yes -y
+    - ./private/scripts/prepare.sh -v=patch -f=release -s -y
 prepare_minor_release:
   <<: *GIT_FLOW
   <<: *IMPORT_GIT
   script:
-    - ./private/scripts/prepare.sh -v=minor -f=release -s=yes -y
+    - ./private/scripts/prepare.sh -v=minor -f=release -s -y
 prepare_major_release:
   <<: *GIT_FLOW
   <<: *IMPORT_GIT
   script:
-    - ./private/scripts/prepare.sh -v=major -f=release -s=yes -y
+    - ./private/scripts/prepare.sh -v=major -f=release -s -y
