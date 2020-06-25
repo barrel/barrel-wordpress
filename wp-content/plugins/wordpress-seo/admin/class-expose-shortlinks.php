@@ -15,8 +15,9 @@ class WPSEO_Expose_Shortlinks implements WPSEO_WordPress_Integration {
 	 *
 	 * @var array
 	 */
-	private $shortlinks = array(
+	private $shortlinks = [
 		'shortlinks.focus_keyword_info'                             => 'https://yoa.st/focus-keyword',
+		'shortlinks.nofollow_sponsored'                             => 'https://yoa.st/nofollow-sponsored',
 		'shortlinks.snippet_preview_info'                           => 'https://yoa.st/snippet-preview',
 		'shortlinks.cornerstone_content_info'                       => 'https://yoa.st/1i9',
 		'shortlinks.upsell.sidebar.focus_keyword_synonyms_link'     => 'https://yoa.st/textlink-synonyms-popup-sidebar',
@@ -37,7 +38,7 @@ class WPSEO_Expose_Shortlinks implements WPSEO_WordPress_Integration {
 		'shortlinks.activate_premium_info'                          => 'https://yoa.st/activate-subscription',
 		'shortlinks.upsell.sidebar.morphology_upsell_metabox'       => 'https://yoa.st/morphology-upsell-metabox',
 		'shortlinks.upsell.sidebar.morphology_upsell_sidebar'       => 'https://yoa.st/morphology-upsell-sidebar',
-	);
+	];
 
 	/**
 	 * Registers all hooks to WordPress.
@@ -45,7 +46,7 @@ class WPSEO_Expose_Shortlinks implements WPSEO_WordPress_Integration {
 	 * @return void
 	 */
 	public function register_hooks() {
-		add_filter( 'wpseo_admin_l10n', array( $this, 'expose_shortlinks' ) );
+		add_filter( 'wpseo_admin_l10n', [ $this, 'expose_shortlinks' ] );
 	}
 
 	/**

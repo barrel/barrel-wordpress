@@ -24,8 +24,14 @@ class WPSEO_Image_Utils {
 		 */
 		$url = preg_replace( '/(.*)-\d+x\d+\.(jpg|png|gif)$/', '$1.$2', $url );
 
+		static $uploads;
+
+		if ( $uploads === null ) {
+			$uploads = wp_get_upload_dir();
+		}
+
 		// Don't try to do this for external URLs.
-		if ( strpos( $url, get_site_url() ) !== 0 ) {
+		if ( strpos( $url, $uploads['baseurl'] ) !== 0 ) {
 			return 0;
 		}
 
@@ -110,7 +116,7 @@ class WPSEO_Image_Utils {
 		}
 
 		// Keep only the keys we need, and nothing else.
-		return array_intersect_key( $image, array_flip( array( 'id', 'alt', 'path', 'width', 'height', 'pixels', 'type', 'size', 'url', 'filesize' ) ) );
+		return array_intersect_key( $image, array_flip( [ 'id', 'alt', 'path', 'width', 'height', 'pixels', 'type', 'size', 'url', 'filesize' ] ) );
 	}
 
 	/**
@@ -121,12 +127,13 @@ class WPSEO_Image_Utils {
 	 * @return bool True when the image is within limits, false if not.
 	 */
 	public static function has_usable_file_size( $image ) {
-		if ( ! is_array( $image ) || $image === array() ) {
+		if ( ! is_array( $image ) || $image === [] ) {
 			return false;
 		}
 
 		/**
-		 * Filter: 'wpseo_image_image_weight_limit' - Determines what the maximum weight (in bytes) of an image is allowed to be, default is 2 MB.
+		 * Filter: 'wpseo_image_image_weight_limit' - Determines what the maximum weight
+		 * (in bytes) of an image is allowed to be, default is 2 MB.
 		 *
 		 * @api int - The maximum weight (in bytes) of an image.
 		 */
@@ -201,7 +208,7 @@ class WPSEO_Image_Utils {
 		}
 
 		// Add the uploads basedir if the path does not start with it.
-		if ( empty( $uploads['error'] ) && strpos( $path, $uploads['basedir'] . DIRECTORY_SEPARATOR ) !== 0 ) {
+		if ( empty( $uploads['error'] ) && strpos( $path, $uploads['basedir'] ) !== 0 ) {
 			return $uploads['basedir'] . DIRECTORY_SEPARATOR . ltrim( $path, DIRECTORY_SEPARATOR );
 		}
 
@@ -254,7 +261,7 @@ class WPSEO_Image_Utils {
 	 * @return array The different variations possible for this attachment ID.
 	 */
 	public static function get_variations( $attachment_id ) {
-		$variations = array();
+		$variations = [];
 
 		foreach ( self::get_sizes() as $size ) {
 			$variation = self::get_image( $attachment_id, $size );
@@ -281,12 +288,12 @@ class WPSEO_Image_Utils {
 	 *    @type int    $min_height    Minimum height of image.
 	 *    @type int    $max_height    Maximum height of image.
 	 * }
-	 * @param array $variations The variations that should be considered.
+	 * @param array $variations        The variations that should be considered.
 	 *
 	 * @return array Whether a variation is fit for display or not.
 	 */
 	public static function filter_usable_dimensions( $usable_dimensions, $variations ) {
-		$filtered = array();
+		$filtered = [];
 
 		foreach ( $variations as $variation ) {
 			$dimensions = $variation;
@@ -310,11 +317,11 @@ class WPSEO_Image_Utils {
 		foreach ( $variations as $variation ) {
 			// We return early to prevent measuring the file size of all the variations.
 			if ( self::has_usable_file_size( $variation ) ) {
-				return array( $variation );
+				return [ $variation ];
 			}
 		}
 
-		return array();
+		return [];
 	}
 
 	/**
@@ -328,7 +335,7 @@ class WPSEO_Image_Utils {
 		 *
 		 * @api array - The array of image sizes to loop through.
 		 */
-		return apply_filters( 'wpseo_image_sizes', array( 'full', 'large', 'medium_large' ) );
+		return apply_filters( 'wpseo_image_sizes', [ 'full', 'large', 'medium_large' ] );
 	}
 
 	/**
@@ -351,7 +358,7 @@ class WPSEO_Image_Utils {
 	 * @return bool True if the image has usable measurements, false if not.
 	 */
 	private static function has_usable_dimensions( $dimensions, $usable_dimensions ) {
-		foreach ( array( 'width', 'height' ) as $param ) {
+		foreach ( [ 'width', 'height' ] as $param ) {
 			$minimum = $usable_dimensions[ 'min_' . $param ];
 			$maximum = $usable_dimensions[ 'max_' . $param ];
 
@@ -374,23 +381,36 @@ class WPSEO_Image_Utils {
 	public static function get_first_usable_content_image_for_post( $post_id = null ) {
 		$post = get_post( $post_id );
 
-		if ( $post === null ) {
+		// We know get_post() returns the post or null.
+		if ( ! $post ) {
 			return null;
 		}
 
 		$image_finder = new WPSEO_Content_Images();
 		$images       = $image_finder->get_images( $post->ID, $post );
 
-		if ( ! is_array( $images ) || empty( $images ) ) {
+		return self::get_first_image( $images );
+	}
+
+	/**
+	 * Gets the term's first usable content image. Null if none is available.
+	 *
+	 * @param int $term_id The term id.
+	 *
+	 * @return string|null The image URL.
+	 */
+	public static function get_first_content_image_for_term( $term_id ) {
+		$term_description = term_description( $term_id );
+
+		// We know term_description() returns a string which may be empty.
+		if ( $term_description === '' ) {
 			return null;
 		}
 
-		$image_url = reset( $images );
-		if ( ! $image_url ) {
-			return null;
-		}
+		$image_finder = new WPSEO_Content_Images();
+		$images       = $image_finder->get_images_from_content( $term_description );
 
-		return $image_url;
+		return self::get_first_image( $images );
 	}
 
 	/**
@@ -416,5 +436,25 @@ class WPSEO_Image_Utils {
 		}
 
 		return $image_id;
+	}
+
+	/**
+	 * Retrieves the first possible image url from an array of images.
+	 *
+	 * @param array $images The array to extract image url from.
+	 *
+	 * @return string|null The extracted image url when found, null when not found.
+	 */
+	protected static function get_first_image( $images ) {
+		if ( ! is_array( $images ) ) {
+			return null;
+		}
+
+		$images = array_filter( $images );
+		if ( empty( $images ) ) {
+			return null;
+		}
+
+		return reset( $images );
 	}
 }

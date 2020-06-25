@@ -17,10 +17,10 @@ $paper_style  = false;
 /* translators: %s is the singular version of the post type's name. */
 echo '<h3>' . esc_html( sprintf( __( 'Settings for single %s URLs', 'wordpress-seo' ), $wpseo_post_type->labels->singular_name ) ) . '</h3>';
 
-require dirname( __FILE__ ) . '/post_type/post-type.php';
+require __DIR__ . '/post_type/post-type.php';
 
 if ( $wpseo_post_type->name === 'product' && WPSEO_Utils::is_woocommerce_active() ) {
-	require dirname( __FILE__ ) . '/post_type/woocommerce-shop-page.php';
+	require __DIR__ . '/post_type/woocommerce-shop-page.php';
 
 	return;
 }
@@ -47,13 +47,13 @@ if ( WPSEO_Post_Type::has_archive( $wpseo_post_type ) ) {
 
 	$editor = new WPSEO_Replacevar_Editor(
 		$yform,
-		array(
+		[
 			'title'                 => 'title-ptarchive-' . $wpseo_post_type->name,
 			'description'           => 'metadesc-ptarchive-' . $wpseo_post_type->name,
 			'page_type_recommended' => $recommended_replace_vars->determine_for_archive( $wpseo_post_type->name ),
 			'page_type_specific'    => $editor_specific_replace_vars->determine_for_archive( $wpseo_post_type->name ),
 			'paper_style'           => false,
-		)
+		]
 	);
 	$editor->render();
 
