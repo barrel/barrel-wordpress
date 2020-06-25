@@ -29,7 +29,7 @@ abstract class Red_FileIO {
 		$extension = isset( $parts['extension'] ) ? $parts['extension'] : '';
 		$extension = strtolower( $extension );
 
-		if ( $extension === 'csv' ) {
+		if ( $extension === 'csv' || $extension === 'txt' ) {
 			include_once dirname( dirname( __FILE__ ) ) . '/fileio/csv.php';
 			$importer = new Red_Csv_File();
 			$data = '';
@@ -96,6 +96,6 @@ abstract class Red_FileIO {
 		return false;
 	}
 
-	abstract function get_data( array $items, array $groups );
-	abstract function load( $group, $filename, $data );
+	abstract public function get_data( array $items, array $groups );
+	abstract public function load( $group, $filename, $data );
 }

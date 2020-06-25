@@ -10,7 +10,7 @@
 ?>
 <div class="tab-block">
 	<?php
-	if ( 'posts' === get_option( 'show_on_front' ) ) {
+	if ( get_option( 'show_on_front' ) === 'posts' ) {
 		$homepage_help = new WPSEO_Admin_Help_Panel(
 			'search-appearance-homepage',
 			__( 'Learn more about the homepage setting', 'wordpress-seo' ),
@@ -23,13 +23,13 @@
 
 		$editor = new WPSEO_Replacevar_Editor(
 			$yform,
-			array(
+			[
 				'title'                 => 'title-home-wpseo',
 				'description'           => 'metadesc-home-wpseo',
 				'page_type_recommended' => 'homepage',
 				'page_type_specific'    => 'page',
 				'paper_style'           => false,
-			)
+			]
 		);
 		$editor->render();
 	}

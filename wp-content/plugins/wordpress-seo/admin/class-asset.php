@@ -25,21 +25,29 @@ class WPSEO_Admin_Asset {
 	const TYPE_CSS = 'css';
 
 	/**
+	 * The name option identifier.
+	 *
 	 * @var string
 	 */
 	const NAME = 'name';
 
 	/**
+	 * The source option identifier.
+	 *
 	 * @var string
 	 */
 	const SRC = 'src';
 
 	/**
+	 * The dependencies option identifier.
+	 *
 	 * @var string
 	 */
 	const DEPS = 'deps';
 
 	/**
+	 * The version option identifier.
+	 *
 	 * @var string
 	 */
 	const VERSION = 'version';
@@ -47,11 +55,15 @@ class WPSEO_Admin_Asset {
 	/* Style specific. */
 
 	/**
+	 * The media option identifier.
+	 *
 	 * @var string
 	 */
 	const MEDIA = 'media';
 
 	/**
+	 * The rtl option identifier.
+	 *
 	 * @var string
 	 */
 	const RTL = 'rtl';
@@ -59,6 +71,8 @@ class WPSEO_Admin_Asset {
 	/* Script specific. */
 
 	/**
+	 * The "in footer" option identifier.
+	 *
 	 * @var string
 	 */
 	const IN_FOOTER = 'in_footer';
@@ -103,14 +117,14 @@ class WPSEO_Admin_Asset {
 	/**
 	 * For JS Assets. Whether or not the script should be loaded in the footer.
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $in_footer;
 
 	/**
 	 * For CSS Assets. Whether this stylesheet is a right-to-left stylesheet.
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $rtl;
 
@@ -126,16 +140,17 @@ class WPSEO_Admin_Asset {
 	 *
 	 * @var array
 	 */
-	private $defaults = array(
-		'deps'      => array(),
+	private $defaults = [
+		'deps'      => [],
 		'version'   => WPSEO_VERSION,
 		'in_footer' => true,
 		'rtl'       => true,
 		'media'     => 'all',
-		'suffix'    => WPSEO_CSSJS_SUFFIX,
-	);
+	];
 
 	/**
+	 * Constructs an instance of the WPSEO_Admin_Asset class.
+	 *
 	 * @param array $args The arguments for this asset.
 	 *
 	 * @throws InvalidArgumentException Throws when no name or src has been provided.
@@ -158,7 +173,7 @@ class WPSEO_Admin_Asset {
 		$this->media     = $args['media'];
 		$this->in_footer = $args['in_footer'];
 		$this->rtl       = $args['rtl'];
-		$this->suffix    = $args['suffix'];
+		$this->suffix    = isset( $args['suffix'] ) ? $args['suffix'] : '';
 	}
 
 	/**
