@@ -79,9 +79,13 @@ multidev_deploy:
   <<: *IMPORT_GIT
   script:
     - bash private/scripts/multidev_deploy.sh
-    - bash private/scripts/gitlab/set_env_url.sh    
+    - bash private/scripts/gitlab/environment_url.sh    
+  artifacts:
+    reports:
+      dotenv: deploy.env                                                       
   environment:
     name: multidev/${CI_BUILD_REF_SLUG}
+    url: $ENV_URL
     on_stop: multidev_remove
 
 multidev_remove:
