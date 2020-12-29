@@ -760,6 +760,11 @@ class Yoast_Form {
 	 * @return mixed|null The retrieved value.
 	 */
 	protected function get_field_value( $field_name, $default_value = null ) {
+		// On multisite subsites, the Usage tracking feature should always be set to Off.
+		if ( $this->is_tracking_on_subsite( $field_name ) ) {
+			return false;
+		}
+
 		return WPSEO_Options::get( $field_name, $default_value );
 	}
 
@@ -773,6 +778,11 @@ class Yoast_Form {
 	protected function is_control_disabled( $var ) {
 		if ( $this->option_instance === null ) {
 			return false;
+		}
+
+		// Disable the Usage tracking feature for multisite subsites.
+		if ( $this->is_tracking_on_subsite( $var ) ) {
+			return true;
 		}
 
 		return $this->option_instance->is_disabled( $var );
@@ -790,28 +800,24 @@ class Yoast_Form {
 			return '';
 		}
 
-		return '<p class="disabled-note">' . esc_html__( 'This feature has been disabled by the network admin.', 'wordpress-seo' ) . '</p>';
+		$disabled_message = esc_html__( 'This feature has been disabled by the network admin.', 'wordpress-seo' );
+
+		// The explanation to show when disabling the Usage tracking feature for multisite subsites.
+		if ( $this->is_tracking_on_subsite( $var ) ) {
+			$disabled_message = esc_html__( 'This feature has been disabled since subsites never send tracking data.', 'wordpress-seo' );
+		}
+		return '<p class="disabled-note">' . $disabled_message . '</p>';
 	}
 
-	/* ********************* DEPRECATED METHODS ********************* */
-
 	/**
-	 * Retrieve options based on whether we're on multisite or not.
+	 * Determines whether we are dealing with the Usage tracking feature on a multisite subsite.
+	 * This feature requires specific behavior for the toggle switch.
 	 *
-	 * @since 1.2.4
-	 * @since 2.0   Moved to this class.
-	 * @deprecated 8.4
-	 * @codeCoverageIgnore
+	 * @param string $feature_setting The feature setting.
 	 *
-	 * @return array The option's value.
+	 * @return boolean True if we are dealing with the Usage tracking feature on a multisite subsite.
 	 */
-	public function get_option() {
-		_deprecated_function( __METHOD__, 'WPSEO 8.4' );
-
-		if ( is_network_admin() ) {
-			return get_site_option( $this->option_name );
-		}
-
-		return get_option( $this->option_name );
+	protected function is_tracking_on_subsite( $feature_setting ) {
+		return ( $feature_setting === 'tracking' && ! is_network_admin() && ! is_main_site() );
 	}
 }

@@ -45,7 +45,8 @@ class WPSEO_Tracking_Settings_Data implements WPSEO_Collection {
 		'twitter_site',
 		'youtube_url',
 		'wikipedia_url',
-		'fbadminapp',
+		'semrush_tokens',
+		'zapier_api_key',
 	];
 
 	/**
@@ -74,6 +75,7 @@ class WPSEO_Tracking_Settings_Data implements WPSEO_Collection {
 		'show_onboarding_notice',
 		'first_activated_on',
 		'myyoast-oauth',
+		'dynamic_permalinks',
 		'website_name',
 		'alternate_website_name',
 		'company_logo',
@@ -115,13 +117,10 @@ class WPSEO_Tracking_Settings_Data implements WPSEO_Collection {
 		'company_or_person_user_id',
 		'stripcategorybase',
 		'noindex-post',
-		'showdate-post',
 		'display-metabox-pt-post',
 		'noindex-page',
-		'showdate-page',
 		'display-metabox-pt-page',
 		'noindex-attachment',
-		'showdate-attachment',
 		'display-metabox-pt-attachment',
 		'display-metabox-tax-category',
 		'noindex-tax-category',
@@ -157,7 +156,13 @@ class WPSEO_Tracking_Settings_Data implements WPSEO_Collection {
 		'twitter_card_type',
 		'youtube_url',
 		'wikipedia_url',
-		'fbadminapp',
+		'indexables_indexing_completed',
+		'semrush_integration_active',
+		'semrush_tokens',
+		'semrush_country_code',
+		'enable_enhanced_slack_sharing',
+		'zapier_integration_active',
+		'zapier_api_key',
 	];
 
 	/**
@@ -186,6 +191,7 @@ class WPSEO_Tracking_Settings_Data implements WPSEO_Collection {
 	 * Anonimizes the WPSEO_Options array by replacing all $anonymous_settings values to 'used'.
 	 *
 	 * @param array $settings The settings.
+	 *
 	 * @return array The anonymized settings.
 	 */
 	private function anonymize_settings( $settings ) {
@@ -194,6 +200,7 @@ class WPSEO_Tracking_Settings_Data implements WPSEO_Collection {
 				$settings[ $setting ] = 'used';
 			}
 		}
+
 		return $settings;
 	}
 }

@@ -1,18 +1,15 @@
 <?php
-/**
- * Watcher for the titles option.
- *
- * @package Yoast\YoastSEO\Watchers
- */
 
 namespace Yoast\WP\SEO\Integrations\Watchers;
 
+use Yoast\WP\Lib\Model;
 use Yoast\WP\SEO\Conditionals\Migrations_Conditional;
 use Yoast\WP\SEO\Integrations\Integration_Interface;
-use Yoast\WP\Lib\Model;
 use Yoast\WP\SEO\WordPress\Wrapper;
 
 /**
+ * Watcher for the titles option.
+ *
  * Represents the option titles watcher.
  */
 class Option_Titles_Watcher implements Integration_Interface {
@@ -109,8 +106,6 @@ class Option_Titles_Watcher implements Integration_Interface {
 
 		$wpdb            = Wrapper::get_wpdb();
 		$total           = \count( $post_types );
-		$placeholders    = \array_fill( 0, $total, '%s' );
-		$placeholders    = \implode( ', ', $placeholders );
 		$hierarchy_table = Model::get_table_name( 'Indexable_Hierarchy' );
 		$indexable_table = Model::get_table_name( 'Indexable' );
 
@@ -119,8 +114,11 @@ class Option_Titles_Watcher implements Integration_Interface {
 				"
 				DELETE FROM `$hierarchy_table`
 				WHERE indexable_id IN(
-					SELECT id FROM `$indexable_table` WHERE object_type = 'post' AND object_sub_type IN( $placeholders )
-				)",
+					SELECT id
+					FROM `$indexable_table`
+					WHERE object_type = 'post'
+					AND object_sub_type IN( " . \implode( ', ', \array_fill( 0, $total, '%s' ) ) . ' )
+				)',
 				$post_types
 			)
 		);

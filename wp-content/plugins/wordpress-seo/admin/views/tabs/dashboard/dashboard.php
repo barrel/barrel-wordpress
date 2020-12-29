@@ -28,7 +28,10 @@ $wpseo_contributors_phrase = sprintf(
 <div class="tab-block">
 	<div class="yoast-notifications">
 
-		<?php echo $notifier->notify(); ?>
+		<?php
+		// phpcs:ignore WordPress.Security.EscapeOutput -- WPSEO_Configuration_Notifier::notify() escapes correctly.
+		echo $notifier->notify();
+		?>
 
 		<div class="yoast-container yoast-container__error">
 			<?php require WPSEO_PATH . 'admin/views/partial-notifications-errors.php'; ?>
@@ -42,18 +45,8 @@ $wpseo_contributors_phrase = sprintf(
 </div>
 
 <div class="tab-block">
-	<h3><?php esc_html_e( 'Credits', 'wordpress-seo' ); ?></h3>
+	<h2><?php esc_html_e( 'Credits', 'wordpress-seo' ); ?></h2>
 	<p>
-		<span class="dashicons dashicons-groups"></span>
 		<a href="<?php WPSEO_Shortlinker::show( 'https://yoa.st/yoast-seo-credits' ); ?>"><?php echo esc_html( $wpseo_contributors_phrase ); ?></a>
 	</p>
 </div>
-
-<?php
-
-/**
- * Action: 'wpseo_internal_linking' - Hook to add the internal linking analyze interface to the interface.
- *
- * @deprecated 7.0
- */
-do_action_deprecated( 'wpseo_internal_linking', [], 'WPSEO 7.0' );

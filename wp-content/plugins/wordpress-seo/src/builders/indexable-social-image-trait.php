@@ -1,18 +1,16 @@
 <?php
-/**
- * Trait for determine the social image to use in the indexable.
- *
- * @package Yoast\YoastSEO\Builders
- */
 
 namespace Yoast\WP\SEO\Builders;
 
+use WPSEO_Utils;
 use Yoast\WP\SEO\Helpers\Image_Helper;
 use Yoast\WP\SEO\Helpers\Open_Graph\Image_Helper as Open_Graph_Image_Helper;
 use Yoast\WP\SEO\Helpers\Twitter\Image_Helper as Twitter_Image_Helper;
 use Yoast\WP\SEO\Models\Indexable;
 
 /**
+ * Trait for determine the social image to use in the indexable.
+ *
  * Represents the trait used in builders for handling social images.
  */
 trait Indexable_Social_Image_Trait {
@@ -106,7 +104,7 @@ trait Indexable_Social_Image_Trait {
 
 		if ( ! empty( $image ) ) {
 			$indexable->open_graph_image      = $image['url'];
-			$indexable->open_graph_image_meta = \wp_json_encode( $image );
+			$indexable->open_graph_image_meta = WPSEO_Utils::format_json_encode( $image );
 		}
 	}
 

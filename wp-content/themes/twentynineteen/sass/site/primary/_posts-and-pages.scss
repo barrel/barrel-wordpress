@@ -160,7 +160,7 @@
 			}
 
 			&:before,
-			&:after, {
+			&:after {
 				position: absolute;
 				display: block;
 				width: 100%;
@@ -200,6 +200,7 @@
 
 			&:after {
 				content: "\02192";
+				display: inline-block;
 				margin-left: 0.5em;
 			}
 

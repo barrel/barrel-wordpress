@@ -9,7 +9,7 @@
  *
  * @package WordPress
  * @subpackage Twenty_Nineteen
- * @since 1.0.0
+ * @since Twenty Nineteen 1.0
  */
 
 /*
@@ -28,38 +28,38 @@ $discussion = twentynineteen_get_discussion_data();
 	<div class="<?php echo $discussion->responses > 0 ? 'comments-title-wrap' : 'comments-title-wrap no-responses'; ?>">
 		<h2 class="comments-title">
 		<?php
-			if ( comments_open() ) {
-				if ( have_comments() ) {
-					_e( 'Join the Conversation', 'twentynineteen' );
-				} else {
-					_e( 'Leave a comment', 'twentynineteen' );
-				}
+		if ( comments_open() ) {
+			if ( have_comments() ) {
+				_e( 'Join the Conversation', 'twentynineteen' );
 			} else {
-				if ( '1' == $discussion->responses ) {
-					/* translators: %s: post title */
-					printf( _x( 'One reply on &ldquo;%s&rdquo;', 'comments title', 'twentynineteen' ), get_the_title() );
-				} else {
-					printf(
-						/* translators: 1: number of comments, 2: post title */
-						_nx(
-							'%1$s reply on &ldquo;%2$s&rdquo;',
-							'%1$s replies on &ldquo;%2$s&rdquo;',
-							$discussion->responses,
-							'comments title',
-							'twentynineteen'
-						),
-						number_format_i18n( $discussion->responses ),
-						get_the_title()
-					);
-				}
+				_e( 'Leave a comment', 'twentynineteen' );
 			}
+		} else {
+			if ( '1' == $discussion->responses ) {
+				/* translators: %s: Post title. */
+				printf( _x( 'One reply on &ldquo;%s&rdquo;', 'comments title', 'twentynineteen' ), get_the_title() );
+			} else {
+				printf(
+					/* translators: 1: Number of comments, 2: Post title. */
+					_nx(
+						'%1$s reply on &ldquo;%2$s&rdquo;',
+						'%1$s replies on &ldquo;%2$s&rdquo;',
+						$discussion->responses,
+						'comments title',
+						'twentynineteen'
+					),
+					number_format_i18n( $discussion->responses ),
+					get_the_title()
+				);
+			}
+		}
 		?>
 		</h2><!-- .comments-title -->
 		<?php
-			// Only show discussion meta information when comments are open and available.
-			if ( have_comments() && comments_open() ) {
+		// Only show discussion meta information when comments are open and available.
+		if ( have_comments() && comments_open() ) {
 			get_template_part( 'template-parts/post/discussion', 'meta' );
-			}
+		}
 		?>
 	</div><!-- .comments-title-flex -->
 	<?php
@@ -85,7 +85,7 @@ $discussion = twentynineteen_get_discussion_data();
 		</ol><!-- .comment-list -->
 		<?php
 
-		// Show comment navigation
+		// Show comment navigation.
 		if ( have_comments() ) :
 			$prev_icon     = twentynineteen_get_icon_svg( 'chevron_left', 22 );
 			$next_icon     = twentynineteen_get_icon_svg( 'chevron_right', 22 );

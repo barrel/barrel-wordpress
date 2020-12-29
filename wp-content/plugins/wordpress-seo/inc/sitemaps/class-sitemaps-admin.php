@@ -62,6 +62,10 @@ class WPSEO_Sitemaps_Admin {
 			return;
 		}
 
+		if ( wp_get_environment_type() !== 'production' ) {
+			return;
+		}
+
 		/**
 		 * Filter: 'wpseo_allow_xml_sitemap_ping' - Check if pinging is not allowed (allowed by default).
 		 *
@@ -131,27 +135,5 @@ class WPSEO_Sitemaps_Admin {
 		}
 
 		WPSEO_Sitemaps::ping_search_engines();
-	}
-
-	/* ********************* DEPRECATED METHODS ********************* */
-
-	/**
-	 * Find sitemaps residing on disk as they will block our rewrite.
-	 *
-	 * @deprecated 7.0
-	 * @codeCoverageIgnore
-	 */
-	public function delete_sitemaps() {
-		_deprecated_function( 'WPSEO_Sitemaps_Admin::delete_sitemaps', '7.0' );
-	}
-
-	/**
-	 * Find sitemaps residing on disk as they will block our rewrite.
-	 *
-	 * @deprecated 7.0
-	 * @codeCoverageIgnore
-	 */
-	public function detect_blocking_filesystem_sitemaps() {
-		_deprecated_function( 'WPSEO_Sitemaps_Admin::delete_sitemaps', '7.0' );
 	}
 }

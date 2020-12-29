@@ -1,9 +1,4 @@
 <?php
-/**
- * Yoast SEO Plugin File.
- *
- * @package WPSEO\Migrations
- */
 
 namespace Yoast\WP\SEO\Config\Migrations;
 
@@ -11,7 +6,7 @@ use Yoast\WP\Lib\Migrations\Migration;
 use Yoast\WP\Lib\Model;
 
 /**
- * Class AddCollationToTables
+ * Class AddCollationToTables.
  */
 class AddCollationToTables extends Migration {
 
@@ -41,7 +36,7 @@ class AddCollationToTables extends Migration {
 		];
 
 		foreach ( $tables as $table ) {
-			$this->query( 'ALTER TABLE ' . $table . ' CONVERT TO ' . str_replace( 'DEFAULT ', '', $charset_collate ) );
+			$this->query( 'ALTER TABLE ' . $table . ' CONVERT TO ' . \str_replace( 'DEFAULT ', '', $charset_collate ) );
 		}
 	}
 
