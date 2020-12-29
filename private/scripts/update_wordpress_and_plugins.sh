@@ -85,6 +85,35 @@ case "$response" in
     printf "\n\n$DONE\n\n"
 esac
 
+# @TODO - this could be broken by conflicts, which
+# would need to be resolved and then committed.
+# like `git mergetool` and `git merge --continue`
+
+read -r -p "Update themes using Lando? [y/N] " response
+case "$response" in
+    [yY][eE][sS]|[yY]) 
+    printf "\n${YELLOW}Updating themes...${DEFAULT}\n"
+
+    # start lando or look at a pantheon env
+    lando start
+
+    # get themes with updates
+    THEME_UPDATES=($(lando wp theme list --update=available --fields=name --format=csv | tail -n +2))
+    for i in "${THEME_UPDATES[@]}"; do
+        THEME=$(echo $i| tr -dc '[:alnum:]\-' | tr '[:upper:]' '[:lower:]')
+        printf "\n${YELLOW}%s${DEFAULT}\n" "Updating $THEME"
+
+        lando wp theme update $THEME
+        git add ./wp-content/themes/$THEME
+        GIT_MESSAGE="Update $THEME theme"
+        git commit -m "$GIT_MESSAGE"
+        sleep 5
+    done
+    wait
+
+    printf "\n\n$DONE\n\n"
+esac
+
 # finish with gitflow (prepare script) and test (for regressions, visual or functional)
 printf "\n${GREEN}%s${DEFAULT}\n" "Update procedure complete!"
 printf "\n${YELLOW}%s${DEFAULT}\n" "Run the prepare script and test!"
