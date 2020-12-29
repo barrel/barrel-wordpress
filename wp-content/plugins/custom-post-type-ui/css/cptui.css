@@ -210,7 +210,7 @@
 
 .about-wrap .cptui-about-text {
   margin-bottom: 1em !important;
-  margin-right: 0px;
+  margin-right: 0;
   max-width: calc(100% - 173px);
 }
 
@@ -257,6 +257,17 @@ fieldset .cptui-help {
 
 .cptui-help:focus {
   box-shadow: none;
+}
+
+#menu_icon_preview {
+  float: right;
+  padding-left: 8px;
+}
+
+#menu_icon_preview img {
+  display: block;
+  height: 20px;
+  width: 20px;
 }
 
 #toplevel_page_cptui_main_menu img {
