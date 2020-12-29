@@ -1,9 +1,4 @@
 <?php
-/**
- * Yoast SEO Plugin File.
- *
- * @package Yoast\YoastSEO\Config
- */
 
 namespace Yoast\WP\SEO\Initializers;
 
@@ -123,7 +118,7 @@ class Migration_Runner implements Initializer_Interface {
 			$migrated_versions = $this->adapter->get_migrated_versions();
 			$to_do_versions    = \array_diff( $all_versions, $migrated_versions );
 
-			\sort( $to_do_versions, SORT_STRING );
+			\sort( $to_do_versions, \SORT_STRING );
 
 			foreach ( $to_do_versions as $version ) {
 				$class = $migrations[ $version ];
@@ -157,6 +152,8 @@ class Migration_Runner implements Initializer_Interface {
 	 */
 	protected function run_migration( $version, $class ) {
 		/**
+		 * The migration to run.
+		 *
 		 * @var Migration
 		 */
 		$migration = new $class( $this->adapter );

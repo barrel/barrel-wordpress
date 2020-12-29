@@ -4,7 +4,7 @@
  *
  * @package WordPress
  * @subpackage Twenty_Nineteen
- * @since 1.0.0
+ * @since Twenty Nineteen 1.0
  */
 
 /* Get data from current discussion on post. */
@@ -12,12 +12,11 @@ $discussion    = twentynineteen_get_discussion_data();
 $has_responses = $discussion->responses > 0;
 
 if ( $has_responses ) {
-	/* translators: %1(X comments)$s */
+	/* translators: %d: Number of comments. */
 	$meta_label = sprintf( _n( '%d Comment', '%d Comments', $discussion->responses, 'twentynineteen' ), $discussion->responses );
 } else {
 	$meta_label = __( 'No comments', 'twentynineteen' );
 }
-
 ?>
 
 <div class="discussion-meta">

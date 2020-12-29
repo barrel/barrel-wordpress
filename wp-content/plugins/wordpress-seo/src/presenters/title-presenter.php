@@ -1,16 +1,11 @@
 <?php
-/**
- * Presenter class for the document title.
- *
- * @package Yoast\YoastSEO\Presenters
- */
 
 namespace Yoast\WP\SEO\Presenters;
 
 use Yoast\WP\SEO\Presentations\Indexable_Presentation;
 
 /**
- * Class Title_Presenter
+ * Presenter class for the document title.
  */
 class Title_Presenter extends Abstract_Indexable_Tag_Presenter {
 
@@ -56,7 +51,7 @@ class Title_Presenter extends Abstract_Indexable_Tag_Presenter {
 		 * @param Indexable_Presentation $presentation The presentation of an indexable.
 		 */
 		$title = \apply_filters( 'wpseo_title', $title, $this->presentation );
-		$title = $this->helpers->string->strip_all_tags( \stripslashes( $title ) );
+		$title = $this->helpers->string->strip_all_tags( $title );
 		return \trim( $title );
 	}
 }

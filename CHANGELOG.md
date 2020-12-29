@@ -1,6 +1,34 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 5.0.0 - 2020-12-29
+### CHANGED:
+- Combine theme and plugin update blocks, add gitflow finish block 
+- Update twentytwentyone theme 
+- Update twentytwenty theme 
+- Update twentynineteen theme 
+- Update wordpress-seo plugin 
+- Update redirection plugin 
+- Update wp-native-php-sessions plugin 
+- Update custom-post-type-ui plugin 
+- Update classic-editor plugin 
+- Add theme update block in update script 
+- Rename wordpress update script 
+- Update to WordPress 5.6. For more information, see https://wordpress.org/news/2020/12/simone/ 
+- Update to WordPress 5.5.3. For more information, see https://wordpress.org/news/2020/10/wordpress-5-5-3-maintenance-release/ 
+- Update to WordPress 5.5.2. For more information, see https://wordpress.org/news/2020/10/wordpress-5-5-2-security-and-maintenance-release/ 
+- Use pantheon_curl_timeout instead of pantheon_curl 
+- Update page cache notices to link to caching docs page 
+- Add DISABLE_PANTHEON_UPDATE_NOTICES constant to disable Pantheon update notice filtering 
+- Only check for WordPress update when not doing ajax request 
+- Add environment_url script to update the same in gitlab CI 
+- Update to WordPress 5.5.1. For more information, see https://wordpress.org/news/2020/09/wordpress-5-5-1-maintenance-release/ 
+- Update to WordPress 5.5. IMPORTANT: If you select "Auto-resolve conflicts" for this release, it may cause your customizations to wp-config.php to be removed. Changes were made in the upstream wp-config.php in order to support wp_get_environment_type(). Double-check the contents of your wp-config.php file after applying this update. If you have problems with merge conflicts, see https://pantheon.io/docs/git-resolve-merge-conflicts 
+- wp-config.php: removed deprecated WPLANG, refactored "if" logic/syntax 
+- Add local config sample 
+- Introduce wp-config-pantheon, set WP_ENVIRONMENT_TYPE by Pantheon environment 
+- Introduce 'pantheon_wp_login_text' to allow login text to be filtered 
+
 ## 4.1.0 - 2020-06-25
 ### CHANGED:
 - Update gitlab-ci config with release theme name variable 

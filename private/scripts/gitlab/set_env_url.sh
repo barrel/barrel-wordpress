@@ -22,6 +22,7 @@ JSON=$(curl -s --header "$ENVIRONMENT_REQ_HEADER" "$ENV_ID_REQ_URL?search=$CI_EN
 echo $DONE
 
 echo "${YELLOW}Looking for CI Environment ID matching '$CI_ENVIRONMENT_NAME' environment name in list of environments...${DEFAULT}"
+echo $JSON
 CI_ENVIRONMENT_ID=$(echo $JSON | jq -r '.[]  | select(.name == "'$CI_ENVIRONMENT_NAME'") | .id')
 if [ "$CI_ENVIRONMENT_ID" == "" ]; then
     echo "${RED}The CI Environment ID could not be found, but the deployment may have succeeded!${DEFAULT}"
