@@ -43,8 +43,7 @@ abstract class WPSEO_Plugin_Importer {
 	/**
 	 * Class constructor.
 	 */
-	public function __construct() {
-	}
+	public function __construct() {}
 
 	/**
 	 * Returns the string for the plugin we're importing from.
@@ -156,14 +155,16 @@ abstract class WPSEO_Plugin_Importer {
 	protected function detect() {
 		global $wpdb;
 
-		$meta_keys    = wp_list_pluck( $this->clone_keys, 'old_key' );
-		$placeholders = implode( ', ', array_fill( 0, count( $meta_keys ), '%s' ) );
-		$result       = $wpdb->get_var(
+		$meta_keys = wp_list_pluck( $this->clone_keys, 'old_key' );
+		$result    = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) AS `count` FROM {$wpdb->postmeta} WHERE meta_key IN ( $placeholders )",
+				"SELECT COUNT(*) AS `count`
+					FROM {$wpdb->postmeta}
+					WHERE meta_key IN ( " . implode( ', ', array_fill( 0, count( $meta_keys ), '%s' ) ) . ' )',
 				$meta_keys
 			)
 		);
+
 		if ( $result === '0' ) {
 			return false;
 		}
@@ -186,6 +187,7 @@ abstract class WPSEO_Plugin_Importer {
 		// First we create a temp table with all the values for meta_key.
 		$result = $wpdb->query(
 			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- This is intentional + temporary.
 				"CREATE TEMPORARY TABLE tmp_meta_table SELECT * FROM {$wpdb->postmeta} WHERE meta_key = %s",
 				$old_key
 			)
@@ -223,6 +225,7 @@ abstract class WPSEO_Plugin_Importer {
 		$wpdb->query( "INSERT INTO {$wpdb->postmeta} SELECT * FROM tmp_meta_table" );
 
 		// Now we drop our temporary table.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- This is intentional + a temporary table.
 		$wpdb->query( 'DROP TEMPORARY TABLE IF EXISTS tmp_meta_table' );
 
 		return true;

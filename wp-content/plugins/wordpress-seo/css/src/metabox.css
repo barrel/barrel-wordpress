@@ -1,4 +1,5 @@
 @import url(../src/icons.css);
+@import url(../src/modal.css);
 @import "../../node_modules/draft-js-mention-plugin/lib/plugin.css";
 /*!rtl:begin:ignore*/
 @import "../../node_modules/draft-js/dist/Draft.css";
@@ -71,12 +72,12 @@ ul.wpseo-metabox-tabs li.active {
 .wpseo-meta-section,
 .wpseo-meta-section-react {
   display: none;
+  max-width: 600px;
   width: 100%;
   min-height: 100%;
   height: auto;
   vertical-align: top;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  border-top: 1px solid #e8e8e8;
+  border: 1px solid rgba( 0,0,0,0.2 );
 }
 
 .wpseo-meta-section.active,
@@ -94,6 +95,10 @@ ul.wpseo-metabox-tabs li.active {
 .wpseo-meta-section-react.active {
   display: block;
   margin-bottom: 10px;
+}
+
+.wpseo-meta-section-content {
+  padding: 16px;
 }
 
 .wpseo-metabox-content {
@@ -151,10 +156,15 @@ ul.wpseo-metabox-tabs li.active {
 }
 
 .wpseo-metabox-menu ul li a {
-  color: #0073aa;
+  color:  #0073aa;
   display: flex;
   align-items: center;
-  border: 1px solid #ddd;
+  border: 1px solid rgba( 0,0,0,0.2 );
+  border-bottom: 2px transparent;
+}
+
+.wpseo-metabox-menu ul li a:focus {
+  box-shadow: inherit;
 }
 
 .wpseo-metabox-menu ul li .yst-traffic-light {
@@ -181,8 +191,10 @@ ul.wpseo-metabox-tabs li.active {
   height: 36px;
   /* 4 px is the difference in height with the inactive tabs. */
   margin-top: -4px;
-  z-index: 11;
+  z-index: 13;
   background-color: #ffffff;
+  border-bottom: 2px transparent;
+  box-shadow: none;
 }
 
 .wpseo-metabox-menu ul li.active a {
@@ -701,4 +713,79 @@ ul.yoast-seo-social-share-buttons a {
 	height: 32px;
 	display: inline-block;
 }
+
+div.interface-pinned-items button.components-button[aria-label="Yoast SEO"] > svg,
+div.interface-pinned-items button.components-button[aria-label="Yoast SEO Premium"] > svg,
+.edit-post-pinned-plugins button.components-button[aria-label="Yoast SEO"] > svg,
+.edit-post-pinned-plugins button.components-button[aria-label="Yoast SEO Premium"] > svg {
+	max-width: 28px;
+	max-height: 28px;
+	width: 28px;
+	height: 28px;
+}
+
+div.interface-pinned-items button.components-button.is-pressed[aria-label="Yoast SEO"] > svg path,
+div.interface-pinned-items button.components-button.is-pressed[aria-label="Yoast SEO Premium"] > svg path {
+	fill: #ffffff;
+}
+.wpseo-schema-icon {
+  height: 16px;
+  width: 16px;
+  margin-right: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: var(--yoast-svg-icon-schema);
+  background-size: cover;
+}
+.wpseo-metabox-menu ul li.active a .wpseo-schema-icon {
+  background-image: var(--yoast-svg-icon-schema-active);
+}
+
+.yoast-icon-span svg {
+	margin-right: 8px;
+}
+
+.yoast-icon-span svg {
+	fill: inherit;
+}
+
+.yoast.components-panel__body {
+	border-top: 0;
+}
+
+.components-button > .yoast-title-container {
+	flex-grow: 1;
+	overflow-x: hidden;
+	line-height: normal;
+}
+
+
+.yoast-title-container > .yoast-title {
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.yoast-title-container > .yoast-subtitle {
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	font-size: 0.8125rem;
+	font-weight: 300;
+	margin-top: 2px;
+}
+
+.yoast.components-panel__body .yoast-chevron {
+	background-color: #1e1e1e;
+	mask-image: var(--yoast-svg-icon-chevron-down);
+	mask-size: 100% 100%;
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+}
+.yoast.components-panel__body.is-opened .yoast-chevron {
+	mask-image: var(--yoast-svg-icon-chevron-up);
+}
+
 /*# sourceMappingURL=metabox.css.map */

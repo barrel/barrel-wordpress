@@ -1,22 +1,17 @@
 <?php
-/**
- * Generator object for the Twitter image.
- *
- * @package Yoast\WP\SEO\Generators
- */
 
 namespace Yoast\WP\SEO\Generators;
 
 use Yoast\WP\SEO\Context\Meta_Tags_Context;
+use Yoast\WP\SEO\Generators\Generator_Interface;
 use Yoast\WP\SEO\Helpers\Image_Helper;
 use Yoast\WP\SEO\Helpers\Twitter\Image_Helper as Twitter_Image_Helper;
 use Yoast\WP\SEO\Helpers\Url_Helper;
 use Yoast\WP\SEO\Models\Indexable;
-use Yoast\WP\SEO\Generators\Generator_Interface;
 use Yoast\WP\SEO\Values\Images;
 
 /**
- * Represents the generator class for the Open Graph images.
+ * Represents the generator class for the Twitter images.
  */
 class Twitter_Image_Generator implements Generator_Interface {
 
