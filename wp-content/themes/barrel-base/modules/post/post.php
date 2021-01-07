@@ -4,6 +4,6 @@
     <p><?php the_time() ?> by <?php the_author(); ?><p>
   </header>
   <main>
-    <?php the_content(); ?>
+    <?php the_content_blocks(); ?>
   </main>
 </article>
