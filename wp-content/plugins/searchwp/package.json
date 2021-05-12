@@ -6,7 +6,7 @@
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.1",
-    "chart.js": "^2.7.3",
+    "chart.js": "^2.9.4",
     "css-loader": "^0.28.7",
     "debounce": "^1.0.2",
     "gulp": "^3.9.1",
