@@ -70,7 +70,7 @@ class Base_Blocks extends BB_Blocks {
   protected $custom_categories = array(
     array(
       'slug' => 'barrel-base',
-      'title' => 'Perfect Union',
+      'title' => 'Barrel Base',
       'icon'  => 'dashicons-welcome-widgets-menus',
     ),
   );
