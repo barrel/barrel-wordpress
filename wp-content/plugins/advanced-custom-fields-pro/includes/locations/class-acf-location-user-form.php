@@ -2,115 +2,75 @@
 
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-if( ! class_exists('acf_location_user_form') ) :
+if( ! class_exists('ACF_Location_User_Form') ) :
 
-class acf_location_user_form extends acf_location {
+class ACF_Location_User_Form extends ACF_Location {
 	
-	
-	/*
-	*  __construct
-	*
-	*  This function will setup the class functionality
-	*
-	*  @type	function
-	*  @date	5/03/2014
-	*  @since	5.0.0
-	*
-	*  @param	n/a
-	*  @return	n/a
-	*/
-	
-	function initialize() {
-		
-		// vars
+	/**
+	 * Initializes props.
+	 *
+	 * @date	5/03/2014
+	 * @since	5.0.0
+	 *
+	 * @param	void
+	 * @return	void
+	 */
+	public function initialize() {
 		$this->name = 'user_form';
-		$this->label = __("User Form",'acf');
+		$this->label = __( "User Form", 'acf' );
 		$this->category = 'user';
-    	
+		$this->object_type = 'user';
 	}
 	
-	
-	/*
-	*  rule_match
-	*
-	*  This function is used to match this location $rule to the current $screen
-	*
-	*  @type	function
-	*  @date	3/01/13
-	*  @since	3.5.7
-	*
-	*  @param	$match (boolean) 
-	*  @param	$rule (array)
-	*  @return	$options (array)
-	*/
-	
-	function rule_match( $result, $rule, $screen ) {
+	/**
+	 * Matches the provided rule against the screen args returning a bool result.
+	 *
+	 * @date	9/4/20
+	 * @since	5.9.0
+	 *
+	 * @param	array $rule The location rule.
+	 * @param	array $screen The screen args.
+	 * @param	array $field_group The field group settings.
+	 * @return	bool
+	 */
+	public function match( $rule, $screen, $field_group ) {
 		
-		// vars
-		$user_form = acf_maybe_get( $screen, 'user_form' );
-		
-		
-		// bail early if no user form
-		if( !$user_form ) return false;
-		
-		
-		// add is treated the same as edit
-		if( $user_form === 'add' ) {
-
-			$user_form = 'edit';
-			
+		// Check screen args.
+		if( isset($screen['user_form']) ) {
+			$user_form = $screen['user_form'];
+		} else {
+			return false;
 		}
 		
-		
-		// match
-		return $this->compare( $user_form, $rule );
-		
+		// The "Add / Edit" choice (foolishly valued "edit") should match true for either "add" or "edit".
+		if( $rule['value'] === 'edit' && $user_form === 'add' ) {
+			$user_form = 'edit';
+		}
+				
+		// Compare rule against $user_form.
+		return $this->compare_to_rule( $user_form, $rule );
 	}
 	
-	
-	/*
-	*  rule_operators
-	*
-	*  This function returns the available values for this rule type
-	*
-	*  @type	function
-	*  @date	30/5/17
-	*  @since	5.6.0
-	*
-	*  @param	n/a
-	*  @return	(array)
-	*/
-	
-	function rule_values( $choices, $rule ) {
-		
+	/**
+	 * Returns an array of possible values for this rule type.
+	 *
+	 * @date	9/4/20
+	 * @since	5.9.0
+	 *
+	 * @param	array $rule A location rule.
+	 * @return	array
+	 */
+	public function get_values( $rule ) {
 		return array(
 			'all' 		=> __('All', 'acf'),
+			'add' 		=> __('Add', 'acf'),
 			'edit' 		=> __('Add / Edit', 'acf'),
 			'register' 	=> __('Register', 'acf')
-		);
-		
-/*
-		
-		// global
-		global $wp_roles;
-		
-		
-		// vars
-		$choices = array( 'all' => __('All', 'acf') );
-		$choices = array_merge( $choices, $wp_roles->get_names() );
-		
-		
-		// return
-		return $choices;
-*/
-		
+		);		
 	}
-	
 }
 
-// initialize
-acf_register_location_rule( 'acf_location_user_form' );
+// Register.
+acf_register_location_type( 'ACF_Location_User_Form' );
 
 endif; // class_exists check
-
-?>

@@ -19,104 +19,6 @@ function acf_is_array( $array ) {
 	
 }
 
-
-/*
-*  acf_is_empty
-*
-*  This function will return true for an empty var (allows 0 as true)
-*
-*  @type	function
-*  @date	6/07/2016
-*  @since	5.4.0
-*
-*  @param	$value (mixed)
-*  @return	(boolean)
-*/
-
-function acf_is_empty( $value ) {
-	
-	return ( empty($value) && !is_numeric($value) );
-	
-}
-
-/**
- * acf_not_empty
- *
- * Returns true if the value provided is considered "not empty". Allows numbers such as 0.
- *
- * @date	15/7/19
- * @since	5.8.1
- *
- * @param	mixed $var The value to check.
- * @return	bool
- */
-function acf_not_empty( $var ) {
-	return ( $var || is_numeric($var) );
-}
-
-/**
-*  acf_idify
-*
-*  Returns an id friendly string
-*
-*  @date	24/12/17
-*  @since	5.6.5
-*
-*  @param	type $var Description. Default.
-*  @return	type Description.
-*/
-
-function acf_idify( $str = '' ) {
-	return str_replace(array('][', '[', ']'), array('-', '-', ''), strtolower($str));
-}
-
-/**
-*  acf_slugify
-*
-*  Returns a slug friendly string
-*
-*  @date	24/12/17
-*  @since	5.6.5
-*
-*  @param	type $var Description. Default.
-*  @return	type Description.
-*/
-
-function acf_slugify( $str = '' ) {
-	return str_replace(array('_', '/', ' '), '-', strtolower($str));
-}
-
-/**
- * acf_punctify
- *
- * Returns a string with correct full stop puctuation.
- *
- * @date	12/7/19
- * @since	5.8.2
- *
- * @param	string $str The string to format.
- * @return	string
- */
-function acf_punctify( $str = '' ) {
-	return trim($str, '.') . '.';
-}
-
-/**
- * acf_multi_explode
- *
- * Returns an array of strings created by splitting the $string by the given $delimiters.
- *
- * @date	12/7/19
- * @since	5.8.2
- *
- * @param	array $delimiters An array of delimiters.
- * @return	string $string The string to explode.
- */
-function acf_multi_explode( $delimiters, $string ) {
-	$string = str_replace( $delimiters, $delimiters[0], $string );
-    return explode( $delimiters[0], $string );
-}
-
 /**
 *  acf_has_setting
 *
@@ -289,6 +191,23 @@ function acf_set_data( $name, $value ) {
 	return acf()->set_data( $name, $value );
 }
 
+/**
+ * Appends data to an existing key.
+ *
+ * @date	11/06/2020
+ * @since	5.9.0
+ *
+ * @param	string $name The data name.
+ * @return	array $data The data array.
+ */
+function acf_append_data( $name, $data ) {
+	$prev_data = acf()->get_data( $name );
+	if( is_array($prev_data) ) {
+		$data = array_merge( $prev_data, $data );
+	}
+	acf()->set_data( $name, $data );
+}
+
 /*
 *  acf_init
 *
@@ -305,26 +224,6 @@ function acf_set_data( $name, $value ) {
 function acf_init() {
 	
 	acf()->init();
-	
-}
-
-
-/*
-*  acf_get_compatibility
-*
-*  This function will return true or false for a given compatibility setting
-*
-*  @type	function
-*  @date	20/01/2015
-*  @since	5.1.5
-*
-*  @param	$name (string)
-*  @return	(boolean)
-*/
-
-function acf_get_compatibility( $name ) {
-	
-	return apply_filters( "acf/compatibility/{$name}", false );
 	
 }
 
@@ -355,111 +254,7 @@ function acf_has_done( $name ) {
 }
 
 
-/*
-*  acf_get_path
-*
-*  This function will return the path to a file within the ACF plugin folder
-*
-*  @type	function
-*  @date	28/09/13
-*  @since	5.0.0
-*
-*  @param	$path (string) the relative path from the root of the ACF plugin folder
-*  @return	(string)
-*/
 
-function acf_get_path( $path = '' ) {
-	
-	return ACF_PATH . $path;
-	
-}
-
-
-/**
-*  acf_get_url
-*
-*  This function will return the url to a file within the ACF plugin folder
-*
-*  @date	12/12/17
-*  @since	5.6.8
-*
-*  @param	string $path The relative path from the root of the ACF plugin folder
-*  @return	string
-*/
-
-function acf_get_url( $path = '' ) {
-	
-	// define ACF_URL to optimise performance
-	if( !defined('ACF_URL') ) {
-		define( 'ACF_URL', acf_get_setting('url') );
-	}
-	
-	// return
-	return ACF_URL . $path;
-	
-}
-
-
-/*
-*  acf_get_dir
-*
-*  Deprecated in 5.6.8. Use acf_get_url() instead.
-*
-*  @date	28/09/13
-*  @since	5.0.0
-*
-*  @param	string
-*  @return	string
-*/
-
-function acf_get_dir( $path = '' ) {
-	return acf_get_url( $path );
-}
-
-
-/*
-*  acf_include
-*
-*  This function will include a file
-*
-*  @type	function
-*  @date	10/03/2014
-*  @since	5.0.0
-*
-*  @param	$post_id (int)
-*  @return	$post_id (int)
-*/
-
-function acf_include( $file ) {
-	
-	$path = acf_get_path( $file );
-	
-	if( file_exists($path) ) {
-		
-		include_once( $path );
-		
-	}
-	
-}
-
-/**
-*  acf_include_once
-*
-*  Includes a file one time only.
-*
-*  @date	24/8/18
-*  @since	5.7.4
-*
-*  @param	string $file The relative file path.
-*  @return	void
-*/
-
-function acf_include_once( $file = '' ) {
-	$path = acf_get_path( $file );
-	if( file_exists($path) ) {
-		include_once( $path );
-	}
-}
 
 /*
 *  acf_get_external_path
@@ -1436,6 +1231,22 @@ function acf_decode_taxonomy_term( $value ) {
  */
 function acf_array( $val = array() ) {
 	return (array) $val;
+}
+
+/**
+ * Returns a non-array value.
+ *
+ * @date	11/05/2020
+ * @since	5.8.10
+ *
+ * @param	mixed $val The value to review.
+ * @return	mixed
+ */
+function acf_unarray( $val ) {
+	if( is_array( $val ) ) {
+		return reset( $val );
+	}
+	return $val;
 }
 
 /*
@@ -2800,7 +2611,8 @@ function acf_get_valid_post_id( $post_id = 0 ) {
 	}
 	
 	
-	// $post_id may be an object
+	// $post_id may be an object.
+	// todo: Compare class types instead.
 	if( is_object($post_id) ) {
 		
 		// post
@@ -2816,7 +2628,7 @@ function acf_get_valid_post_id( $post_id = 0 ) {
 		// term
 		} elseif( isset($post_id->taxonomy, $post_id->term_id) ) {
 			
-			$post_id = acf_get_term_post_id( $post_id->taxonomy, $post_id->term_id );
+			$post_id = 'term_' . $post_id->term_id;
 		
 		// comment
 		} elseif( isset($post_id->comment_ID) ) {
@@ -3001,36 +2813,6 @@ function acf_isset_termmeta( $taxonomy = '' ) {
 	// return
 	return true;
 		
-}
-
-
-/*
-*  acf_get_term_post_id
-*
-*  This function will return a valid post_id string for a given term and taxonomy
-*
-*  @type	function
-*  @date	6/2/17
-*  @since	5.5.6
-*
-*  @param	$taxonomy (string)
-*  @param	$term_id (int)
-*  @return	(string)
-*/
-
-function acf_get_term_post_id( $taxonomy, $term_id ) {
-	
-	// WP < 4.4
-	if( !acf_isset_termmeta() ) {
-		
-		return $taxonomy . '_' . $term_id;
-		
-	}
-	
-	
-	// return
-	return 'term_' . $term_id;
-	
 }
 
 
@@ -3305,53 +3087,50 @@ function acf_maybe_get_GET( $key = '', $default = null ) {
 	
 }
 
-
-/*
-*  acf_get_attachment
-*
-*  This function will return an array of attachment data
-*
-*  @type	function
-*  @date	5/01/2015
-*  @since	5.1.5
-*
-*  @param	$post (mixed) either post ID or post object
-*  @return	(array)
-*/
-
+/**
+ * Returns an array of attachment data.
+ *
+ * @date	05/01/2015
+ * @since	5.1.5
+ *
+ * @param	int|WP_Post The attachment ID or object.
+ * @return	array|false
+ */
 function acf_get_attachment( $attachment ) {
 	
-	// get post
-	if( !$attachment = get_post($attachment) ) {
+	// Allow filter to short-circuit load attachment logic.
+	// Alternatively, this filter may be used to switch blogs for multisite media functionality. 
+	$response = apply_filters( "acf/pre_load_attachment", null, $attachment );
+	if( $response !== null ) {
+		return $response;
+	}
+
+	// Get the attachment post object.
+	$attachment = get_post( $attachment );
+	if( !$attachment ) {
 		return false;
 	}
-	
-	// validate post_type
 	if( $attachment->post_type !== 'attachment' ) {
 		return false;
 	}
 	
-	// vars
-	$sizes_id = 0;
+	// Load various attachment details.
 	$meta = wp_get_attachment_metadata( $attachment->ID );
 	$attached_file = get_attached_file( $attachment->ID );
-	$attachment_url = wp_get_attachment_url( $attachment->ID );
-	
-	// get mime types
 	if( strpos( $attachment->post_mime_type, '/' ) !== false ) {
 		list( $type, $subtype ) = explode( '/', $attachment->post_mime_type );
 	} else {
 		list( $type, $subtype ) = array( $attachment->post_mime_type, '' );
 	}
-	
-	// vars
+
+	// Generate response.
 	$response = array(
 		'ID'			=> $attachment->ID,
 		'id'			=> $attachment->ID,
 		'title'       	=> $attachment->post_title,
 		'filename'		=> wp_basename( $attached_file ),
 		'filesize'		=> 0,
-		'url'			=> $attachment_url,
+		'url'			=> wp_get_attachment_url( $attachment->ID ),
 		'link'			=> get_attachment_link( $attachment->ID ),
 		'alt'			=> get_post_meta( $attachment->ID, '_wp_attachment_image_alt', true ),
 		'author'		=> $attachment->post_author,
@@ -3369,67 +3148,63 @@ function acf_get_attachment( $attachment ) {
         'icon'			=> wp_mime_type_icon( $attachment->ID )
 	);
 	
-	// filesize
+	// Append filesize data.
 	if( isset($meta['filesize']) ) {
 		$response['filesize'] = $meta['filesize'];
 	} elseif( file_exists($attached_file) ) {
 		$response['filesize'] = filesize( $attached_file );
 	}
 	
-	// image
-	if( $type === 'image' ) {
-		
-		$sizes_id = $attachment->ID;
-		$src = wp_get_attachment_image_src( $attachment->ID, 'full' );
-		
-		$response['url'] = $src[0];
-		$response['width'] = $src[1];
-		$response['height'] = $src[2];
-	
-	// video
-	} elseif( $type === 'video' ) {
-		
-		// dimentions
-		$response['width'] = acf_maybe_get($meta, 'width', 0);
-		$response['height'] = acf_maybe_get($meta, 'height', 0);
-		
-		// featured image
-		if( $featured_id = get_post_thumbnail_id($attachment->ID) ) {
-			$sizes_id = $featured_id;
-		}
-		
-	// audio
-	} elseif( $type === 'audio' ) {
-		
-		// featured image
-		if( $featured_id = get_post_thumbnail_id($attachment->ID) ) {
-			$sizes_id = $featured_id;
-		}				
+	// Restrict the loading of image "sizes".
+	$sizes_id = 0;
+
+	// Type specific logic.
+	switch( $type ) {
+		case 'image':
+			$sizes_id = $attachment->ID;
+			$src = wp_get_attachment_image_src( $attachment->ID, 'full' );
+			$response['url'] = $src[0];
+			$response['width'] = $src[1];
+			$response['height'] = $src[2];
+			break;
+		case 'video':
+			$response['width'] = acf_maybe_get( $meta, 'width', 0 );
+			$response['height'] = acf_maybe_get( $meta, 'height', 0 );
+			if( $featured_id = get_post_thumbnail_id( $attachment->ID ) ) {
+				$sizes_id = $featured_id;
+			}
+			break;
+		case 'audio':
+			if( $featured_id = get_post_thumbnail_id( $attachment->ID ) ) {
+				$sizes_id = $featured_id;
+			}	
+			break;
 	}
-	
-	
-	// sizes
+
+	// Load array of image sizes.
 	if( $sizes_id ) {
-		
-		// vars
 		$sizes = get_intermediate_image_sizes();
 		$data = array();
-		
-		// loop
 		foreach( $sizes as $size ) {
 			$src = wp_get_attachment_image_src( $sizes_id, $size );
-			$data[ $size ] = $src[0];
-			$data[ $size . '-width' ] = $src[1];
-			$data[ $size . '-height' ] = $src[2];
+			$data[ $size ] = $src[ 0 ];
+			$data[ $size . '-width' ] = $src[ 1 ];
+			$data[ $size . '-height' ] = $src[ 2 ];
 		}
-		
-		// append
 		$response['sizes'] = $data;
 	}
 	
-	// return
-	return $response;
-	
+	/**
+	 * Filters the attachment $response after it has been loaded.
+	 *
+	 * @date	16/06/2020
+ 	 * @since	5.9.0
+	 *
+	 * @param	array $response Array of loaded attachment data.
+     * @param	WP_Post $attachment Attachment object.
+     * @param	array|false $meta Array of attachment meta data, or false if there is none.
+	 */
+	return apply_filters( "acf/load_attachment", $response, $attachment, $meta );
 }
 
 
@@ -3838,7 +3613,7 @@ function acf_validate_attachment( $attachment, $field, $context = 'prepare' ) {
 		} elseif( $max_size && $file['size'] > acf_get_filesize($max_size) ) {
 				
 			// min width
-			$errors['max_size'] = sprintf(__('File size must must not exceed %s.', 'acf'), acf_format_filesize($max_size) );
+			$errors['max_size'] = sprintf(__('File size must not exceed %s.', 'acf'), acf_format_filesize($max_size) );
 			
 		}
 	
@@ -5066,5 +4841,3 @@ function acf_is_block_editor() {
 	}
 	return false;
 }
-
-?>
