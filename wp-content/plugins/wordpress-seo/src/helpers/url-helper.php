@@ -136,13 +136,14 @@ class Url_Helper {
 	 * @return string The link type.
 	 */
 	public function get_link_type( $url, $home_url = null, $is_image = false ) {
-		// If there is no scheme the link is always internal.
-		if ( empty( $url['scheme'] ) ) {
+		// If there is no scheme and no host the link is always internal.
+		// Beware, checking just the scheme isn't enough as a link can be //yoast.com for instance.
+		if ( empty( $url['scheme'] ) && empty( $url['host'] ) ) {
 			return ( $is_image ) ? SEO_Links::TYPE_INTERNAL_IMAGE : SEO_Links::TYPE_INTERNAL;
 		}
 
-		// If there is a scheme but it's not https? then the link is always external.
-		if ( ! \in_array( $url['scheme'], [ 'http', 'https' ], true ) ) {
+		// If there is a scheme but it's not http(s) then the link is always external.
+		if ( array_key_exists( 'scheme', $url ) && ! \in_array( $url['scheme'], [ 'http', 'https' ], true ) ) {
 			return ( $is_image ) ? SEO_Links::TYPE_EXTERNAL_IMAGE : SEO_Links::TYPE_EXTERNAL;
 		}
 

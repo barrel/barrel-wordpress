@@ -5,6 +5,8 @@
  * @package WPSEO\Admin\Notifications
  */
 
+use Yoast\WP\SEO\Presenters\Abstract_Presenter;
+
 /**
  * Handles notifications storage and display.
  */
@@ -164,9 +166,8 @@ class Yoast_Notification_Center {
 			return true;
 		}
 
-		$dismissal_key     = $notification->get_dismissal_key();
-		$notification_id   = $notification->get_id();
-		$notification_json = $notification->get_json();
+		$dismissal_key   = $notification->get_dismissal_key();
+		$notification_id = $notification->get_id();
 
 		$is_dismissing = ( $dismissal_key === self::get_user_input( 'notification' ) );
 		if ( ! $is_dismissing ) {
@@ -185,13 +186,6 @@ class Yoast_Notification_Center {
 		$user_nonce = self::get_user_input( 'nonce' );
 		if ( wp_verify_nonce( $user_nonce, $notification_id ) === false ) {
 			return false;
-		}
-
-		if ( ! empty( $notification_json ) ) {
-			$notification_data = json_decode( $notification_json );
-			if ( ! is_null( $notification_data ) && isset( $notification_data->dismiss_value ) ) {
-				$meta_value = $notification_data->dismiss_value;
-			}
 		}
 
 		return self::dismiss_notification( $notification, $meta_value );
@@ -361,7 +355,7 @@ class Yoast_Notification_Center {
 	public function display_notifications( $echo_as_json = false ) {
 
 		// Never display notifications for network admin.
-		if ( function_exists( 'is_network_admin' ) && is_network_admin() ) {
+		if ( is_network_admin() ) {
 			return;
 		}
 
@@ -661,8 +655,9 @@ class Yoast_Notification_Center {
 	private static function get_user_input( $key ) {
 
 		$filter_input_type = INPUT_GET;
+		$request_method    = isset( $_SERVER['REQUEST_METHOD'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '';
 
-		if ( isset( $_SERVER['REQUEST_METHOD'] ) && strtoupper( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) === 'POST' ) {
+		if ( strtoupper( $request_method ) === 'POST' ) {
 			$filter_input_type = INPUT_POST;
 		}
 
@@ -794,6 +789,13 @@ class Yoast_Notification_Center {
 
 		if ( isset( $notification_data['options']['nonce'] ) ) {
 			unset( $notification_data['options']['nonce'] );
+		}
+
+		if (
+			isset( $notification_data['message'] ) &&
+			\is_subclass_of( $notification_data['message'], Abstract_Presenter::class, false )
+		) {
+			$notification_data['message'] = $notification_data['message']->present();
 		}
 
 		return new Yoast_Notification(

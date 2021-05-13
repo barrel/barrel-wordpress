@@ -64,6 +64,10 @@ class WPSEO_Admin_Pages {
 		if ( $page === 'wpseo_titles' ) {
 			$this->asset_manager->enqueue_style( 'search-appearance' );
 		}
+
+		if ( $page === 'wpseo_social' ) {
+			$this->asset_manager->enqueue_style( 'monorepo' );
+		}
 	}
 
 	/**
@@ -74,8 +78,12 @@ class WPSEO_Admin_Pages {
 		wp_enqueue_script( 'dashboard' );
 		wp_enqueue_script( 'thickbox' );
 
+		$alert_dismissal_action = YoastSEO()->classes->get( \Yoast\WP\SEO\Actions\Alert_Dismissal_Action::class );
+		$dismissed_alerts       = $alert_dismissal_action->all_dismissed();
+
 		$script_data = [
-			'userLanguageCode' => WPSEO_Language_Utils::get_language( WPSEO_Language_Utils::get_user_locale() ),
+			'userLanguageCode' => WPSEO_Language_Utils::get_language( \get_user_locale() ),
+			'dismissedAlerts'  => $dismissed_alerts,
 		];
 
 		$page = filter_input( INPUT_GET, 'page' );
@@ -108,7 +116,7 @@ class WPSEO_Admin_Pages {
 			remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
 
 			$yoast_components_l10n = new WPSEO_Admin_Asset_Yoast_Components_L10n();
-			$yoast_components_l10n->localize_script( WPSEO_Admin_Asset_Manager::PREFIX . 'settings' );
+			$yoast_components_l10n->localize_script( 'settings' );
 		}
 
 		if ( in_array( $page, [ 'wpseo_social', WPSEO_Admin::PAGE_IDENTIFIER, 'wpseo_titles' ], true ) ) {
@@ -123,7 +131,11 @@ class WPSEO_Admin_Pages {
 			$this->enqueue_tools_scripts();
 		}
 
-		wp_localize_script( WPSEO_Admin_Asset_Manager::PREFIX . 'settings', 'wpseoScriptData', $script_data );
+		if ( $page === 'wpseo_social' ) {
+			$script_data['social'] = true;
+		}
+
+		$this->asset_manager->localize_script( 'settings', 'wpseoScriptData', $script_data );
 	}
 
 	/**
@@ -155,9 +167,7 @@ class WPSEO_Admin_Pages {
 	 * @return bool Whether the Local SEO upsell should be shown.
 	 */
 	private function should_show_local_seo_upsell() {
-		$addon_manager = new WPSEO_Addon_Manager();
-
-		return ! WPSEO_Utils::is_yoast_seo_premium()
+		return ! YoastSEO()->helpers->product->is_premium()
 			&& ! ( defined( 'WPSEO_LOCAL_FILE' ) );
 	}
 

@@ -25,7 +25,7 @@ $generated_i18n_strings = array(
 	// Reference: node_modules/@yoast/analysis-report/ContentAnalysis.js:97
 	__( 'Problems', 'wordpress-seo' ),
 
-	// Reference: node_modules/@yoast/components/Alert.js:127
+	// Reference: node_modules/@yoast/components/Alert.js:131
 	__( 'Dismiss this alert', 'wordpress-seo' ),
 
 	// Reference: node_modules/@yoast/components/ErrorBoundary.js:51
@@ -60,6 +60,10 @@ $generated_i18n_strings = array(
 	// Reference: node_modules/@yoast/components/WordOccurrenceInsights.js:54
 	__( 'The following words occur the most in the content. These give an indication of what your content focuses on. If the words differ a lot from your topic, you might want to rewrite your content accordingly. ', 'wordpress-seo' ),
 
+	// Reference: node_modules/@yoast/components/WordOccurrenceInsights.js:72
+	// Reference: node_modules/@yoast/components/data-model/DataModel.js:50
+	__( 'Prominent words', 'wordpress-seo' ),
+
 	// Reference: node_modules/@yoast/components/button/Icon.js:21
 	__( 'Close', 'wordpress-seo' ),
 
@@ -67,11 +71,26 @@ $generated_i18n_strings = array(
 	/* translators: %d expands to number of occurrences. */
 	__( '%d occurrences', 'wordpress-seo' ),
 
-	// Reference: node_modules/@yoast/components/data-model/DataModel.js:50
-	__( 'Prominent words', 'wordpress-seo' ),
-
 	// Reference: node_modules/@yoast/components/help-icon/HelpIcon.js:50
 	__( '(Opens in a new browser tab)', 'wordpress-seo' ),
+
+	// Reference: node_modules/@yoast/components/image-select/ImageSelectButtons.js:32
+	__( 'Replace image', 'wordpress-seo' ),
+
+	// Reference: node_modules/@yoast/components/image-select/ImageSelectButtons.js:33
+	__( 'Select image', 'wordpress-seo' ),
+
+	// Reference: node_modules/@yoast/components/image-select/ImageSelectButtons.js:42
+	__( 'Remove image', 'wordpress-seo' ),
+
+	// Reference: node_modules/@yoast/components/inputs/DurationInput.js:138
+	__( 'hours', 'wordpress-seo' ),
+
+	// Reference: node_modules/@yoast/components/inputs/DurationInput.js:152
+	__( 'minutes', 'wordpress-seo' ),
+
+	// Reference: node_modules/@yoast/components/inputs/DurationInput.js:167
+	__( 'seconds', 'wordpress-seo' ),
 
 	// Reference: node_modules/yoast-components/composites/LinkSuggestions/LinkSuggestion.js:65
 	__( 'Copy link', 'wordpress-seo' ),
@@ -176,13 +195,13 @@ $generated_i18n_strings = array(
 	// Reference: node_modules/@yoast/search-metadata-previews/snippet-preview/FixedWidthContainer.js:133
 	__( 'Scroll to see the preview content.', 'wordpress-seo' ),
 
-	// Reference: node_modules/@yoast/search-metadata-previews/snippet-preview/SnippetPreview.js:473
+	// Reference: node_modules/@yoast/search-metadata-previews/snippet-preview/SnippetPreview.js:472
 	__( 'Please provide a meta description by editing the snippet below. If you don’t, Google will try to find a relevant part of your post to show in the search results.', 'wordpress-seo' ),
 
-	// Reference: node_modules/@yoast/search-metadata-previews/snippet-preview/SnippetPreview.js:589
+	// Reference: node_modules/@yoast/search-metadata-previews/snippet-preview/SnippetPreview.js:581
 	__( 'Url preview', 'wordpress-seo' ),
 
-	// Reference: node_modules/@yoast/search-metadata-previews/snippet-preview/SnippetPreview.js:769
+	// Reference: node_modules/@yoast/search-metadata-previews/snippet-preview/SnippetPreview.js:771
 	__( 'SEO title preview', 'wordpress-seo' ),
 
 	// Reference: node_modules/@yoast/search-metadata-previews/snippet-preview/SnippetPreview.js:788
