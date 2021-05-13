@@ -395,7 +395,7 @@ function cptui_newsletter_form() {
             <input type="hidden"
                name="successRedirectUrl"
                value="">
-            <button type="submit">Subscribe</button>
+            <button type="submit" class="button button-secondary">Subscribe</button>
         </div>
     </form>
 </div>
@@ -745,9 +745,21 @@ function cptui_empty_cpt_on_taxonomy() {
  * @return string
  */
 function cptui_slug_matches_page() {
+	$slug = cptui_get_object_from_post_global();
+	$matched_slug = get_page_by_path(
+		cptui_get_object_from_post_global()
+	);
+	if ( $matched_slug instanceof WP_Post ) {
+		$slug = sprintf(
+			'<a href="%s">%s</a>',
+			get_edit_post_link( $matched_slug->ID ),
+			cptui_get_object_from_post_global()
+		);
+	}
+
 	return sprintf(
 		esc_html__( 'Please choose a different post type name. %s matches an existing page slug, which can cause conflicts.', 'custom-post-type-ui' ),
-		cptui_get_object_from_post_global()
+		$slug
 	);
 }
 
@@ -915,6 +927,10 @@ function cptui_post_type_supports( $post_type, $feature ) {
  * @param array $post_types Array of CPTUI post types.
  */
 function cptui_published_post_format_fix( $post_types ) {
+	if ( empty( $post_types ) || ! is_array( $post_types ) ) {
+		return;
+	}
+
 	foreach ( $post_types as $type ) {
 		if ( in_array( 'post-formats', $type['supports'], true ) ) {
 			add_post_type_support( $type['name'], 'post-formats' );
