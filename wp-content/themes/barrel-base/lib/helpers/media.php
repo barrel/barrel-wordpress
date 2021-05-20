@@ -263,7 +263,7 @@ function the_lazy_img( $image, $size, $class, $sizes = '', $alt ) {
     printf(
       $html,
       empty( $class ) ? '' : "class=\"${class}\"",
-      $img,
+      $img
     );
   } else {
     $blank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
