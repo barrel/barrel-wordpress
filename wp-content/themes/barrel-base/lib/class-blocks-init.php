@@ -47,17 +47,17 @@ class Base_Blocks extends BB_Blocks {
   */
   protected $acf_blocks = array(
     array(
-			'name'  => 'hero',
-			'title' => 'Hero',
+      'name' => 'hero',
+      'title' => 'Hero',
       'description' => 'Hero at top of page',
-			'icon'  => 'align-left',
-			'category'	=> 'barrel-base',
-			'mode'  => 'auto',
-			'align'	=> 'full',
-			'post_types' 	=> array('page'),
-			'supports' 	=> array('align' => false),
-			'keywords'	=> array('hero'),
-			'render_template' => 'modules/hero/hero.php'
+      'icon' => 'align-left',
+      'category' => 'barrel-base',
+      'mode' => 'auto',
+      'align' => 'full',
+      'post_types' => array('page'),
+      'supports' => array('align' => false),
+      'keywords' => array('hero'),
+      'render_template' => 'modules/hero/hero.php'
     )
   );
 
