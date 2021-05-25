@@ -52,6 +52,7 @@ class WPSEO_Admin {
 		}
 
 		add_filter( 'plugin_action_links_' . WPSEO_BASENAME, [ $this, 'add_action_link' ], 10, 2 );
+		add_filter( 'network_admin_plugin_action_links_' . WPSEO_BASENAME, [ $this, 'add_action_link' ], 10, 2 );
 
 		add_action( 'admin_enqueue_scripts', [ $this, 'config_page_scripts' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_global_style' ] );
@@ -106,7 +107,6 @@ class WPSEO_Admin {
 		$integrations[] = new WPSEO_Schema_Person_Upgrade_Notification();
 		$integrations[] = new WPSEO_Tracking( 'https://tracking.yoast.com/stats', ( WEEK_IN_SECONDS * 2 ) );
 		$integrations[] = new WPSEO_Admin_Settings_Changed_Listener();
-		$integrations[] = $this->get_helpscout_beacon();
 
 		$integrations = array_merge(
 			$integrations,
@@ -219,7 +219,13 @@ class WPSEO_Admin {
 	 */
 	public function add_action_link( $links, $file ) {
 		if ( WPSEO_BASENAME === $file && WPSEO_Capability_Utils::current_user_can( 'wpseo_manage_options' ) ) {
-			$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=' . self::PAGE_IDENTIFIER ) ) . '">' . __( 'Settings', 'wordpress-seo' ) . '</a>';
+			if ( is_network_admin() ) {
+				$settings_url = network_admin_url( 'admin.php?page=' . self::PAGE_IDENTIFIER );
+			}
+			else {
+				$settings_url = admin_url( 'admin.php?page=' . self::PAGE_IDENTIFIER );
+			}
+			$settings_link = '<a href="' . esc_url( $settings_url ) . '">' . __( 'Settings', 'wordpress-seo' ) . '</a>';
 			array_unshift( $links, $settings_link );
 		}
 
@@ -228,7 +234,18 @@ class WPSEO_Admin {
 		array_unshift( $links, $faq_link );
 
 		$addon_manager = new WPSEO_Addon_Manager();
-		if ( WPSEO_Utils::is_yoast_seo_premium() ) {
+		if ( YoastSEO()->helpers->product->is_premium() ) {
+
+			// Remove Free 'deactivate' link if Premium is active as well. We don't want users to deactivate Free when Premium is active.
+			unset( $links['deactivate'] );
+			$no_deactivation_explanation = '<span style="color: #32373c">' . sprintf(
+				/* translators: %s expands to Yoast SEO Premium. */
+				__( 'Required by %s', 'wordpress-seo' ),
+				'Yoast SEO Premium'
+			) . '</span>';
+
+			array_unshift( $links, $no_deactivation_explanation );
+
 			if ( $addon_manager->has_valid_subscription( WPSEO_Addon_Manager::PREMIUM_SLUG ) ) {
 				return $links;
 			}
@@ -253,8 +270,7 @@ class WPSEO_Admin {
 	public function config_page_scripts() {
 		$asset_manager = new WPSEO_Admin_Asset_Manager();
 		$asset_manager->enqueue_script( 'admin-global-script' );
-
-		wp_localize_script( WPSEO_Admin_Asset_Manager::PREFIX . 'admin-global-script', 'wpseoAdminGlobalL10n', $this->localize_admin_global_script() );
+		$asset_manager->localize_script( 'admin-global-script', 'wpseoAdminGlobalL10n', $this->localize_admin_global_script() );
 	}
 
 	/**
@@ -315,27 +331,10 @@ class WPSEO_Admin {
 				'<code>%s</code>',
 				'HelpScout beacon'
 			),
-			'dismiss_about_url'       => $this->get_dismiss_url( 'wpseo-dismiss-about' ),
 			/* translators: %s: expends to Yoast SEO */
 			'help_video_iframe_title' => sprintf( __( '%s video tutorial', 'wordpress-seo' ), 'Yoast SEO' ),
 			'scrollable_table_hint'   => __( 'Scroll to see the table content.', 'wordpress-seo' ),
 		];
-	}
-
-	/**
-	 * Extending the current page URL with two params to be able to ignore the notice.
-	 *
-	 * @param string $dismiss_param The param used to dismiss the notification.
-	 *
-	 * @return string
-	 */
-	private function get_dismiss_url( $dismiss_param ) {
-		$arr_params = [
-			$dismiss_param => '1',
-			'nonce'        => wp_create_nonce( $dismiss_param ),
-		];
-
-		return esc_url( add_query_arg( $arr_params ) );
 	}
 
 	/**
@@ -369,40 +368,5 @@ class WPSEO_Admin {
 		return [
 			'cornerstone_filter' => new WPSEO_Cornerstone_Filter(),
 		];
-	}
-
-	/**
-	 * Retrieves an instance of the HelpScout beacon class for Yoast SEO.
-	 *
-	 * @return WPSEO_HelpScout The instance of the HelpScout beacon.
-	 */
-	private function get_helpscout_beacon() {
-		$helpscout_settings = [
-			'beacon_id'   => '2496aba6-0292-489c-8f5d-1c0fba417c2f',
-			'pages'       => [
-				'wpseo_dashboard',
-				'wpseo_titles',
-				'wpseo_search_console',
-				'wpseo_social',
-				'wpseo_tools',
-				'wpseo_licenses',
-			],
-			'products'    => [],
-			'ask_consent' => true,
-		];
-
-		/**
-		 * Filter: 'wpseo_helpscout_beacon_settings' - Allows overriding the HelpScout beacon settings.
-		 *
-		 * @api string - The helpscout beacons settings.
-		 */
-		$helpscout_settings = apply_filters( 'wpseo_helpscout_beacon_settings', $helpscout_settings );
-
-		return new WPSEO_HelpScout(
-			$helpscout_settings['beacon_id'],
-			$helpscout_settings['pages'],
-			$helpscout_settings['products'],
-			$helpscout_settings['ask_consent']
-		);
 	}
 }

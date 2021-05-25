@@ -124,13 +124,13 @@ class Indexable_Post_Indexation_Action implements Indexation_Action_Interface {
 	 * @return string The query.
 	 */
 	protected function get_query( $count, $limit = 1 ) {
-		$public_post_types = $this->post_type_helper->get_public_post_types();
-		$indexable_table   = Model::get_table_name( 'Indexable' );
-		$replacements      = $public_post_types;
+		$indexable_table = Model::get_table_name( 'Indexable' );
+		$post_types      = $this->get_post_types();
+		$replacements    = $post_types;
 
-		$select = 'ID';
+		$select = 'P.ID';
 		if ( $count ) {
-			$select = 'COUNT(ID)';
+			$select = 'COUNT(P.ID)';
 		}
 		$limit_query = '';
 		if ( ! $count ) {
@@ -141,16 +141,28 @@ class Indexable_Post_Indexation_Action implements Indexation_Action_Interface {
 		return $this->wpdb->prepare(
 			"
 			SELECT $select
-			FROM {$this->wpdb->posts}
-			WHERE ID NOT IN (
-				SELECT object_id
-				FROM $indexable_table
-				WHERE object_type = 'post'
-				AND permalink_hash IS NOT NULL
-			)
-			AND post_type IN (" . \implode( ', ', \array_fill( 0, \count( $public_post_types ), '%s' ) ) . ")
+			FROM {$this->wpdb->posts} AS P
+			LEFT JOIN $indexable_table AS I
+				ON P.ID = I.object_id
+				AND I.object_type = 'post'
+				AND I.permalink_hash IS NOT NULL
+			WHERE I.object_id IS NULL
+				AND P.post_type IN (" . \implode( ', ', \array_fill( 0, \count( $post_types ), '%s' ) ) . ")
 			$limit_query",
 			$replacements
 		);
+	}
+
+	/**
+	 * Returns the post types that should be indexed.
+	 *
+	 * @return array The post types that should be indexed.
+	 */
+	protected function get_post_types() {
+		$public_post_types   = $this->post_type_helper->get_public_post_types();
+		$excluded_post_types = $this->post_type_helper->get_excluded_post_types_for_indexables();
+
+		// `array_values`, to make sure that the keys are reset.
+		return \array_values( \array_diff( $public_post_types, $excluded_post_types ) );
 	}
 }

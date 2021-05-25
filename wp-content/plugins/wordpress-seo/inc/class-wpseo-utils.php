@@ -693,10 +693,14 @@ class WPSEO_Utils {
 	/**
 	 * Checks if we are in the premium or free plugin.
 	 *
+	 * @deprecated 16.0
+	 * @codeCoverageIgnore
+	 *
 	 * @return bool True when we are in the premium plugin.
 	 */
 	public static function is_yoast_seo_premium() {
-		return defined( 'WPSEO_PREMIUM_PLUGIN_FILE' );
+		_deprecated_function( __FUNCTION__, '16.0', 'YoastSEO()->helpers->product->is_premium' );
+		return YoastSEO()->helpers->product->is_premium();
 	}
 
 	/**
@@ -780,7 +784,7 @@ class WPSEO_Utils {
 			return false;
 		}
 
-		return WPSEO_Options::get( 'display-metabox-pt-' . $post_type );
+		return apply_filters( 'wpseo_enable_editor_features_' . $post_type, WPSEO_Options::get( 'display-metabox-pt-' . $post_type ) );
 	}
 
 	/**
@@ -1166,9 +1170,9 @@ class WPSEO_Utils {
 	 */
 	public static function get_roles() {
 		_deprecated_function( __METHOD__, '15.0', 'wp_roles()->get_names()' );
-		$wp_roles = wp_roles();
+		$yoast_seo_wp_roles = wp_roles();
 
-		$roles = $wp_roles->get_names();
+		$roles = $yoast_seo_wp_roles->get_names();
 
 		return $roles;
 	}

@@ -65,7 +65,7 @@ class WPSEO_Metabox_Formatter {
 			'keywordTab'                  => __( 'Keyphrase:', 'wordpress-seo' ),
 			'removeKeyword'               => __( 'Remove keyphrase', 'wordpress-seo' ),
 			'contentLocale'               => get_locale(),
-			'userLocale'                  => WPSEO_Language_Utils::get_user_locale(),
+			'userLocale'                  => \get_user_locale(),
 			'translations'                => $this->get_translations(),
 			'keyword_usage'               => [],
 			'title_template'              => '',
@@ -76,7 +76,7 @@ class WPSEO_Metabox_Formatter {
 			'semrushIntegrationActive'    => WPSEO_Options::get( 'semrush_integration_active', true ) ? 1 : 0,
 			'intl'                        => $this->get_content_analysis_component_translations(),
 			'isRtl'                       => is_rtl(),
-			'isPremium'                   => WPSEO_Utils::is_yoast_seo_premium(),
+			'isPremium'                   => YoastSEO()->helpers->product->is_premium(),
 			'wordFormRecognitionActive'   => YoastSEO()->helpers->language->is_word_form_recognition_active( WPSEO_Language_Utils::get_language( get_locale() ) ),
 			'siteIconUrl'                 => get_site_icon_url(),
 			'countryCode'                 => WPSEO_Options::get( 'semrush_country_code', false ),
@@ -184,7 +184,7 @@ class WPSEO_Metabox_Formatter {
 	private function get_content_analysis_component_translations() {
 		// Esc_html is not needed because React already handles HTML in the (translations of) these strings.
 		return [
-			'locale'                                         => WPSEO_Language_Utils::get_user_locale(),
+			'locale'                                         => \get_user_locale(),
 			'content-analysis.errors'                        => __( 'Errors', 'wordpress-seo' ),
 			'content-analysis.problems'                      => __( 'Problems', 'wordpress-seo' ),
 			'content-analysis.improvements'                  => __( 'Improvements', 'wordpress-seo' ),
@@ -203,9 +203,9 @@ class WPSEO_Metabox_Formatter {
 	 * @return array
 	 */
 	private function get_translations() {
-		$locale = WPSEO_Language_Utils::get_user_locale();
+		$locale = \get_user_locale();
 
-		$file = plugin_dir_path( WPSEO_FILE ) . 'languages/wordpress-seo-' . $locale . '.json';
+		$file = WPSEO_PATH . 'languages/wordpress-seo-' . $locale . '.json';
 		if ( file_exists( $file ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Retrieving a local file.
 			$file = file_get_contents( $file );

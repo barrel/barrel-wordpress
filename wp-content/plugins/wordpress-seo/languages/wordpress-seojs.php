@@ -5,6 +5,7 @@ $generated_i18n_strings = array(
 	__( 'Feedback', 'wordpress-seo' ),
 
 	// Reference: js/src/analysis/getIndicatorForScore.js:24
+	// Reference: js/src/helpers/addCheckToChecklist.js:107
 	__( 'Needs improvement', 'wordpress-seo' ),
 
 	// Reference: js/src/analysis/getIndicatorForScore.js:29
@@ -17,6 +18,7 @@ $generated_i18n_strings = array(
 	__( 'Good SEO score', 'wordpress-seo' ),
 
 	// Reference: js/src/analysis/getIndicatorForScore.js:36
+	// Reference: js/src/helpers/addCheckToChecklist.js:107
 	__( 'Good', 'wordpress-seo' ),
 
 	// Reference: js/src/components/AdvancedSettings.js:127
@@ -73,6 +75,9 @@ $generated_i18n_strings = array(
 	// Reference: js/src/components/AdvancedSettings.js:94
 	__( 'Learn more about the no-index setting on our help page.', 'wordpress-seo' ),
 
+	// Reference: js/src/components/AnalysisChecklist.js:22
+	__( 'Improve your post with Yoast SEO', 'wordpress-seo' ),
+
 	// Reference: js/src/components/AnalysisUpsell.js:54
 	/* translators: %s expands to Yoast SEO Premium */
 	__( 'Did you know %s also analyzes the different word forms of your keyphrase, like plurals and past tenses?', 'wordpress-seo' ),
@@ -95,18 +100,6 @@ $generated_i18n_strings = array(
 
 	// Reference: js/src/components/CornerstoneToggle.js:26
 	__( 'Mark as cornerstone content', 'wordpress-seo' ),
-
-	// Reference: js/src/components/DocumentSidebar.js:29
-	// Reference: js/src/components/PrePublish.js:41
-	__( 'Readability analysis:', 'wordpress-seo' ),
-
-	// Reference: js/src/components/DocumentSidebar.js:33
-	// Reference: js/src/components/PrePublish.js:45
-	__( 'SEO analysis:', 'wordpress-seo' ),
-
-	// Reference: js/src/components/DocumentSidebar.js:36
-	// Reference: js/src/components/PrePublish.js:48
-	__( 'Improve your post with Yoast SEO', 'wordpress-seo' ),
 
 	// Reference: js/src/components/Indexation.js:234
 	__( 'This feature includes and replaces the Text Link Counter and Internal Linking Analysis', 'wordpress-seo' ),
@@ -143,14 +136,20 @@ $generated_i18n_strings = array(
 	// Reference: js/src/components/PostPublish.js:17
 	__( 'Share your post!', 'wordpress-seo' ),
 
-	// Reference: js/src/components/PrePublish.js:29
+	// Reference: js/src/components/PostPublish.js:23
+	__( 'Facebook', 'wordpress-seo' ),
+
+	// Reference: js/src/components/PostPublish.js:30
+	__( 'Twitter', 'wordpress-seo' ),
+
+	// Reference: js/src/components/PostPublish.js:31
+	__( '(Opens in a new browser tab)', 'wordpress-seo' ),
+
+	// Reference: js/src/components/PrePublish.js:21
 	__( 'We\'ve analyzed your post. Everything looks good. Well done!', 'wordpress-seo' ),
 
-	// Reference: js/src/components/PrePublish.js:31
+	// Reference: js/src/components/PrePublish.js:23
 	__( 'We\'ve analyzed your post. There is still room for improvement!', 'wordpress-seo' ),
-
-	// Reference: js/src/components/PrePublish.js:37
-	__( 'No focus keyword was entered', 'wordpress-seo' ),
 
 	// Reference: js/src/components/PrimaryTaxonomyFilter.js:79
 	/* translators: %s expands to Yoast SEO. */
@@ -220,7 +219,7 @@ $generated_i18n_strings = array(
 	// Reference: js/src/containers/SchemaTab.js:54
 	__( 'Page type', 'wordpress-seo' ),
 
-	// Reference: js/src/components/SettingsReplacementVariableEditor.js:39
+	// Reference: js/src/components/SettingsReplacementVariableEditor.js:36
 	__( 'Modify your meta description by editing it right here', 'wordpress-seo' ),
 
 	// Reference: js/src/components/WordPressUserSelector.js:113
@@ -242,24 +241,24 @@ $generated_i18n_strings = array(
 	// Reference: js/src/components/WordPressUserSelectorSearchAppearance.js:85
 	__( 'You have selected the user %1$s as the person this site represents. Their user profile information will now be used in search results. %2$sUpdate their profile to make sure the information is correct.%3$s', 'wordpress-seo' ),
 
-	// Reference: js/src/components/contentAnalysis/KeywordInput.js:52
+	// Reference: js/src/components/contentAnalysis/KeywordInput.js:47
 	__( 'Help on choosing the perfect focus keyphrase', 'wordpress-seo' ),
 
-	// Reference: js/src/components/contentAnalysis/KeywordInput.js:67
+	// Reference: js/src/components/contentAnalysis/KeywordInput.js:62
 	__( 'Please enter a focus keyphrase first to get related keyphrases', 'wordpress-seo' ),
 
-	// Reference: js/src/components/contentAnalysis/KeywordInput.js:71
+	// Reference: js/src/components/contentAnalysis/KeywordInput.js:66
 	__( 'Are you trying to use multiple keyphrases? You should add them separately below.', 'wordpress-seo' ),
 
-	// Reference: js/src/components/contentAnalysis/KeywordInput.js:75
+	// Reference: js/src/components/contentAnalysis/KeywordInput.js:70
 	__( 'Your keyphrase is too long. It can be a maximum of 191 characters.', 'wordpress-seo' ),
 
-	// Reference: js/src/components/contentAnalysis/KeywordInput.js:97
+	// Reference: js/src/components/contentAnalysis/KeywordInput.js:92
 	// Reference: js/src/values/defaultReplaceVariables.js:50
 	__( 'Focus keyphrase', 'wordpress-seo' ),
 
 	// Reference: js/src/components/contentAnalysis/ReadabilityAnalysis.js:48
-	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:244
+	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:241
 	__( 'Analysis results', 'wordpress-seo' ),
 
 	// Reference: js/src/components/contentAnalysis/ReadabilityAnalysis.js:54
@@ -268,28 +267,28 @@ $generated_i18n_strings = array(
 	// Reference: js/src/components/contentAnalysis/ReadabilityAnalysis.js:85
 	__( 'Readability analysis', 'wordpress-seo' ),
 
-	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:106
+	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:103
 	// Reference: js/src/components/modals/KeywordSynonyms.js:61
 	// Reference: js/src/components/modals/MultipleKeywords.js:60
 	/* translators: %s expands to 'Yoast SEO Premium'. */
 	__( 'Get %s', 'wordpress-seo' ),
 
-	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:125
+	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:122
 	__( 'Would you like to add a related keyphrase?', 'wordpress-seo' ),
 
-	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:158
+	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:155
 	__( 'Add related keyphrase', 'wordpress-seo' ),
 
-	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:219
+	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:216
 	__( 'Enter a focus keyphrase to calculate the SEO score', 'wordpress-seo' ),
 
-	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:230
+	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:227
 	__( 'SEO analysis', 'wordpress-seo' ),
 
-	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:50
+	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:47
 	__( 'Add synonyms', 'wordpress-seo' ),
 
-	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:77
+	// Reference: js/src/components/contentAnalysis/SeoAnalysis.js:74
 	__( 'Would you like to add keyphrase synonyms?', 'wordpress-seo' ),
 
 	// Reference: js/src/components/fills/MetaboxFill.js:47
@@ -447,39 +446,45 @@ $generated_i18n_strings = array(
 	// Reference: js/src/components/modals/SeoAnalysisModal.js:25
 	__( 'Close', 'wordpress-seo' ),
 
-	// Reference: js/src/components/modals/editorModals/EditorModal.js:68
+	// Reference: js/src/components/modals/editorModals/EditorModal.js:65
 	/* translators: %s translates to the Post Label in singular form */
 	__( 'Make sure to save your %s for changes to take effect', 'wordpress-seo' ),
 
-	// Reference: js/src/components/modals/editorModals/EditorModal.js:78
+	// Reference: js/src/components/modals/editorModals/EditorModal.js:75
 	/* translators: %s translates to the Post Label in singular form */
 	__( 'Return to your %s', 'wordpress-seo' ),
 
-	// Reference: js/src/components/modals/editorModals/FacebookPreviewModal.js:15
+	// Reference: js/src/components/modals/editorModals/FacebookPreviewModal.js:16
+	// Reference: js/src/elementor/components/modals/editorModals/FacebookPreviewModal.js:16
 	__( 'Facebook preview', 'wordpress-seo' ),
 
 	// Reference: js/src/components/modals/editorModals/TwitterPreviewModal.js:16
+	// Reference: js/src/elementor/components/modals/editorModals/TwitterPreviewModal.js:16
 	__( 'Twitter preview', 'wordpress-seo' ),
 
 	// Reference: js/src/components/social/SocialMetadata.js:31
 	/* translators: %s expands to Twitter. */
 	__( '%s preview', 'wordpress-seo' ),
 
-	// Reference: js/src/components/social/SocialUpsell.js:19
-	/* translators: %s expands to Yoast SEO Premium */
-	__( 'Find out why you should upgrade to %s', 'wordpress-seo' ),
-
-	// Reference: js/src/components/social/SocialUpsell.js:34
+	// Reference: js/src/components/social/SocialUpsell.js:27
 	/* translators: %s expands to the social medium name, which is either Twitter or Facebook. %s expands to Yoast SEO Premium */
 	__( 'Do you want to preview what it will look like if people share this post on %s? You can, with %s.', 'wordpress-seo' ),
 
-	// Reference: js/src/containers/FacebookEditor.js:17
-	// Reference: js/src/containers/TwitterEditor.js:17
+	// Reference: js/src/components/social/SocialUpsell.js:33
+	/* translators: %s expands to Yoast SEO Premium */
+	__( 'Find out why you should upgrade to %s', 'wordpress-seo' ),
+
+	// Reference: js/src/containers/FacebookEditor.js:60
+	// Reference: js/src/containers/TwitterEditor.js:65
+	// Reference: js/src/elementor/containers/FacebookEditor.js:76
+	// Reference: js/src/elementor/containers/TwitterEditor.js:81
 	/* translators: %s expands to the social medium name, i.e. Faceboook. */
 	__( 'Modify your %s title by editing it right here...', 'wordpress-seo' ),
 
-	// Reference: js/src/containers/FacebookEditor.js:24
-	// Reference: js/src/containers/TwitterEditor.js:24
+	// Reference: js/src/containers/FacebookEditor.js:67
+	// Reference: js/src/containers/TwitterEditor.js:72
+	// Reference: js/src/elementor/containers/FacebookEditor.js:83
+	// Reference: js/src/elementor/containers/TwitterEditor.js:88
 	/* translators: %s expands to the social medium name, i.e. Faceboook. */
 	__( 'Modify your %s description by editing it right here...', 'wordpress-seo' ),
 
@@ -492,9 +497,27 @@ $generated_i18n_strings = array(
 	// Reference: js/src/containers/SchemaTab.js:57
 	__( 'This helps search engines understand your website and your content. You can change some of your settings for this page below.', 'wordpress-seo' ),
 
-	// Reference: js/src/containers/SnippetEditor.js:64
+	// Reference: js/src/containers/SnippetEditor.js:58
 	// Reference: js/src/elementor/containers/SnippetEditor.js:90
 	__( 'Please provide a meta description by editing the snippet below.', 'wordpress-seo' ),
+
+	// Reference: js/src/dynamic-blocks.js:14
+	__( 'Yoast Breadcrumbs', 'wordpress-seo' ),
+
+	// Reference: js/src/dynamic-blocks.js:17
+	__( 'Adds the Yoast SEO breadcrumbs to your template or content.', 'wordpress-seo' ),
+
+	// Reference: js/src/dynamic-blocks.js:19
+	__( 'seo', 'wordpress-seo' ),
+
+	// Reference: js/src/dynamic-blocks.js:20
+	__( 'breadcrumbs', 'wordpress-seo' ),
+
+	// Reference: js/src/dynamic-blocks.js:21
+	__( 'internal linking', 'wordpress-seo' ),
+
+	// Reference: js/src/dynamic-blocks.js:22
+	__( 'site structure', 'wordpress-seo' ),
 
 	// Reference: js/src/elementor/initializers/introduction.js:19
 	__( 'New: Yoast SEO for Elementor', 'wordpress-seo' ),
@@ -505,8 +528,20 @@ $generated_i18n_strings = array(
 	// Reference: js/src/elementor/initializers/introduction.js:40
 	__( 'Got it', 'wordpress-seo' ),
 
-	// Reference: js/src/help-scout-beacon.js:208
+	// Reference: js/src/help-scout-beacon.js:231
 	__( 'When you click OK we will open our HelpScout beacon where you can find answers to your questions. This beacon will load our support data and also potentially set cookies.', 'wordpress-seo' ),
+
+	// Reference: js/src/helpers/addCheckToChecklist.js:105
+	__( 'Schema analysis:', 'wordpress-seo' ),
+
+	// Reference: js/src/helpers/addCheckToChecklist.js:18
+	__( 'No focus keyword was entered', 'wordpress-seo' ),
+
+	// Reference: js/src/helpers/addCheckToChecklist.js:39
+	__( 'Readability analysis:', 'wordpress-seo' ),
+
+	// Reference: js/src/helpers/addCheckToChecklist.js:61
+	__( 'SEO analysis:', 'wordpress-seo' ),
 
 	// Reference: js/src/initializers/block-editor-integration.js:151
 	__( 'Yoast SEO', 'wordpress-seo' ),

@@ -20,7 +20,7 @@ class WPSEO_Primary_Term_Admin implements WPSEO_WordPress_Integration {
 
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
 
-		add_action( 'save_post', [ $this, 'save_primary_terms' ] );
+		add_action( 'set_object_terms', [ $this, 'save_primary_terms' ], ( \PHP_INT_MAX - 1000 ) );
 	}
 
 	/**
@@ -130,8 +130,9 @@ class WPSEO_Primary_Term_Admin implements WPSEO_WordPress_Integration {
 		$data = [
 			'taxonomies' => $mapped_taxonomies,
 		];
-		wp_localize_script( WPSEO_Admin_Asset_Manager::PREFIX . 'post-edit', 'wpseoPrimaryCategoryL10n', $data );
-		wp_localize_script( WPSEO_Admin_Asset_Manager::PREFIX . 'post-edit-classic', 'wpseoPrimaryCategoryL10n', $data );
+
+		$asset_manager->localize_script( 'post-edit', 'wpseoPrimaryCategoryL10n', $data );
+		$asset_manager->localize_script( 'post-edit-classic', 'wpseoPrimaryCategoryL10n', $data );
 	}
 
 	/**
@@ -262,7 +263,21 @@ class WPSEO_Primary_Term_Admin implements WPSEO_WordPress_Integration {
 			$primary_term = '';
 		}
 
-		$terms = get_terms( $taxonomy->name );
+		$terms = get_terms(
+			[
+				'taxonomy'               => $taxonomy->name,
+				'update_term_meta_cache' => false,
+				'fields'                 => 'id=>name',
+			]
+		);
+
+		$mapped_terms_for_js = [];
+		foreach ( $terms as $id => $name ) {
+			$mapped_terms_for_js[] = [
+				'id'   => $id,
+				'name' => $name,
+			];
+		}
 
 		return [
 			'title'         => $taxonomy->labels->singular_name,
@@ -271,21 +286,7 @@ class WPSEO_Primary_Term_Admin implements WPSEO_WordPress_Integration {
 			'singularLabel' => $taxonomy->labels->singular_name,
 			'fieldId'       => $this->generate_field_id( $taxonomy->name ),
 			'restBase'      => ( $taxonomy->rest_base ) ? $taxonomy->rest_base : $taxonomy->name,
-			'terms'         => array_map( [ $this, 'map_terms_for_js' ], $terms ),
-		];
-	}
-
-	/**
-	 * Returns an array suitable for use in the javascript.
-	 *
-	 * @param stdClass $term The term to map.
-	 *
-	 * @return array The mapped terms.
-	 */
-	private function map_terms_for_js( $term ) {
-		return [
-			'id'   => $term->term_id,
-			'name' => $term->name,
+			'terms'         => $mapped_terms_for_js,
 		];
 	}
 

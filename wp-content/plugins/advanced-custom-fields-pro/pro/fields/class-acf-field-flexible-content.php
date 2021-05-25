@@ -411,8 +411,9 @@ class acf_field_flexible_content extends acf_field {
 	
 	<div class="acf-fc-layout-controls">
 		<a class="acf-icon -plus small light acf-js-tooltip" href="#" data-name="add-layout" title="<?php _e('Add layout','acf'); ?>"></a>
+		<a class="acf-icon -duplicate small light acf-js-tooltip" href="#" data-name="duplicate-layout" title="<?php _e('Duplicate layout','acf'); ?>"></a>
 		<a class="acf-icon -minus small light acf-js-tooltip" href="#" data-name="remove-layout" title="<?php _e('Remove layout','acf'); ?>"></a>
-		<a class="acf-icon -collapse small acf-js-tooltip" href="#" data-name="collapse-layout" title="<?php _e('Click to toggle','acf'); ?>"></a>
+		<a class="acf-icon -collapse small -clear acf-js-tooltip" href="#" data-name="collapse-layout" title="<?php _e('Click to toggle','acf'); ?>"></a>
 	</div>
 	
 <?php if( !empty($sub_fields) ): ?>
@@ -600,7 +601,7 @@ class acf_field_flexible_content extends acf_field {
 			</li>
 			<li class="acf-fc-meta-display">
 				<div class="acf-input-prepend"><?php _e('Layout','acf'); ?></div>
-				<div class="acf-input-wrap select">
+				<div class="acf-input-wrap">
 					<?php 
 					
 					acf_render_field(array(
@@ -608,6 +609,7 @@ class acf_field_flexible_content extends acf_field {
 						'name'		=> 'display',
 						'prefix'	=> $layout_prefix,
 						'value'		=> $layout['display'],
+						'class'		=> 'acf-is-prepended',
 						'choices'	=> array(
 							'table'			=> __('Table','acf'),
 							'block'			=> __('Block','acf'),
@@ -1021,21 +1023,17 @@ class acf_field_flexible_content extends acf_field {
 	}
 	
 	
-	/*
-	*  get_layout
-	*
-	*  This function will return a specific layout by name from a field
-	*
-	*  @type	function
-	*  @date	15/2/17
-	*  @since	5.5.8
-	*
-	*  @param	$name (string)
-	*  @param	$field (array)
-	*  @return	(array)
-	*/
-	
-	function get_layout( $name = '', $field ) {
+	/**
+	 * This function will return a specific layout by name from a field
+	 *
+	 * @date	15/2/17
+	 * @since	5.5.8
+	 *
+	 * @param	string $name
+	 * @param	array $field
+	 * @return	array|false
+	 */
+	function get_layout( $name, $field ) {
 		
 		// bail early if no layouts
 		if( !isset($field['layouts']) ) return false;
@@ -1056,23 +1054,19 @@ class acf_field_flexible_content extends acf_field {
 	}
 	
 	
-	/*
-	*  delete_row
-	*
-	*  This function will delete a value row
-	*
-	*  @type	function
-	*  @date	15/2/17
-	*  @since	5.5.8
-	*
-	*  @param	$i (int)
-	*  @param	$field (array)
-	*  @param	$post_id (mixed)
-	*  @return	(boolean)
-	*/
-	
-	function delete_row( $i = 0, $field, $post_id ) {
-		
+	/**
+	 * This function will delete a value row
+	 *
+	 * @date	15/2/17
+	 * @since	5.5.8
+	 *
+	 * @param	int $i
+	 * @param	array $field
+	 * @param	mixed $post_id
+	 * @return	bool
+	 */
+	function delete_row( $i, $field, $post_id ) {
+
 		// vars
 		$value = acf_get_metadata( $post_id, $field['name'] );
 		
@@ -1106,24 +1100,21 @@ class acf_field_flexible_content extends acf_field {
 		return true;
 		
 	}
-	
-	
-	/*
-	*  update_row
-	*
-	*  This function will update a value row
-	*
-	*  @type	function
-	*  @date	15/2/17
-	*  @since	5.5.8
-	*
-	*  @param	$i (int)
-	*  @param	$field (array)
-	*  @param	$post_id (mixed)
-	*  @return	(boolean)
-	*/
-	
-	function update_row( $row, $i = 0, $field, $post_id ) {
+
+
+	/**
+	 * This function will update a value row
+	 *
+	 * @date	15/2/17
+	 * @since	5.5.8
+	 *
+	 * @param	array $row
+	 * @param	int $i
+	 * @param	array $field
+	 * @param	mixed $post_id
+	 * @return	bool
+	 */
+	function update_row( $row, $i, $field, $post_id ) {
 		
 		// bail early if no layout reference
 		if( !is_array($row) || !isset($row['acf_fc_layout']) ) return false;
