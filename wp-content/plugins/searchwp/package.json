@@ -21,7 +21,7 @@
     "gulp-uglify": "^3.0.0",
     "gulp-watch": "^4.3.11",
     "keyfinder": "^1.0.0",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.21",
     "lodash.difference": "^4.5.0",
     "md5": "^2.2.1",
     "portal-vue": "^1.5.1",
