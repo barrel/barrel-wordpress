@@ -1,5 +1,6 @@
 <?php
 
+include_once( __DIR__ . '/class-blocks-init.php' );
 require_once( __DIR__ . '/class-base-theme.php' );
 
 class Base_Theme extends BB_Theme {
@@ -424,4 +425,5 @@ class Base_Theme extends BB_Theme {
   }
 }
 
+new Base_Blocks();
 new Base_Theme();

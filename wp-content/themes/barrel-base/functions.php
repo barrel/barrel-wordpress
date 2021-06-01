@@ -2,6 +2,7 @@
 define('IS_DEV', isset( $_SERVER['HTTP_X_DEV'] ) ? true : false );
 
 // Backend only
+require_once( __DIR__ . '/lib/helpers/blocks.php' );
 include_once( __DIR__ . '/lib/class-theme-init.php' );
 
 // Global helpers

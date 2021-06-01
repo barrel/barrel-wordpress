@@ -258,17 +258,25 @@ function the_lazy_img( $image, $size, $class, $sizes = '', $alt ) {
     return;
   }
 
-  $blank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-  $html = '<img %s src="%s" data-normal="%s" data-retina="%s" data-srcset="%s" alt="%s" %s>';
-
-  printf(
-    $html,
-    empty( $class ) ? '' : "class=\"${class}\"",
-    $blank,
-    $img,
-    $img,
-    wp_get_attachment_image_srcset($id, $size) ? wp_get_attachment_image_srcset($id, $size) : $img,
-    $alt,
-    empty( $sizes ) ? '' : "sizes=\"${sizes}\""
-  );
+  if (is_admin()) {
+    $html = '<img %s src="%s">';
+    printf(
+      $html,
+      empty( $class ) ? '' : "class=\"${class}\"",
+      $img
+    );
+  } else {
+    $blank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+    $html = '<img %s src="%s" data-normal="%s" data-retina="%s" data-srcset="%s" alt="%s" %s>';
+    printf(
+      $html,
+      empty( $class ) ? '' : "class=\"${class}\"",
+      $blank,
+      $img,
+      $img,
+      wp_get_attachment_image_srcset($id, $size) ? wp_get_attachment_image_srcset($id, $size) : $img,
+      $alt,
+      empty( $sizes ) ? '' : "sizes=\"${sizes}\""
+    );
   }
+}
