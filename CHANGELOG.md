@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 5.1.0 - 2021-06-01
+### CHANGED:
+- Upgrade plugins
+- Upgrade WP core to v5.6.1
+- Add modular custom block support
+
 ## 5.0.0 - 2020-12-29
 ### CHANGED:
 - Combine theme and plugin update blocks, add gitflow finish block 
