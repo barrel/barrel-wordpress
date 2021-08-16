@@ -1,6 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 6.0.0 - 2021-08-16
+### CHANGED:
+- Update to WordPress 5.8. For more information, see https://wordpress.org/news/2021/07/tatum/ 
+- Update to WordPress 5.7.2. For more information, see https://wordpress.org/news/2021/05/wordpress-5-7-2-security-release/ 
+- Update to WordPress 5.7.1. For more information, see https://wordpress.org/news/2021/04/wordpress-5-7-1-security-and-maintenance-release/ 
+- Send Cache Control header via Response object 
+- Update to WordPress 5.7. For more information, see https://wordpress.org/news/2021/03/wordpress-5-7-esperanza/ 
+- Update to WordPress 5.6.2. For more information, see https://wordpress.org/news/2021/02/wordpress-5-6-2-maintenance-release/ 
+- Update to WordPress 5.6.1. For more information, see https://wordpress.org/news/2021/02/wordpress-5-6-1-maintenance-release/ 
+
 ## 5.1.0 - 2021-06-01
 ### CHANGED:
 - Upgrade plugins
