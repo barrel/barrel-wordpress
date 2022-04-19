@@ -354,7 +354,6 @@ class Base_Theme extends BB_Theme {
       $file_content = @file_get_contents( $file_path );
       if (!empty($file_content)) {
         // note that we might need to write a filter here to dynamically replace filepaths to font files
-        // If a reference is needed, this has been done on a Well+Good project
         printf('<style type="text/css" id="main-style">%s</style>', $file_content);
       }
     } else {
